@@ -133,13 +133,10 @@ export default function RickshawModel(props: RickshawModelProps) {
             );
         }
 
-        // Rotate rickshaw towards camera when scrolling
+        // Scroll rotation: start = 0 (facing camera), end = -PI/4 (swapped from before)
         if (groupRef.current) {
-            // Base rotation is -PI/4, rotate towards 0 (facing camera) as scroll progresses
-            const baseRotation = -Math.PI / 4;
-            const targetScrollRotation = baseRotation + (t * Math.PI / 4); // Rotate 45 degrees towards camera
+            const targetScrollRotation = -t * (Math.PI / 4);
 
-            // Apply scroll-based rotation (separate from mouse rotation)
             groupRef.current.children[0].rotation.y = THREE.MathUtils.lerp(
                 groupRef.current.children[0].rotation.y,
                 targetScrollRotation,
