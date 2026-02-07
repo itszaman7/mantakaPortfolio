@@ -1,11 +1,22 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import gsap from "gsap";
+
+const SCROLL_HIDE_THRESHOLD = 120;
 
 export default function HeroOverlay() {
   const cursorRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [showScrollIndicator, setShowScrollIndicator] = useState(true);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setShowScrollIndicator(window.scrollY <= SCROLL_HIDE_THRESHOLD);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     // 1. Custom Cursor Logic
@@ -54,10 +65,15 @@ export default function HeroOverlay() {
         }}
       />
 
-      {/* Scroll Indicator */}
+      {/* Scroll Indicator — animates down and fades when scrolling */}
       <div
         ref={scrollRef}
-        className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2 opacity-80"
+        className="fixed bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-40 transition-all duration-500"
+        style={{
+          opacity: showScrollIndicator ? 0.8 : 0,
+          transform: `translateX(-50%) translateY(${showScrollIndicator ? 0 : 30}px)`,
+          pointerEvents: showScrollIndicator ? "auto" : "none"
+        }}
       >
         <span className="text-xs uppercase tracking-[0.2em] text-gray-500 font-medium">
           Scroll

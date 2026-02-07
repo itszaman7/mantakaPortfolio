@@ -99,16 +99,6 @@ const AnimatedText = ({ text }: { text: string }) => {
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
-    const [scrolled, setScrolled] = useState(false);
-
-    useEffect(() => {
-        const handleScroll = () => {
-            setScrolled(window.scrollY > 50);
-        };
-
-        window.addEventListener("scroll", handleScroll);
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
 
     // Prevent body scroll when menu is open
     useEffect(() => {
@@ -125,8 +115,7 @@ export default function Navbar() {
                 initial={{ y: -100 }}
                 animate={{ y: 0 }}
                 transition={{ duration: 0.6, ease: "easeOut" }}
-                className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? "bg-background/80 backdrop-blur-xl" : "bg-transparent"
-                    }`}
+                className="fixed top-0 left-0 right-0 z-50 bg-transparent transition-all duration-500"
             >
                 <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
                     {/* Logo */}
@@ -146,7 +135,7 @@ export default function Navbar() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.2 }}
                         onClick={() => setIsOpen(!isOpen)}
-                        className="relative w-12 h-12 flex items-center justify-center group rounded-xl border-2 border-foreground/20 overflow-hidden"
+                        className="relative w-12 h-12 flex items-center justify-center group rounded-xl border-2 border-foreground/20 overflow-hidden bg-transparent"
                         aria-label="Toggle menu"
                     >
                         {/* Background fill on hover */}

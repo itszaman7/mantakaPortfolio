@@ -8,12 +8,20 @@ import { useLenis } from "lenis/react";
 
 gsap.registerPlugin(ScrollTrigger);
 import HeroOverlay from "@/components/hero/HeroOverlay";
-import RickshawHero from "@/components/hero/RickshawHero";
+import RickshawHero, { RickshawHeroHandle } from "@/components/hero/RickshawHero";
 
 export default function Home() {
   const contentRef = useRef<HTMLDivElement>(null);
   const introRef = useRef<HTMLDivElement>(null);
+  const rickshawHeroRef = useRef<RickshawHeroHandle>(null);
+  const cameraPositionProxy = useRef({ x: 0, y: 0.9, z: 5 });
+  const dissolveProxy = useRef({ value: 0 });
+  const heroContentOutProxy = useRef({ value: 0 });
   const lenis = useLenis();
+
+  const positionRef = cameraPositionProxy.current;
+  const dissolveRef = dissolveProxy;
+  const heroContentOutRef = heroContentOutProxy;
 
   // Sync ScrollTrigger with Lenis - only once
   useEffect(() => {
@@ -45,61 +53,51 @@ export default function Home() {
     return () => ctx.revert();
   }, []);
 
-  // Intro slides in from left as user scrolls down — feels like going left by scrolling
+  // Main Camera-Driven Scroll Timeline (no dependency on hero ref – hero reads from same proxies)
   useEffect(() => {
-    if (!introRef.current) return;
-
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        introRef.current,
-        {
-          x: "100vw",
-          opacity: 0,
-          filter: "blur(20px)",
-          scale: 0.9
-        },
-        {
-          x: 0,
-          opacity: 1,
-          filter: "blur(0px)",
-          scale: 1,
-          ease: "power2.inOut",
-          scrollTrigger: {
-            trigger: introRef.current,
-            start: "top bottom",
-            end: "top center",
-            scrub: 1.2,
-            markers: false,
-            invalidateOnRefresh: true,
-          },
-        }
-      );
-    }, contentRef);
-
-    return () => ctx.revert();
-  }, []);
-
-  // Rickshaw moves down-right as user scrolls
-  useEffect(() => {
-    const rickshawCanvas = document.querySelector('.rickshaw-canvas');
-    if (!rickshawCanvas) return;
-
-    const ctx = gsap.context(() => {
-      gsap.to(rickshawCanvas, {
-        y: 400,
-        x: 300,
-        scale: 0.6,
-        opacity: 0,
-        ease: "none",
+      const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: '.hero-section',
+          trigger: ".scroll-driver",
           start: "top top",
-          end: "+=100vh",
+          end: "bottom bottom",
           scrub: 1,
           markers: false,
           invalidateOnRefresh: true,
         },
       });
+
+      // Hero text/content animates out over first 40% (navbar-like)
+      tl.to(
+        heroContentOutProxy.current,
+        { value: 1, duration: 0.4, ease: "power2.inOut" },
+        0
+      );
+
+      // Phase 1 (0% - 60%): Camera zoom forward (z 5→2) + wave dissolve (Thanos + red edge)
+      tl.to(
+        cameraPositionProxy.current,
+        { z: 2, duration: 0.6, ease: "none" },
+        0
+      ).to(
+        dissolveProxy.current,
+        { value: 1, duration: 0.6, ease: "none" },
+        0
+      );
+
+      // Phase 2 (60% - 80%): Camera passes objects (z 2→-2)
+      tl.to(cameraPositionProxy.current, {
+        z: -2,
+        duration: 0.2,
+        ease: "none",
+      });
+
+      // Phase 3 (80% - 100%): Introduction fade in
+      tl.to(
+        () => introRef.current,
+        { opacity: 1, duration: 0.2, ease: "power2.out" },
+        "-=0.2"
+      );
     });
 
     return () => ctx.revert();
@@ -108,11 +106,13 @@ export default function Home() {
   return (
     <main className="relative bg-white overflow-x-hidden">
       <div ref={contentRef} className="relative z-10">
-        {/* Hero Section */}
-        <section className="relative h-screen hero-section">
-          <div className="absolute inset-0 z-0 rickshaw-canvas">
+        {/* Hero Section: 300vh so intro is in view at 80–100% and Standard only after */}
+        <section className="relative h-[300vh] hero-section">
+          <div className="scroll-driver h-[300vh] absolute top-0 left-0 w-full pointer-events-none" />
+
+          <div className="fixed inset-0 top-0 z-0 rickshaw-canvas" style={{ minHeight: "100dvh" }}>
             <Canvas
-              camera={{ position: [0, 0, 8], fov: 45 }}
+              camera={{ position: [0, 0, 5], fov: 70 }}
               gl={{
                 antialias: true,
                 alpha: true,
@@ -121,26 +121,30 @@ export default function Home() {
               dpr={[1, 2]}
             >
               <Suspense fallback={null}>
-                <RickshawHero />
+                <RickshawHero
+                  ref={rickshawHeroRef}
+                  positionRef={positionRef}
+                  dissolveRef={dissolveRef}
+                  heroContentOutRef={heroContentOutRef}
+                />
               </Suspense>
             </Canvas>
           </div>
           <HeroOverlay />
+          {/* Introduction — inside hero so it’s in view when timeline hits 80–100% */}
+          <section
+            ref={introRef}
+            className="absolute bottom-0 left-0 right-0 z-20 min-h-screen bg-white px-6 py-24 flex flex-col items-center justify-center opacity-0 pointer-events-none"
+          >
+            <div className="max-w-4xl w-full pointer-events-auto">
+              <h2 className="text-4xl md:text-6xl font-bold mb-12 feature">
+                Introduction
+              </h2>
+            </div>
+          </section>
         </section>
 
-        {/* Introduction — slides in from left as you scroll down */}
-        <section
-          ref={introRef}
-          className="relative z-20 min-h-screen bg-white px-6 py-24 flex flex-col items-center justify-center"
-        >
-          <div className="max-w-4xl w-full">
-            <h2 className="text-4xl md:text-6xl font-bold mb-12 feature">
-              Introduction
-            </h2>
-          </div>
-        </section>
-
-        {/* Additional Content Section */}
+        {/* Additional Content Section — only after hero + intro */}
         <section className="flex min-h-screen w-full flex-col items-center justify-center bg-canvas-depth px-6 py-24">
           <div className="max-w-4xl w-full">
             <h2 className="text-4xl md:text-6xl font-bold mb-12 feature">
