@@ -1,65 +1,178 @@
-import Image from "next/image";
+"use client";
+
+import { Suspense, useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Canvas } from "@react-three/fiber";
+import { useLenis } from "lenis/react";
+
+gsap.registerPlugin(ScrollTrigger);
+import HeroOverlay from "@/components/hero/HeroOverlay";
+import RickshawHero from "@/components/hero/RickshawHero";
 
 export default function Home() {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const introRef = useRef<HTMLDivElement>(null);
+  const lenis = useLenis();
+
+  // Sync ScrollTrigger with Lenis - only once
+  useEffect(() => {
+    if (lenis) {
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add((time) => {
+        lenis.raf(time * 1000);
+      });
+      gsap.ticker.lagSmoothing(0);
+
+      return () => {
+        lenis.off('scroll', ScrollTrigger.update);
+      };
+    }
+  }, []); // Empty dependency array - only run once
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.from(".feature", {
+        y: 20,
+        opacity: 0,
+        duration: 0.8,
+        stagger: 0.1,
+        ease: "power3.out",
+        delay: 0.8,
+      });
+    }, contentRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  // Intro slides in from left as user scrolls down — feels like going left by scrolling
+  useEffect(() => {
+    if (!introRef.current) return;
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        introRef.current,
+        {
+          x: "100vw",
+          opacity: 0,
+          filter: "blur(20px)",
+          scale: 0.9
+        },
+        {
+          x: 0,
+          opacity: 1,
+          filter: "blur(0px)",
+          scale: 1,
+          ease: "power2.inOut",
+          scrollTrigger: {
+            trigger: introRef.current,
+            start: "top bottom",
+            end: "top center",
+            scrub: 1.2,
+            markers: false,
+            invalidateOnRefresh: true,
+          },
+        }
+      );
+    }, contentRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  // Rickshaw moves down-right as user scrolls
+  useEffect(() => {
+    const rickshawCanvas = document.querySelector('.rickshaw-canvas');
+    if (!rickshawCanvas) return;
+
+    const ctx = gsap.context(() => {
+      gsap.to(rickshawCanvas, {
+        y: 400,
+        x: 300,
+        scale: 0.6,
+        opacity: 0,
+        ease: "none",
+        scrollTrigger: {
+          trigger: '.hero-section',
+          start: "top top",
+          end: "+=100vh",
+          scrub: 1,
+          markers: false,
+          invalidateOnRefresh: true,
+        },
+      });
+    });
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <main className="relative bg-white overflow-x-hidden">
+      <div ref={contentRef} className="relative z-10">
+        {/* Hero Section */}
+        <section className="relative h-screen hero-section">
+          <div className="absolute inset-0 z-0 rickshaw-canvas">
+            <Canvas
+              camera={{ position: [0, 0, 8], fov: 45 }}
+              gl={{
+                antialias: true,
+                alpha: true,
+                powerPreference: "high-performance",
+              }}
+              dpr={[1, 2]}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+              <Suspense fallback={null}>
+                <RickshawHero />
+              </Suspense>
+            </Canvas>
+          </div>
+          <HeroOverlay />
+        </section>
+
+        {/* Introduction — slides in from left as you scroll down */}
+        <section
+          ref={introRef}
+          className="relative z-20 min-h-screen bg-white px-6 py-24 flex flex-col items-center justify-center"
+        >
+          <div className="max-w-4xl w-full">
+            <h2 className="text-4xl md:text-6xl font-bold mb-12 feature">
+              Introduction
+            </h2>
+          </div>
+        </section>
+
+        {/* Additional Content Section */}
+        <section className="flex min-h-screen w-full flex-col items-center justify-center bg-canvas-depth px-6 py-24">
+          <div className="max-w-4xl w-full">
+            <h2 className="text-4xl md:text-6xl font-bold mb-12 feature">
+              The New <span className="text-pulse">Standard</span>
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+              {[
+                { title: "Canvas", desc: "Pure black foundations with subtle depth increments." },
+                { title: "Typography", desc: "Silver-white content optimized for visual clarity." },
+                { title: "Pulse", desc: "A vibrant red signature that commands attention." },
+                { title: "Shadow", desc: "Deep blood-red accents for multi-dimensional feel." }
+              ].map((item, i) => (
+                <div key={i} className="group border-l border-pulse/20 pl-6 py-4 feature">
+                  <h3 className="text-xl font-bold group-hover:text-pulse transition-colors duration-300">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 opacity-50 text-sm leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Footer / CTA */}
+        <section className="flex h-[50vh] w-full items-center justify-center">
+          <button className="px-10 py-4 bg-pulse text-background font-bold uppercase tracking-widest hover:bg-shadow transition-colors duration-500 rounded-none feature">
+            Start Experimenting
+          </button>
+        </section>
+      </div>
+    </main>
   );
 }
