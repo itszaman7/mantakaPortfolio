@@ -32,7 +32,7 @@ export default function RootLayout({
       <head>
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Geist+Mono&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Geist+Mono&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap"
         />
       </head>
       <body className={`${geistSans.variable} ${spaceGrotesk.variable} antialiased`}>

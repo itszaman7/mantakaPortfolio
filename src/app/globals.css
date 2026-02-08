@@ -32,6 +32,7 @@ html.lenis body {
   --font-geist-mono: "Geist Mono", ui-monospace, monospace;
   --font-jetbrains-mono: "JetBrains Mono", ui-monospace, monospace;
   --font-cursive: "Dancing Script", cursive;
+  --font-li-ador: "Noto Sans Bengali", sans-serif;
 }
 
 @theme {

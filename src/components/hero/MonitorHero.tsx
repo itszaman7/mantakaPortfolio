@@ -1,8 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import gsap from "gsap";
 import TicTacToe from "./TicTacToe";
+import AnimatedTitle from "./AnimatedTitle";
+import { getBestMoveWithLogs } from "@/utils/minimax";
+import AiDecisionLog from "./AiDecisionLog";
 
 type Player = "X" | "O" | null;
 type Board = Player[];
@@ -20,7 +24,13 @@ export default function MonitorHero() {
     const [winner, setWinner] = useState<Player | "draw" | null>(null);
     const [winningLine, setWinningLine] = useState<number[] | null>(null);
     const [gameActive, setGameActive] = useState(true);
-    const [screenPowered, setScreenPowered] = useState(true); // Screen power state
+    const [screenPowered, setScreenPowered] = useState(true);
+    const [screenPoweringOff, setScreenPoweringOff] = useState(false);
+    const [screenJustOn, setScreenJustOn] = useState(false);
+    const [aiLogs, setAiLogs] = useState<string[]>([]);
+    const pendingMoveRef = useRef<number | null>(null);
+    const aiTurnStartedRef = useRef(false);
+    const monitorRef = useRef<HTMLDivElement>(null);
 
     const checkWinner = (currentBoard: Board) => {
         for (const combo of WINNING_COMBINATIONS) {
@@ -33,46 +43,57 @@ export default function MonitorHero() {
         return { winner: null, line: null };
     };
 
-    const getBestMove = (currentBoard: Board): number => {
-        const available = currentBoard.map((val, idx) => val === null ? idx : null).filter(val => val !== null);
-        return available.length > 0 ? available[Math.floor(Math.random() * available.length)] as number : -1;
-    };
-
     const handleSquareClick = (index: number) => {
         if (!gameActive || board[index] || winner || !isPlayerTurn) return;
         const newBoard = [...board];
         newBoard[index] = "X";
         setBoard(newBoard);
+        setAiLogs([]);
 
         const result = checkWinner(newBoard);
         if (result.winner) {
             setWinner(result.winner as Player | "draw");
             setWinningLine(result.line);
+            setAiLogs([]);
         } else {
             setIsPlayerTurn(false);
         }
     };
 
     useEffect(() => {
-        if (!isPlayerTurn && !winner && gameActive) {
-            const timer = setTimeout(() => {
-                const bestMove = getBestMove(board);
-                if (bestMove !== -1) {
-                    const newBoard = [...board];
-                    newBoard[bestMove] = "O";
-                    setBoard(newBoard);
-                    const result = checkWinner(newBoard);
-                    if (result.winner) {
-                        setWinner(result.winner as Player | "draw");
-                        setWinningLine(result.line);
-                    } else {
-                        setIsPlayerTurn(true);
-                    }
-                }
-            }, 500);
-            return () => clearTimeout(timer);
+        if (!isPlayerTurn && !winner && gameActive && !aiTurnStartedRef.current) {
+            aiTurnStartedRef.current = true;
+            const { move, logs } = getBestMoveWithLogs(board);
+            if (move !== -1) {
+                pendingMoveRef.current = move;
+                setAiLogs(logs);
+            } else {
+                aiTurnStartedRef.current = false;
+                setIsPlayerTurn(true);
+            }
         }
     }, [isPlayerTurn, winner, board, gameActive]);
+
+    const handleThinkingComplete = () => {
+        aiTurnStartedRef.current = false;
+        const move = pendingMoveRef.current;
+        pendingMoveRef.current = null;
+        setAiLogs([]);
+        if (move === null || move < 0) {
+            setIsPlayerTurn(true);
+            return;
+        }
+        const newBoard = [...board];
+        newBoard[move] = "O";
+        setBoard(newBoard);
+        const result = checkWinner(newBoard);
+        if (result.winner) {
+            setWinner(result.winner as Player | "draw");
+            setWinningLine(result.line);
+        } else {
+            setIsPlayerTurn(true);
+        }
+    };
 
     const resetGame = () => {
         setBoard(Array(9).fill(null));
@@ -80,30 +101,68 @@ export default function MonitorHero() {
         setWinner(null);
         setWinningLine(null);
         setGameActive(true);
+        setAiLogs([]);
     };
 
+    // Parallax Effect (Only on Desktop)
+    useEffect(() => {
+        const el = monitorRef.current;
+        if (!el || window.innerWidth < 768) return; // Disable on mobile
+
+        const handleMouseMove = (e: MouseEvent) => {
+            const x = (e.clientX / window.innerWidth - 0.5) * -18;
+            const y = (e.clientY / window.innerHeight - 0.5) * -18;
+            gsap.to(el, { x, y, duration: 1.2, ease: "power2.out", overwrite: "auto" });
+        };
+        window.addEventListener("mousemove", handleMouseMove);
+        return () => window.removeEventListener("mousemove", handleMouseMove);
+    }, []);
+
     const togglePower = () => {
-        setScreenPowered(!screenPowered);
-        if (!screenPowered) {
-            // When turning on, also reset the game
+        if (screenPowered) {
+            setAiLogs([]);
+            setScreenPoweringOff(true);
+            setTimeout(() => {
+                setScreenPoweringOff(false);
+                setScreenPowered(false);
+            }, 320);
+        } else {
+            setScreenPowered(true);
+            setScreenJustOn(true);
             resetGame();
+            setTimeout(() => setScreenJustOn(false), 600);
         }
     };
 
     // --- RENDER ---
     return (
-        <div className="relative w-full h-screen flex items-center justify-center overflow-hidden bg-[#f4f4f5]">
+        // MAIN CONTAINER: Flex Column on Mobile, Row on Desktop
+        <div className="relative w-full min-h-screen flex flex-col md:flex-row items-center justify-center md:justify-between overflow-hidden bg-[#f4f4f5] px-4 md:px-12 py-12 md:py-0">
 
-            {/* 1. BACKGROUND TEXT */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center z-0 select-none pointer-events-none">
-                <div className="flex flex-col leading-[0.85] text-center">
-                    <span className="text-[18vw] font-bold tracking-tighter text-[#1a1a1a]">ZAMAN</span>
-                    <span className="text-[18vw] font-bold tracking-tighter text-[#1a1a1a]">MANTAKA</span>
+            {/* 1. TITLES SECTION */}
+            <div className="flex flex-col items-center md:items-start justify-center w-full md:w-1/2 z-0 pointer-events-auto mb-8 md:mb-0">
+                {/* Mobile: Tight spacing. Desktop: Normal spacing */}
+                <div className="flex flex-col items-center md:items-start space-y-[-4vw] md:space-y-[-1rem]">
+                    <AnimatedTitle
+                        text="ZAMAN"
+                        translatedText="জামান"
+                        className="text-[22vw] md:text-[clamp(5rem,13vw,16rem)] text-[#1a1a1a]"
+                    />
+                    <AnimatedTitle
+                        text="MANTAKA"
+                        translatedText="মানতাকা"
+                        // Removed margin-left on mobile to center it perfectly
+                        className="text-[22vw] md:text-[clamp(5rem,13vw,16rem)] text-[#1a1a1a] ml-0 md:ml-6"
+                    />
                 </div>
             </div>
 
-            {/* 2. MONITOR WRAPPER */}
-            <div className="relative w-full max-w-[900px] aspect-[4/3] z-10 drop-shadow-2xl">
+            {/* 2. MONITOR SECTION */}
+            <div
+                ref={monitorRef}
+                // Mobile: w-full, no translate. Desktop: translate-x to push right.
+                className="relative w-full max-w-[500px] md:max-w-[1000px] aspect-[4/3] z-10 drop-shadow-2xl translate-x-0 md:translate-x-12 lg:translate-x-20 pointer-events-none will-change-transform"
+            >
 
                 <Image
                     src="/2D_Assets/crt_mockup.png"
@@ -115,128 +174,82 @@ export default function MonitorHero() {
 
                 {/* 3. SCREEN OVERLAY */}
                 <div
-                    className="absolute z-10 overflow-hidden rounded-md transition-all duration-500"
+                    className="absolute z-10 overflow-hidden rounded-md pointer-events-auto transition-all duration-300"
                     style={{
                         top: '26%',
                         left: '34%',
                         width: '33%',
                         height: '36%',
-                        backgroundColor: screenPowered ? 'transparent' : '#000',
+                        backgroundColor: screenPowered && !screenPoweringOff ? 'transparent' : '#000',
                     }}
                 >
                     {screenPowered ? (
                         <>
-                            <TicTacToe
-                                board={board}
-                                onSquareClick={handleSquareClick}
-                                winningLine={winningLine}
-                                winner={winner}
-                                isPlayerTurn={isPlayerTurn}
-                                gameActive={gameActive}
-                            />
+                            <div className={`w-full h-full bg-black transition-all duration-300 flex flex-col items-start justify-center p-[2px] md:p-2 overflow-hidden ${screenPoweringOff ? "crt-power-off" : ""} ${screenJustOn ? "crt-power-on" : ""}`}>
+                                {aiLogs.length > 0 ? (
+                                    <AiDecisionLog lines={aiLogs} onComplete={handleThinkingComplete} />
+                                ) : (
+                                    <TicTacToe
+                                        board={board}
+                                        onSquareClick={handleSquareClick}
+                                        winningLine={winningLine}
+                                        winner={winner}
+                                        isPlayerTurn={isPlayerTurn}
+                                        gameActive={gameActive}
+                                    />
+                                )}
+                            </div>
                             <div className="absolute inset-0 shadow-[inset_0_0_20px_rgba(0,0,0,0.9)] pointer-events-none z-20"></div>
                         </>
                     ) : (
-                        // Screen off - black with subtle reflection
-                        <div className="w-full h-full bg-black relative">
+                        <div className="w-full h-full bg-black relative crt-off">
                             <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent"></div>
                         </div>
                     )}
                 </div>
 
-                {/* 4. PHYSICAL BUTTON HOTSPOTS */}
-
-                {/* POWER BUTTON (Big button on Left) - Enhanced Flicker */}
+                {/* 4. BUTTONS */}
                 <button
                     onClick={togglePower}
-                    className="absolute z-20 rounded-full cursor-pointer group focus:outline-none aspect-square flex items-center justify-center"
-                    style={{
-                        top: '66.8%',
-                        left: '39.6%',
-                        width: '3.5%',
-                    }}
+                    className="absolute z-20 rounded-full cursor-pointer group focus:outline-none aspect-square flex items-center justify-center pointer-events-auto"
+                    style={{ top: '66.8%', left: '39.6%', width: '3.5%' }}
                 >
-                    {/* IDLE STATE: Multi-color Flickering Circle */}
-                    <div
-                        className="absolute inset-0 rounded-full border-2 group-hover:opacity-0 transition-opacity duration-300"
+                    <div className="absolute inset-0 rounded-full border-2 group-hover:opacity-0 transition-opacity duration-300"
                         style={{
                             borderColor: screenPowered ? '#22c55e' : '#ef4444',
                             backgroundColor: screenPowered ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.1)',
-                            boxShadow: screenPowered
-                                ? '0 0 10px rgba(34, 197, 94, 0.5), 0 0 20px rgba(34, 197, 94, 0.3), inset 0 0 10px rgba(34, 197, 94, 0.2)'
-                                : '0 0 8px rgba(239, 68, 68, 0.4), 0 0 15px rgba(239, 68, 68, 0.2)',
-                            animation: screenPowered
-                                ? 'powerFlicker 2s ease-in-out infinite'
-                                : 'powerFlickerOff 1.5s ease-in-out infinite',
+                            animation: screenPowered ? 'powerFlicker 2s ease-in-out infinite' : 'powerFlickerOff 1.5s ease-in-out infinite',
                         }}
                     ></div>
-
-                    {/* HOVER STATE: Text Label */}
-                    <span className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] sm:text-xs font-mono font-bold bg-white/95 px-2 py-1 rounded whitespace-nowrap transition-all duration-300 pointer-events-none border shadow-lg"
-                        style={{
-                            color: screenPowered ? '#16a34a' : '#dc2626',
-                            borderColor: screenPowered ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-                        }}
-                    >
-                        {screenPowered ? 'POWER OFF' : 'POWER ON'}
-                    </span>
                 </button>
 
-                {/* RESET BUTTON (Small button on Right) */}
                 <button
                     onClick={resetGame}
-                    className="absolute z-20 rounded-full cursor-pointer group focus:outline-none aspect-square flex items-center justify-center"
-                    style={{
-                        top: '67.3%',
-                        left: '59.3%',
-                        width: '2.5%',
-                    }}
+                    className="absolute z-20 rounded-full cursor-pointer group focus:outline-none aspect-square flex items-center justify-center pointer-events-auto"
+                    style={{ top: '67.3%', left: '59.3%', width: '2.5%' }}
                 >
-                    {/* IDLE STATE: Pulsing Circle */}
-                    <div className="absolute inset-0 rounded-full border-2 border-cyan-400/60 bg-cyan-400/10 animate-pulse group-hover:opacity-0 transition-opacity duration-300"
-                        style={{
-                            boxShadow: '0 0 8px rgba(34, 211, 238, 0.4), inset 0 0 5px rgba(34, 211, 238, 0.2)',
-                        }}
-                    ></div>
-
-                    {/* HOVER STATE: Text Label */}
-                    <span className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] sm:text-xs font-mono font-bold text-[#0891b2] bg-white/95 px-2 py-1 rounded whitespace-nowrap transition-all duration-300 pointer-events-none border border-cyan-400/20 shadow-lg">
-                        RESET
-                    </span>
+                    <div className="absolute inset-0 rounded-full border-2 border-cyan-400/60 bg-cyan-400/10 animate-pulse group-hover:opacity-0 transition-opacity duration-300"></div>
                 </button>
-
             </div>
 
-            {/* CSS Animations for Power Button Flicker */}
             <style jsx>{`
                 @keyframes powerFlicker {
-                    0%, 100% {
-                        opacity: 1;
-                        box-shadow: 0 0 10px rgba(34, 197, 94, 0.6), 0 0 20px rgba(34, 197, 94, 0.4), inset 0 0 10px rgba(34, 197, 94, 0.3);
-                    }
-                    25% {
-                        opacity: 0.85;
-                        box-shadow: 0 0 15px rgba(34, 197, 94, 0.8), 0 0 30px rgba(34, 197, 94, 0.5), inset 0 0 15px rgba(34, 197, 94, 0.4);
-                    }
-                    50% {
-                        opacity: 1;
-                        box-shadow: 0 0 20px rgba(74, 222, 128, 0.9), 0 0 40px rgba(74, 222, 128, 0.6), inset 0 0 20px rgba(74, 222, 128, 0.5);
-                    }
-                    75% {
-                        opacity: 0.9;
-                        box-shadow: 0 0 12px rgba(34, 197, 94, 0.7), 0 0 25px rgba(34, 197, 94, 0.45), inset 0 0 12px rgba(34, 197, 94, 0.35);
-                    }
+                    0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(34, 197, 94, 0.6); }
+                    50% { opacity: 1; box-shadow: 0 0 20px rgba(74, 222, 128, 0.9); }
                 }
-
                 @keyframes powerFlickerOff {
-                    0%, 100% {
-                        opacity: 0.6;
-                        box-shadow: 0 0 5px rgba(239, 68, 68, 0.3), 0 0 10px rgba(239, 68, 68, 0.2);
-                    }
-                    50% {
-                        opacity: 0.8;
-                        box-shadow: 0 0 8px rgba(239, 68, 68, 0.5), 0 0 15px rgba(239, 68, 68, 0.3);
-                    }
+                    0%, 100% { opacity: 0.6; box-shadow: 0 0 5px rgba(239, 68, 68, 0.3); }
+                    50% { opacity: 0.8; box-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
+                }
+                .crt-power-off { animation: crtPowerOff 0.3s ease-in forwards; }
+                @keyframes crtPowerOff {
+                    0% { opacity: 1; transform: scaleY(1); }
+                    100% { opacity: 0; transform: scaleY(0.02); }
+                }
+                .crt-power-on { animation: crtPowerOn 0.55s ease-out forwards; }
+                @keyframes crtPowerOn {
+                    0% { opacity: 0; transform: scaleY(0.02); }
+                    100% { opacity: 1; transform: scaleY(1); }
                 }
             `}</style>
         </div>
