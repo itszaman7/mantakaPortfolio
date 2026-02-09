@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 
-const TYPING_MS = 4;
-const READ_MS = 1000;
+const TYPING_MS = 1;
+const READ_MS = 100;
 const MAX_LINES = 10;
 
 interface AiDecisionLogProps {

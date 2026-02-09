@@ -106,17 +106,8 @@ export default function Navbar() {
                 transition={{ duration: 0.6, ease: "easeOut" }}
                 className="fixed top-0 left-0 right-0 z-50 bg-transparent transition-all duration-500"
             >
-                <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
-                    {/* Logo */}
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className={`font-space-grotesk text-2xl font-black tracking-tighter`}
-                    >
-                        <span className="text-foreground">MANTAKA</span>
-                        <span className="text-pulse">.</span>
-                    </motion.div>
+                <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-end">
+
 
                     {/* Hamburger Button */}
                     <motion.button

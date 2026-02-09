@@ -3,7 +3,12 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import TicTacToe from "./TicTacToe";
+
+if (typeof window !== "undefined") {
+    gsap.registerPlugin(ScrollTrigger);
+}
 import AnimatedTitle from "./AnimatedTitle";
 import { getBestMoveWithLogs } from "@/utils/minimax";
 import AiDecisionLog from "./AiDecisionLog";
@@ -31,6 +36,8 @@ export default function MonitorHero() {
     const pendingMoveRef = useRef<number | null>(null);
     const aiTurnStartedRef = useRef(false);
     const monitorRef = useRef<HTMLDivElement>(null);
+    const heroRef = useRef<HTMLDivElement>(null);
+    const titlesRef = useRef<HTMLDivElement>(null);
 
     const checkWinner = (currentBoard: Board) => {
         for (const combo of WINNING_COMBINATIONS) {
@@ -107,7 +114,7 @@ export default function MonitorHero() {
     // Parallax Effect (Only on Desktop)
     useEffect(() => {
         const el = monitorRef.current;
-        if (!el || window.innerWidth < 768) return; // Disable on mobile
+        if (!el || window.innerWidth < 768) return;
 
         const handleMouseMove = (e: MouseEvent) => {
             const x = (e.clientX / window.innerWidth - 0.5) * -18;
@@ -116,6 +123,48 @@ export default function MonitorHero() {
         };
         window.addEventListener("mousemove", handleMouseMove);
         return () => window.removeEventListener("mousemove", handleMouseMove);
+    }, []);
+
+    // Scroll-out: one-shot gravity fall – only after user has scrolled past hero
+    useEffect(() => {
+        const section = heroRef.current;
+        const titles = titlesRef.current;
+        if (!section || !titles) return;
+
+        gsap.set(titles, { opacity: 1, rotateX: 0, y: 0, rotateZ: 0 });
+
+        const fall = gsap.timeline({ paused: true });
+        fall.to(titles, {
+            duration: 0.8,
+            ease: "back.in(1.7)", // "Cute" pop anticipation before leaving
+            scale: 0.9,
+            y: -100, // Float UP away
+            opacity: 0,
+            transformOrigin: "center center",
+        });
+
+        let st: ScrollTrigger | null = null;
+        const setup = () => {
+            if (st) return;
+            st = ScrollTrigger.create({
+                trigger: section,
+                start: "top top-=25%", // Requires scrolling 25% down before triggering
+                toggleActions: "play none none reverse", // Reverses on scroll up (reset)
+                animation: fall,
+                // once: true, // REMOVED to allow replay
+            });
+        };
+
+        const t = setTimeout(() => {
+            ScrollTrigger.refresh();
+            setup();
+        }, 500);
+
+        return () => {
+            clearTimeout(t);
+            if (st) st.kill();
+            fall.kill();
+        };
     }, []);
 
     const togglePower = () => {
@@ -136,12 +185,24 @@ export default function MonitorHero() {
 
     // --- RENDER ---
     return (
-        // MAIN CONTAINER: Flex Column on Mobile, Row on Desktop
-        <div className="relative w-full min-h-screen flex flex-col md:flex-row items-center justify-center md:justify-between overflow-hidden bg-[#f4f4f5] px-4 md:px-12 py-12 md:py-0">
+        <section
+            ref={heroRef}
+            className="relative w-full min-h-screen overflow-hidden bg-[#f4f4f5] px-4 md:px-12 py-12 md:py-0"
+            style={{ perspective: "1400px" }}
+        >
+            {/* 1. TITLES – in-flow left; size changes don't move the monitor */}
+            <div
+                ref={titlesRef}
+                className="relative z-0 pointer-events-auto flex flex-col items-center md:items-start justify-center min-h-screen md:min-h-0 md:h-screen w-full md:max-w-[55%] mb-8 md:mb-0 origin-center will-change-transform"
+                style={{ transformStyle: "preserve-3d", backfaceVisibility: "hidden" }}
+            >
+                {/* Scroll Indicator (Moved to Right Side) */}
+                <div className="absolute right-4 md:right-8 bottom-4 md:bottom-8 flex flex-col items-center gap-2 animate-bounce z-20">
+                    <span className="text-xs uppercase tracking-widest text-gray-800 rotate-90 origin-right translate-y-8 -translate-x-1 font-bold">Scroll</span>
+                    <div className="w-[2px] h-12 bg-gray-800 mt-8"></div>
+                    <div className="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[8px] border-t-gray-800"></div>
+                </div>
 
-            {/* 1. TITLES SECTION */}
-            <div className="flex flex-col items-center md:items-start justify-center w-full md:w-1/2 z-0 pointer-events-auto mb-8 md:mb-0">
-                {/* Mobile: Tight spacing. Desktop: Normal spacing */}
                 <div className="flex flex-col items-center md:items-start space-y-[-4vw] md:space-y-[-1rem]">
                     <AnimatedTitle
                         text="ZAMAN"
@@ -151,17 +212,16 @@ export default function MonitorHero() {
                     <AnimatedTitle
                         text="MANTAKA"
                         translatedText="মানতাকা"
-                        // Removed margin-left on mobile to center it perfectly
-                        className="text-[22vw] md:text-[clamp(5rem,13vw,16rem)] text-[#1a1a1a] ml-0 md:ml-6"
+                        // Increased ml to 32 (8rem) to indent significantly more
+                        className="text-[22vw] md:text-[clamp(5rem,13vw,16rem)] text-[#1a1a1a] ml-0 md:ml-32"
                     />
                 </div>
             </div>
 
-            {/* 2. MONITOR SECTION */}
+            {/* 2. MONITOR – fixed position (right); independent of text size */}
             <div
                 ref={monitorRef}
-                // Mobile: w-full, no translate. Desktop: translate-x to push right.
-                className="relative w-full max-w-[500px] md:max-w-[1000px] aspect-[4/3] z-10 drop-shadow-2xl translate-x-0 md:translate-x-12 lg:translate-x-20 pointer-events-none will-change-transform"
+                className="absolute right-4 md:right-12 lg:right-20 top-1/2 -translate-y-1/2 w-[min(92vw,500px)] md:w-[min(55vw,1000px)] max-w-[500px] md:max-w-[1000px] aspect-[4/3] z-10 drop-shadow-2xl pointer-events-none will-change-transform"
             >
 
                 <Image
@@ -252,6 +312,6 @@ export default function MonitorHero() {
                     100% { opacity: 1; transform: scaleY(1); }
                 }
             `}</style>
-        </div>
+        </section>
     );
 }
