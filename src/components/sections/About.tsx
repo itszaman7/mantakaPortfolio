@@ -159,7 +159,7 @@ const About = () => {
             {/* Right Column (Video) */}
             <div
                 ref={containerRef}
-                className="md:w-1/2 h-full relative cursor-pointer video-hover-container overflow-hidden bg-white"
+                className="md:w-1/2 h-full relative cursor-pointer video-hover-container overflow-hidden bg-[#f4f4f5]"
             >
                 {/* Video */}
                 <div className="absolute inset-0 w-full h-full">
@@ -180,7 +180,7 @@ const About = () => {
                     {[0, 1, 2].map((i) => (
                         <div
                             key={i}
-                            className="bar-mask w-1/3 bg-white origin-top"
+                            className="bar-mask w-1/3 bg-[#f4f4f5] origin-top"
                             style={{ height: "100%" }}
                         />
                     ))}

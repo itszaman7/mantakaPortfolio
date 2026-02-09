@@ -191,15 +191,18 @@ const HeroScroll = () => {
             <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center perspective-1000">
 
                 {/* --- BACKGROUND GRID --- */}
-                <div className="absolute inset-0 z-0 opacity-30 pointer-events-none">
-                    <div className="absolute inset-0 w-full h-[200%] bg-[linear-gradient(rgba(14,165,233,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(14,165,233,0.1)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:linear-gradient(to_bottom,transparent,black,transparent)] animate-grid-flow"></div>
+                <div className="absolute inset-0 z-0 opacity-100 pointer-events-none animate-pulse">
+                    {/* Glow Layer */}
+                    <div className="absolute inset-0 w-full h-[200%] bg-[linear-gradient(rgba(239,68,68,0.4)_1px,transparent_1px),linear-gradient(90deg,rgba(239,68,68,0.4)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:linear-gradient(to_bottom,transparent,black,black,transparent)] animate-grid-flow blur-[3px] opacity-60"></div>
+                    {/* Base Layer */}
+                    <div className="absolute inset-0 w-full h-[200%] bg-[linear-gradient(rgba(239,68,68,0.3)_1px,transparent_1px),linear-gradient(90deg,rgba(239,68,68,0.3)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:linear-gradient(to_bottom,transparent,black,black,transparent)] animate-grid-flow blur-[0.5px]"></div>
                 </div>
 
                 {/* --- CARD --- */}
                 <div
                     ref={cardRef}
                     // Removed 'will-change-transform' from className to let GSAP handle it (optional)
-                    className="relative w-full h-full bg-white z-10 overflow-hidden shadow-2xl origin-center flex flex-col md:flex-row border border-gray-100"
+                    className="relative w-full h-full bg-[#f4f4f5] z-10 overflow-hidden shadow-2xl origin-center flex flex-col md:flex-row border border-gray-100"
                     style={{ borderRadius: 0 }}
                 >
                     {/* Darkening Overlay */}
@@ -239,7 +242,7 @@ const HeroScroll = () => {
                     </div>
 
                     {/* Right Column */}
-                    <div className="md:w-1/2 h-full relative overflow-hidden bg-white">
+                    <div className="md:w-1/2 h-full relative overflow-hidden bg-[#f4f4f5]">
                         <div className="absolute inset-0 w-full h-full">
                             <video
                                 ref={videoRef}
@@ -257,7 +260,7 @@ const HeroScroll = () => {
                                 <div
                                     key={i}
                                     ref={(el) => { maskRefs.current[i] = el; }}
-                                    className="bar-mask w-1/3 bg-white origin-top"
+                                    className="bar-mask w-1/3 bg-[#f4f4f5] origin-top"
                                     style={{ height: "100%" }}
                                 />
                             ))}
