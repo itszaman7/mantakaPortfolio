@@ -190,18 +190,19 @@ export default function MonitorHero() {
             className="relative w-full min-h-screen overflow-hidden bg-[#f4f4f5] px-4 md:px-12 py-12 md:py-0"
             style={{ perspective: "1400px" }}
         >
+            {/* Scroll Indicator (Moved to Right Side) */}
+            <div className="absolute right-4 md:right-8 bottom-4 md:bottom-8 flex flex-col items-center gap-2 animate-bounce z-20">
+                <span className="text-xs uppercase tracking-widest text-gray-800 rotate-90 origin-right translate-y-8 -translate-x-1 font-bold">Scroll</span>
+                <div className="w-[2px] h-12 bg-gray-800 mt-8"></div>
+                <div className="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[8px] border-t-gray-800"></div>
+            </div>
             {/* 1. TITLES – in-flow left; size changes don't move the monitor */}
             <div
                 ref={titlesRef}
                 className="relative z-0 pointer-events-auto flex flex-col items-center md:items-start justify-center min-h-screen md:min-h-0 md:h-screen w-full md:max-w-[55%] mb-8 md:mb-0 origin-center will-change-transform"
                 style={{ transformStyle: "preserve-3d", backfaceVisibility: "hidden" }}
             >
-                {/* Scroll Indicator (Moved to Right Side) */}
-                <div className="absolute right-4 md:right-8 bottom-4 md:bottom-8 flex flex-col items-center gap-2 animate-bounce z-20">
-                    <span className="text-xs uppercase tracking-widest text-gray-800 rotate-90 origin-right translate-y-8 -translate-x-1 font-bold">Scroll</span>
-                    <div className="w-[2px] h-12 bg-gray-800 mt-8"></div>
-                    <div className="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[8px] border-t-gray-800"></div>
-                </div>
+
 
                 <div className="flex flex-col items-center md:items-start space-y-[-4vw] md:space-y-[-1rem]">
                     <AnimatedTitle
