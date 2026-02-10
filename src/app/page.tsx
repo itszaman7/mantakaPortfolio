@@ -1,4 +1,5 @@
 import HeroScroll from "@/components/hero/HeroScroll";
+import HeroStatsReel from "@/components/hero/HeroStatsReel";
 import MonitorHero from "@/components/hero/MonitorHero";
 import ProjectGallery from "@/components/work/ProjectGallery";
 
@@ -9,6 +10,7 @@ export default function Home() {
       <MonitorHero />
       <HeroScroll />
       <ProjectGallery />
+      <HeroStatsReel />
     </main>
   );
 }

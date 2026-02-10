@@ -1,0 +1,668 @@
+
+> mantaka-portfolio@0.1.0 lint E:\Portfolio\mantaka-portfolio
+> eslint
+
+
+E:\Portfolio\mantaka-portfolio\src\app\layout.tsx
+  33:9  warning  Custom fonts not added in `pages/_document.js` will only load for a single page. This is discouraged. See: https://nextjs.org/docs/messages/no-page-custom-font  @next/next/no-page-custom-font
+
+E:\Portfolio\mantaka-portfolio\src\components\Navbar.tsx
+  78:34  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+E:\Portfolio\mantaka-portfolio\src\components\hero\AiDecisionLog.tsx
+  73:8  warning  React Hook useEffect has missing dependencies: 'onComplete' and 'show'. Either include them or remove the dependency array. If 'onComplete' changes too often, find the parent component that defines it and wrap that definition in useCallback  react-hooks/exhaustive-deps
+
+E:\Portfolio\mantaka-portfolio\src\components\hero\HeroScroll.tsx
+  34:15  warning  'marqueeWrapper' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+E:\Portfolio\mantaka-portfolio\src\components\hero\HeroStatsReel.tsx
+  173:21  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  279:8   warning  React Hook useEffect has an unnecessary dependency: 'statsSlides.length'. Either exclude it or remove the dependency array. Outer scope values like 'statsSlides.length' aren't valid dependencies because mutating them doesn't re-render the component                                 react-hooks/exhaustive-deps
+
+E:\Portfolio\mantaka-portfolio\src\components\hero\MonitorHero.tsx
+  76:17  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+E:\Portfolio\mantaka-portfolio\src\components\hero\MonitorHero.tsx:76:17
+  74 |             if (move !== -1) {
+  75 |                 pendingMoveRef.current = move;
+> 76 |                 setAiLogs(logs);
+     |                 ^^^^^^^^^ Avoid calling setState() directly within an effect
+  77 |             } else {
+  78 |                 aiTurnStartedRef.current = false;
+  79 |                 setIsPlayerTurn(true);  react-hooks/set-state-in-effect
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx
+   79:22  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:79:22
+  77 |             return (
+  78 |                 <svg {...commonProps}>
+> 79 |                     <SharedDefs />
+     |                      ^^^^^^^^^^ This component is created during render
+  80 |                     <BaseTile />
+  81 |                     <g transform="translate(16,15) scale(0.6)" filter={`url(#${shadowId})`}>
+  82 |                         <circle r="11" fill="#61DAFB" /> {/* Background circle */}
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:41:24
+  39 |     );
+  40 |
+> 41 |     const SharedDefs = () => (
+     |                        ^^^^^^^
+> 42 |         <defs>
+     | ^^^^^^^^^^^^^^
+> 43 |             <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">
+     ΓÇª
+     | ^^^^^^^^^^^^^^
+> 72 |         </defs>
+     | ^^^^^^^^^^^^^^
+> 73 |     );
+     | ^^^^^^ The component is created during render here
+  74 |
+  75 |     switch (lowerName) {
+  76 |         case "react":                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     react-hooks/static-components
+   80:22  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:80:22
+  78 |                 <svg {...commonProps}>
+  79 |                     <SharedDefs />
+> 80 |                     <BaseTile />
+     |                      ^^^^^^^^ This component is created during render
+  81 |                     <g transform="translate(16,15) scale(0.6)" filter={`url(#${shadowId})`}>
+  82 |                         <circle r="11" fill="#61DAFB" /> {/* Background circle */}
+  83 |                         <g stroke="white" strokeWidth="2" fill="none">
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:30:22
+  28 |     };
+  29 |
+> 30 |     const BaseTile = () => (
+     |                      ^^^^^^^
+> 31 |         <g>
+     | ^^^^^^^^^^^
+> 32 |             {/* Drop Shadow for the Tile */}
+     | ^^^^^^^^^^^
+> 33 |             <rect x="2" y="4" width="28" height="26" rx={BaseParams.rx} fill="rgba(0,0,0,0.08)" />
+     | ^^^^^^^^^^^
+> 34 |             {/* 3D Body */}
+     | ^^^^^^^^^^^
+> 35 |             <rect x="2" y="2" width="28" height="26" rx={BaseParams.rx} fill={BaseParams.color} filter={`url(#${filterId})`} />
+     | ^^^^^^^^^^^
+> 36 |             {/* Inner Rim Highlight */}
+     | ^^^^^^^^^^^
+> 37 |             <rect x="2.5" y="2.5" width="27" height="25" rx={BaseParams.rx} stroke="white" strokeWidth="1" strokeOpacity="0.8" fill="none" />
+     | ^^^^^^^^^^^
+> 38 |         </g>
+     | ^^^^^^^^^^^
+> 39 |     );
+     | ^^^^^^ The component is created during render here
+  40 |
+  41 |     const SharedDefs = () => (
+  42 |         <defs>                                                                                            react-hooks/static-components
+   96:22  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:96:22
+  94 |             return (
+  95 |                 <svg {...commonProps}>
+> 96 |                     <SharedDefs />
+     |                      ^^^^^^^^^^ This component is created during render
+  97 |                     <BaseTile />
+  98 |                     <g transform="translate(16,15) scale(0.7)" filter={`url(#${shadowId})`}>
+  99 |                         <circle r="11" fill="#000000" />
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:41:24
+  39 |     );
+  40 |
+> 41 |     const SharedDefs = () => (
+     |                        ^^^^^^^
+> 42 |         <defs>
+     | ^^^^^^^^^^^^^^
+> 43 |             <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">
+     ΓÇª
+     | ^^^^^^^^^^^^^^
+> 72 |         </defs>
+     | ^^^^^^^^^^^^^^
+> 73 |     );
+     | ^^^^^^ The component is created during render here
+  74 |
+  75 |     switch (lowerName) {
+  76 |         case "react":                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               react-hooks/static-components
+   97:22  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:97:22
+   95 |                 <svg {...commonProps}>
+   96 |                     <SharedDefs />
+>  97 |                     <BaseTile />
+      |                      ^^^^^^^^ This component is created during render
+   98 |                     <g transform="translate(16,15) scale(0.7)" filter={`url(#${shadowId})`}>
+   99 |                         <circle r="11" fill="#000000" />
+  100 |                         <path d="M-2 -3.5 L-2:4.5" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:30:22
+  28 |     };
+  29 |
+> 30 |     const BaseTile = () => (
+     |                      ^^^^^^^
+> 31 |         <g>
+     | ^^^^^^^^^^^
+> 32 |             {/* Drop Shadow for the Tile */}
+     | ^^^^^^^^^^^
+> 33 |             <rect x="2" y="4" width="28" height="26" rx={BaseParams.rx} fill="rgba(0,0,0,0.08)" />
+     | ^^^^^^^^^^^
+> 34 |             {/* 3D Body */}
+     | ^^^^^^^^^^^
+> 35 |             <rect x="2" y="2" width="28" height="26" rx={BaseParams.rx} fill={BaseParams.color} filter={`url(#${filterId})`} />
+     | ^^^^^^^^^^^
+> 36 |             {/* Inner Rim Highlight */}
+     | ^^^^^^^^^^^
+> 37 |             <rect x="2.5" y="2.5" width="27" height="25" rx={BaseParams.rx} stroke="white" strokeWidth="1" strokeOpacity="0.8" fill="none" />
+     | ^^^^^^^^^^^
+> 38 |         </g>
+     | ^^^^^^^^^^^
+> 39 |     );
+     | ^^^^^^ The component is created during render here
+  40 |
+  41 |     const SharedDefs = () => (
+  42 |         <defs>                                                                         react-hooks/static-components
+  112:22  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:112:22
+  110 |             return (
+  111 |                 <svg {...commonProps}>
+> 112 |                     <SharedDefs />
+      |                      ^^^^^^^^^^ This component is created during render
+  113 |                     <BaseTile />
+  114 |                     <g transform="translate(16,15) scale(0.65)" filter={`url(#${shadowId})`}>
+  115 |                         <rect x="-10" y="-10" width="20" height="20" rx="4" fill="#3178C6" />
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:41:24
+  39 |     );
+  40 |
+> 41 |     const SharedDefs = () => (
+     |                        ^^^^^^^
+> 42 |         <defs>
+     | ^^^^^^^^^^^^^^
+> 43 |             <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">
+     ΓÇª
+     | ^^^^^^^^^^^^^^
+> 72 |         </defs>
+     | ^^^^^^^^^^^^^^
+> 73 |     );
+     | ^^^^^^ The component is created during render here
+  74 |
+  75 |     switch (lowerName) {
+  76 |         case "react":                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 react-hooks/static-components
+  113:22  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:113:22
+  111 |                 <svg {...commonProps}>
+  112 |                     <SharedDefs />
+> 113 |                     <BaseTile />
+      |                      ^^^^^^^^ This component is created during render
+  114 |                     <g transform="translate(16,15) scale(0.65)" filter={`url(#${shadowId})`}>
+  115 |                         <rect x="-10" y="-10" width="20" height="20" rx="4" fill="#3178C6" />
+  116 |                         <text x="0" y="5" fill="white" fontSize="11" fontWeight="bold" fontFamily="sans-serif" textAnchor="middle">TS</text>
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:30:22
+  28 |     };
+  29 |
+> 30 |     const BaseTile = () => (
+     |                      ^^^^^^^
+> 31 |         <g>
+     | ^^^^^^^^^^^
+> 32 |             {/* Drop Shadow for the Tile */}
+     | ^^^^^^^^^^^
+> 33 |             <rect x="2" y="4" width="28" height="26" rx={BaseParams.rx} fill="rgba(0,0,0,0.08)" />
+     | ^^^^^^^^^^^
+> 34 |             {/* 3D Body */}
+     | ^^^^^^^^^^^
+> 35 |             <rect x="2" y="2" width="28" height="26" rx={BaseParams.rx} fill={BaseParams.color} filter={`url(#${filterId})`} />
+     | ^^^^^^^^^^^
+> 36 |             {/* Inner Rim Highlight */}
+     | ^^^^^^^^^^^
+> 37 |             <rect x="2.5" y="2.5" width="27" height="25" rx={BaseParams.rx} stroke="white" strokeWidth="1" strokeOpacity="0.8" fill="none" />
+     | ^^^^^^^^^^^
+> 38 |         </g>
+     | ^^^^^^^^^^^
+> 39 |     );
+     | ^^^^^^ The component is created during render here
+  40 |
+  41 |     const SharedDefs = () => (
+  42 |         <defs>  react-hooks/static-components
+  125:22  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:125:22
+  123 |             return (
+  124 |                 <svg {...commonProps}>
+> 125 |                     <SharedDefs />
+      |                      ^^^^^^^^^^ This component is created during render
+  126 |                     <BaseTile />
+  127 |                     <g transform="translate(16,15) scale(0.65)" filter={`url(#${shadowId})`}>
+  128 |                         <path d="M0 -10 L9 -5 L0:0 L-9 -5 Z" fill="#333" />
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:41:24
+  39 |     );
+  40 |
+> 41 |     const SharedDefs = () => (
+     |                        ^^^^^^^
+> 42 |         <defs>
+     | ^^^^^^^^^^^^^^
+> 43 |             <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">
+     ΓÇª
+     | ^^^^^^^^^^^^^^
+> 72 |         </defs>
+     | ^^^^^^^^^^^^^^
+> 73 |     );
+     | ^^^^^^ The component is created during render here
+  74 |
+  75 |     switch (lowerName) {
+  76 |         case "react":                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   react-hooks/static-components
+  126:22  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:126:22
+  124 |                 <svg {...commonProps}>
+  125 |                     <SharedDefs />
+> 126 |                     <BaseTile />
+      |                      ^^^^^^^^ This component is created during render
+  127 |                     <g transform="translate(16,15) scale(0.65)" filter={`url(#${shadowId})`}>
+  128 |                         <path d="M0 -10 L9 -5 L0:0 L-9 -5 Z" fill="#333" />
+  129 |                         <path d="M-9:5 L0 10 V0 L-9 -5 Z" fill="#666" />
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:30:22
+  28 |     };
+  29 |
+> 30 |     const BaseTile = () => (
+     |                      ^^^^^^^
+> 31 |         <g>
+     | ^^^^^^^^^^^
+> 32 |             {/* Drop Shadow for the Tile */}
+     | ^^^^^^^^^^^
+> 33 |             <rect x="2" y="4" width="28" height="26" rx={BaseParams.rx} fill="rgba(0,0,0,0.08)" />
+     | ^^^^^^^^^^^
+> 34 |             {/* 3D Body */}
+     | ^^^^^^^^^^^
+> 35 |             <rect x="2" y="2" width="28" height="26" rx={BaseParams.rx} fill={BaseParams.color} filter={`url(#${filterId})`} />
+     | ^^^^^^^^^^^
+> 36 |             {/* Inner Rim Highlight */}
+     | ^^^^^^^^^^^
+> 37 |             <rect x="2.5" y="2.5" width="27" height="25" rx={BaseParams.rx} stroke="white" strokeWidth="1" strokeOpacity="0.8" fill="none" />
+     | ^^^^^^^^^^^
+> 38 |         </g>
+     | ^^^^^^^^^^^
+> 39 |     );
+     | ^^^^^^ The component is created during render here
+  40 |
+  41 |     const SharedDefs = () => (
+  42 |         <defs>                                                                                        react-hooks/static-components
+  138:22  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:138:22
+  136 |             return (
+  137 |                 <svg {...commonProps}>
+> 138 |                     <SharedDefs />
+      |                      ^^^^^^^^^^ This component is created during render
+  139 |                     <BaseTile />
+  140 |                     <g transform="translate(16,15) scale(0.65)" filter={`url(#${shadowId})`}>
+  141 |                         <defs>
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:41:24
+  39 |     );
+  40 |
+> 41 |     const SharedDefs = () => (
+     |                        ^^^^^^^
+> 42 |         <defs>
+     | ^^^^^^^^^^^^^^
+> 43 |             <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">
+     ΓÇª
+     | ^^^^^^^^^^^^^^
+> 72 |         </defs>
+     | ^^^^^^^^^^^^^^
+> 73 |     );
+     | ^^^^^^ The component is created during render here
+  74 |
+  75 |     switch (lowerName) {
+  76 |         case "react":                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                react-hooks/static-components
+  139:22  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:139:22
+  137 |                 <svg {...commonProps}>
+  138 |                     <SharedDefs />
+> 139 |                     <BaseTile />
+      |                      ^^^^^^^^ This component is created during render
+  140 |                     <g transform="translate(16,15) scale(0.65)" filter={`url(#${shadowId})`}>
+  141 |                         <defs>
+  142 |                             <linearGradient id="glslGradTile" x1="0" y1="0" x2="1" y2="1">
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:30:22
+  28 |     };
+  29 |
+> 30 |     const BaseTile = () => (
+     |                      ^^^^^^^
+> 31 |         <g>
+     | ^^^^^^^^^^^
+> 32 |             {/* Drop Shadow for the Tile */}
+     | ^^^^^^^^^^^
+> 33 |             <rect x="2" y="4" width="28" height="26" rx={BaseParams.rx} fill="rgba(0,0,0,0.08)" />
+     | ^^^^^^^^^^^
+> 34 |             {/* 3D Body */}
+     | ^^^^^^^^^^^
+> 35 |             <rect x="2" y="2" width="28" height="26" rx={BaseParams.rx} fill={BaseParams.color} filter={`url(#${filterId})`} />
+     | ^^^^^^^^^^^
+> 36 |             {/* Inner Rim Highlight */}
+     | ^^^^^^^^^^^
+> 37 |             <rect x="2.5" y="2.5" width="27" height="25" rx={BaseParams.rx} stroke="white" strokeWidth="1" strokeOpacity="0.8" fill="none" />
+     | ^^^^^^^^^^^
+> 38 |         </g>
+     | ^^^^^^^^^^^
+> 39 |     );
+     | ^^^^^^ The component is created during render here
+  40 |
+  41 |     const SharedDefs = () => (
+  42 |         <defs>                                                                                                                   react-hooks/static-components
+  156:22  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:156:22
+  154 |             return (
+  155 |                 <svg {...commonProps}>
+> 156 |                     <SharedDefs />
+      |                      ^^^^^^^^^^ This component is created during render
+  157 |                     <BaseTile />
+  158 |                     <g transform="translate(16,15) scale(0.65)" filter={`url(#${shadowId})`}>
+  159 |                         <path d="M0 -9 C-5 -9 -5 -7 -5 -5 H0 V-3 H-7 V5 H-2 V9 C3:9 3 7 3 5 H-2 V3 H5 V-5 C5 -9 0 -9 0 -9 Z" fill="#3776AB" />
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:41:24
+  39 |     );
+  40 |
+> 41 |     const SharedDefs = () => (
+     |                        ^^^^^^^
+> 42 |         <defs>
+     | ^^^^^^^^^^^^^^
+> 43 |             <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">
+     ΓÇª
+     | ^^^^^^^^^^^^^^
+> 72 |         </defs>
+     | ^^^^^^^^^^^^^^
+> 73 |     );
+     | ^^^^^^ The component is created during render here
+  74 |
+  75 |     switch (lowerName) {
+  76 |         case "react":                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                react-hooks/static-components
+  157:22  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:157:22
+  155 |                 <svg {...commonProps}>
+  156 |                     <SharedDefs />
+> 157 |                     <BaseTile />
+      |                      ^^^^^^^^ This component is created during render
+  158 |                     <g transform="translate(16,15) scale(0.65)" filter={`url(#${shadowId})`}>
+  159 |                         <path d="M0 -9 C-5 -9 -5 -7 -5 -5 H0 V-3 H-7 V5 H-2 V9 C3:9 3 7 3 5 H-2 V3 H5 V-5 C5 -9 0 -9 0 -9 Z" fill="#3776AB" />
+  160 |                         <circle cx="-2.5" cy="-6" r="1" fill="white" />
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:30:22
+  28 |     };
+  29 |
+> 30 |     const BaseTile = () => (
+     |                      ^^^^^^^
+> 31 |         <g>
+     | ^^^^^^^^^^^
+> 32 |             {/* Drop Shadow for the Tile */}
+     | ^^^^^^^^^^^
+> 33 |             <rect x="2" y="4" width="28" height="26" rx={BaseParams.rx} fill="rgba(0,0,0,0.08)" />
+     | ^^^^^^^^^^^
+> 34 |             {/* 3D Body */}
+     | ^^^^^^^^^^^
+> 35 |             <rect x="2" y="2" width="28" height="26" rx={BaseParams.rx} fill={BaseParams.color} filter={`url(#${filterId})`} />
+     | ^^^^^^^^^^^
+> 36 |             {/* Inner Rim Highlight */}
+     | ^^^^^^^^^^^
+> 37 |             <rect x="2.5" y="2.5" width="27" height="25" rx={BaseParams.rx} stroke="white" strokeWidth="1" strokeOpacity="0.8" fill="none" />
+     | ^^^^^^^^^^^
+> 38 |         </g>
+     | ^^^^^^^^^^^
+> 39 |     );
+     | ^^^^^^ The component is created during render here
+  40 |
+  41 |     const SharedDefs = () => (
+  42 |         <defs>                      react-hooks/static-components
+  170:22  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:170:22
+  168 |             return (
+  169 |                 <svg {...commonProps}>
+> 170 |                     <SharedDefs />
+      |                      ^^^^^^^^^^ This component is created during render
+  171 |                     <BaseTile />
+  172 |                     <g transform="translate(16,15) scale(0.65)" filter={`url(#${shadowId})`}>
+  173 |                         <path d="M0 -10 L-7 -6 V4 L0:9 L7 4 V-6 L0 -10Z" fill="#FF6F00" />
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:41:24
+  39 |     );
+  40 |
+> 41 |     const SharedDefs = () => (
+     |                        ^^^^^^^
+> 42 |         <defs>
+     | ^^^^^^^^^^^^^^
+> 43 |             <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">
+     ΓÇª
+     | ^^^^^^^^^^^^^^
+> 72 |         </defs>
+     | ^^^^^^^^^^^^^^
+> 73 |     );
+     | ^^^^^^ The component is created during render here
+  74 |
+  75 |     switch (lowerName) {
+  76 |         case "react":                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    react-hooks/static-components
+  171:22  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:171:22
+  169 |                 <svg {...commonProps}>
+  170 |                     <SharedDefs />
+> 171 |                     <BaseTile />
+      |                      ^^^^^^^^ This component is created during render
+  172 |                     <g transform="translate(16,15) scale(0.65)" filter={`url(#${shadowId})`}>
+  173 |                         <path d="M0 -10 L-7 -6 V4 L0:9 L7 4 V-6 L0 -10Z" fill="#FF6F00" />
+  174 |                         <text x="0" y="3" fill="white" fontSize="9" fontWeight="bold" fontFamily="sans-serif" textAnchor="middle">TF</text>
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:30:22
+  28 |     };
+  29 |
+> 30 |     const BaseTile = () => (
+     |                      ^^^^^^^
+> 31 |         <g>
+     | ^^^^^^^^^^^
+> 32 |             {/* Drop Shadow for the Tile */}
+     | ^^^^^^^^^^^
+> 33 |             <rect x="2" y="4" width="28" height="26" rx={BaseParams.rx} fill="rgba(0,0,0,0.08)" />
+     | ^^^^^^^^^^^
+> 34 |             {/* 3D Body */}
+     | ^^^^^^^^^^^
+> 35 |             <rect x="2" y="2" width="28" height="26" rx={BaseParams.rx} fill={BaseParams.color} filter={`url(#${filterId})`} />
+     | ^^^^^^^^^^^
+> 36 |             {/* Inner Rim Highlight */}
+     | ^^^^^^^^^^^
+> 37 |             <rect x="2.5" y="2.5" width="27" height="25" rx={BaseParams.rx} stroke="white" strokeWidth="1" strokeOpacity="0.8" fill="none" />
+     | ^^^^^^^^^^^
+> 38 |         </g>
+     | ^^^^^^^^^^^
+> 39 |     );
+     | ^^^^^^ The component is created during render here
+  40 |
+  41 |     const SharedDefs = () => (
+  42 |         <defs>      react-hooks/static-components
+  182:22  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:182:22
+  180 |             return (
+  181 |                 <svg {...commonProps}>
+> 182 |                     <SharedDefs />
+      |                      ^^^^^^^^^^ This component is created during render
+  183 |                     <BaseTile />
+  184 |                     <g transform="translate(16,15) scale(0.65)" filter={`url(#${shadowId})`}>
+  185 |                         <circle cx="-3.5" cy="-5" r="3.5" fill="#F24E1E" />
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:41:24
+  39 |     );
+  40 |
+> 41 |     const SharedDefs = () => (
+     |                        ^^^^^^^
+> 42 |         <defs>
+     | ^^^^^^^^^^^^^^
+> 43 |             <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">
+     ΓÇª
+     | ^^^^^^^^^^^^^^
+> 72 |         </defs>
+     | ^^^^^^^^^^^^^^
+> 73 |     );
+     | ^^^^^^ The component is created during render here
+  74 |
+  75 |     switch (lowerName) {
+  76 |         case "react":                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   react-hooks/static-components
+  183:22  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:183:22
+  181 |                 <svg {...commonProps}>
+  182 |                     <SharedDefs />
+> 183 |                     <BaseTile />
+      |                      ^^^^^^^^ This component is created during render
+  184 |                     <g transform="translate(16,15) scale(0.65)" filter={`url(#${shadowId})`}>
+  185 |                         <circle cx="-3.5" cy="-5" r="3.5" fill="#F24E1E" />
+  186 |                         <circle cx="3.5" cy="-5" r="3.5" fill="#FF7262" />
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:30:22
+  28 |     };
+  29 |
+> 30 |     const BaseTile = () => (
+     |                      ^^^^^^^
+> 31 |         <g>
+     | ^^^^^^^^^^^
+> 32 |             {/* Drop Shadow for the Tile */}
+     | ^^^^^^^^^^^
+> 33 |             <rect x="2" y="4" width="28" height="26" rx={BaseParams.rx} fill="rgba(0,0,0,0.08)" />
+     | ^^^^^^^^^^^
+> 34 |             {/* 3D Body */}
+     | ^^^^^^^^^^^
+> 35 |             <rect x="2" y="2" width="28" height="26" rx={BaseParams.rx} fill={BaseParams.color} filter={`url(#${filterId})`} />
+     | ^^^^^^^^^^^
+> 36 |             {/* Inner Rim Highlight */}
+     | ^^^^^^^^^^^
+> 37 |             <rect x="2.5" y="2.5" width="27" height="25" rx={BaseParams.rx} stroke="white" strokeWidth="1" strokeOpacity="0.8" fill="none" />
+     | ^^^^^^^^^^^
+> 38 |         </g>
+     | ^^^^^^^^^^^
+> 39 |     );
+     | ^^^^^^ The component is created during render here
+  40 |
+  41 |     const SharedDefs = () => (
+  42 |         <defs>                                                                                      react-hooks/static-components
+  197:22  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:197:22
+  195 |             return (
+  196 |                 <svg {...commonProps}>
+> 197 |                     <SharedDefs />
+      |                      ^^^^^^^^^^ This component is created during render
+  198 |                     <BaseTile />
+  199 |                     <g transform="translate(16,15) scale(0.6)" filter={`url(#${shadowId})`}>
+  200 |                         <rect x="-8" y="-8" width="16" height="16" rx="4" fill="#333" />
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:41:24
+  39 |     );
+  40 |
+> 41 |     const SharedDefs = () => (
+     |                        ^^^^^^^
+> 42 |         <defs>
+     | ^^^^^^^^^^^^^^
+> 43 |             <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">
+     ΓÇª
+     | ^^^^^^^^^^^^^^
+> 72 |         </defs>
+     | ^^^^^^^^^^^^^^
+> 73 |     );
+     | ^^^^^^ The component is created during render here
+  74 |
+  75 |     switch (lowerName) {
+  76 |         case "react":                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       react-hooks/static-components
+  198:22  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:198:22
+  196 |                 <svg {...commonProps}>
+  197 |                     <SharedDefs />
+> 198 |                     <BaseTile />
+      |                      ^^^^^^^^ This component is created during render
+  199 |                     <g transform="translate(16,15) scale(0.6)" filter={`url(#${shadowId})`}>
+  200 |                         <rect x="-8" y="-8" width="16" height="16" rx="4" fill="#333" />
+  201 |                         <path d="M-3 -3 L0:0 L-3 3" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+
+E:\Portfolio\mantaka-portfolio\src\components\work\TechIcons.tsx:30:22
+  28 |     };
+  29 |
+> 30 |     const BaseTile = () => (
+     |                      ^^^^^^^
+> 31 |         <g>
+     | ^^^^^^^^^^^
+> 32 |             {/* Drop Shadow for the Tile */}
+     | ^^^^^^^^^^^
+> 33 |             <rect x="2" y="4" width="28" height="26" rx={BaseParams.rx} fill="rgba(0,0,0,0.08)" />
+     | ^^^^^^^^^^^
+> 34 |             {/* 3D Body */}
+     | ^^^^^^^^^^^
+> 35 |             <rect x="2" y="2" width="28" height="26" rx={BaseParams.rx} fill={BaseParams.color} filter={`url(#${filterId})`} />
+     | ^^^^^^^^^^^
+> 36 |             {/* Inner Rim Highlight */}
+     | ^^^^^^^^^^^
+> 37 |             <rect x="2.5" y="2.5" width="27" height="25" rx={BaseParams.rx} stroke="white" strokeWidth="1" strokeOpacity="0.8" fill="none" />
+     | ^^^^^^^^^^^
+> 38 |         </g>
+     | ^^^^^^^^^^^
+> 39 |     );
+     | ^^^^^^ The component is created during render here
+  40 |
+  41 |     const SharedDefs = () => (
+  42 |         <defs>                  react-hooks/static-components
+
+E:\Portfolio\mantaka-portfolio\src\utils\minimax.ts
+  96:35  warning  'i' is defined but never used  @typescript-eslint/no-unused-vars
+
+Γ£û 26 problems (20 errors, 6 warnings)
+
+ΓÇëELIFECYCLEΓÇë Command failed with exit code 1.
