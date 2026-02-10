@@ -141,24 +141,24 @@ const HeroScroll = () => {
             });
         }
 
-        // --- INDEPENDENT ANIMATIONS (Infinite Loops) ---
-        // These run independently of scroll position
-        gsap.to(row1, {
-            xPercent: -50,
-            ease: "none",
-            duration: 20,
-            repeat: -1,
-        });
-
-        gsap.fromTo(row2,
-            { xPercent: -50 },
-            {
-                xPercent: 0,
+        // --- MARQUEE: Horizontal scroll (moving text), many copies so stripe is never empty ---
+        if (row1 && row2) {
+            gsap.to(row1, {
+                xPercent: -50,
                 ease: "none",
                 duration: 20,
                 repeat: -1,
-            }
-        );
+            });
+            gsap.fromTo(row2,
+                { xPercent: -50 },
+                {
+                    xPercent: 0,
+                    ease: "none",
+                    duration: 20,
+                    repeat: -1,
+                }
+            );
+        }
 
         // Highlight Text Animation - Trigger when section enters viewport
         highlights.forEach((el) => {
@@ -191,11 +191,12 @@ const HeroScroll = () => {
             <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center perspective-1000">
 
                 {/* --- BACKGROUND GRID --- */}
-                <div className="absolute inset-0 z-0 opacity-100 pointer-events-none animate-pulse">
-                    {/* Glow Layer */}
-                    <div className="absolute inset-0 w-full h-[200%] bg-[linear-gradient(rgba(239,68,68,0.4)_1px,transparent_1px),linear-gradient(90deg,rgba(239,68,68,0.4)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:linear-gradient(to_bottom,transparent,black,black,transparent)] animate-grid-flow blur-[3px] opacity-60"></div>
-                    {/* Base Layer */}
-                    <div className="absolute inset-0 w-full h-[200%] bg-[linear-gradient(rgba(239,68,68,0.3)_1px,transparent_1px),linear-gradient(90deg,rgba(239,68,68,0.3)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:linear-gradient(to_bottom,transparent,black,black,transparent)] animate-grid-flow blur-[0.5px]"></div>
+                <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+                    {/* Single grid layer - no blur to avoid render glitches; height for seamless scroll */}
+                    <div
+                        className="absolute top-0 left-0 right-0 w-full h-[calc(100%+80px)] bg-[linear-gradient(rgba(239,68,68,0.25)_1px,transparent_1px),linear-gradient(90deg,rgba(239,68,68,0.25)_1px,transparent_1px)] bg-[length:40px_40px] [mask-image:linear-gradient(to_bottom,transparent,black_15%,black_85%,transparent)] animate-grid-flow"
+                        style={{ willChange: "transform", backfaceVisibility: "hidden" }}
+                    />
                 </div>
 
                 {/* --- CARD --- */}
@@ -209,21 +210,21 @@ const HeroScroll = () => {
                     <div ref={overlayRef} className="absolute inset-0 bg-black z-50 pointer-events-none opacity-0"></div>
 
                     {/* Left Column */}
-                    <div className="md:w-1/2 relative z-10 h-full flex flex-col justify-center p-8 md:p-16 lg:p-24 pb-32">
+                    <div className="md:w-1/2 relative z-10 h-full flex flex-col justify-center p-6 sm:p-8 md:p-16 lg:p-24 pb-24 sm:pb-32 overflow-hidden">
                         <div className="max-w-xl relative z-20">
-                            <h3 className="anim-text font-space-grotesk text-sm font-bold tracking-widest text-red-500 uppercase mb-6">
+                            <h3 className="anim-text font-space-grotesk text-xs sm:text-sm font-bold tracking-widest text-red-500 uppercase mb-4 sm:mb-6">
                                 Bridging The Gap
                             </h3>
 
-                            <div className="font-space-grotesk text-4xl md:text-5xl lg:text-7xl font-medium leading-[1.1] text-gray-900 tracking-tight">
-                                <div className="anim-text mb-2">
+                            <div className="font-space-grotesk text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-medium leading-[1.1] text-gray-900 tracking-tight">
+                                <div className="anim-text mb-1 sm:mb-2">
                                     Between <span className="highlight box-decoration-clone inline-block px-1 bg-gradient-to-r from-red-600 to-red-600 bg-no-repeat text-white">intelligent AI</span>
                                 </div>
-                                <div className="anim-text mb-8">
+                                <div className="anim-text mb-6 sm:mb-8">
                                     and <span className="highlight box-decoration-clone inline-block px-1 bg-gradient-to-r from-red-600 to-red-600 bg-no-repeat text-white">dynamic design.</span>
                                 </div>
 
-                                <p className="anim-text text-xl md:text-2xl text-gray-600 font-normal leading-relaxed max-w-lg">
+                                <p className="anim-text text-base sm:text-xl md:text-2xl text-gray-600 font-normal leading-relaxed max-w-lg">
                                     I build high-performance, <span className="font-bold text-black border-b-2 border-red-500">award-winning</span> solutions.
                                 </p>
                             </div>
@@ -231,18 +232,18 @@ const HeroScroll = () => {
 
                         <div
                             ref={textRef}
-                            className="about-text w-full z-10 pointer-events-none mix-blend-normal absolute bottom-0 left-0 p-4 md:p-8 opacity-10 select-none"
+                            className="about-text w-full z-10 pointer-events-none mix-blend-normal absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-8 opacity-10 select-none overflow-hidden"
                         >
-                            <h2 className="flex justify-between w-full font-black tracking-tighter text-gray-900 leading-none">
+                            <h2 className="flex justify-between w-full font-black tracking-tighter text-gray-900 leading-none min-w-0">
                                 {"ABOUT".split("").map((char, i) => (
-                                    <span key={i} className="text-[12rem] xl:text-[14rem]">{char}</span>
+                                    <span key={i} className="text-[14vw] sm:text-[11vw] md:text-[6rem] lg:text-[10rem] xl:text-[14rem] shrink-0">{char}</span>
                                 ))}
                             </h2>
                         </div>
                     </div>
 
                     {/* Right Column */}
-                    <div className="md:w-1/2 h-full relative overflow-hidden bg-[#f4f4f5]">
+                    <div className="md:w-1/2 min-h-[40vh] md:min-h-0 h-full relative overflow-hidden bg-[#f4f4f5]">
                         <div className="absolute inset-0 w-full h-full">
                             <video
                                 ref={videoRef}
@@ -269,23 +270,23 @@ const HeroScroll = () => {
                 </div>
 
                 {/* --- FRONT LAYER: MARQUEE --- */}
-                {/* Removed opacity class from wrapper, stripes handle it */}
+                {/* Horizontal moving text; centered in stripe; many copies so never empty */}
                 <div ref={marqueeWrapperRef} className="absolute inset-0 flex justify-center items-center z-40 pointer-events-none overflow-hidden">
-                    <div ref={stripe1Ref} className="absolute bg-[#111] py-8 w-[200vw] flex justify-center items-center transform rotate-[15deg] shadow-lg border-y border-gray-800 opacity-0">
-                        <div ref={marqueeRow1Ref} className="flex whitespace-nowrap w-max opacity-90">
-                            {[...Array(8)].map((_, i) => (
-                                <h2 key={i} className="font-space-grotesk font-bold text-[4vw] leading-none text-white mr-12 tracking-wider flex items-center">
-                                    AGENTIC AI RESEARCHER <span className="text-red-500 mx-4 text-4xl">■</span>
-                                </h2>
+                    <div ref={stripe1Ref} className="absolute bg-[#111] py-2 sm:py-3 md:py-5 lg:py-6 w-[200vw] flex justify-center items-center transform rotate-[15deg] shadow-lg border-y border-gray-800 opacity-0 overflow-hidden">
+                        <div ref={marqueeRow1Ref} className="flex whitespace-nowrap w-max opacity-90 items-center justify-center">
+                            {[...Array(16)].map((_, i) => (
+                                <span key={i} className="font-space-grotesk font-bold text-[2.5vw] sm:text-[3vw] md:text-[4vw] leading-none text-white mr-4 sm:mr-8 md:mr-12 tracking-wider inline-flex items-center shrink-0">
+                                    AGENTIC AI RESEARCHER <span className="text-red-500 mx-2 md:mx-4 text-xl md:text-4xl">■</span>
+                                </span>
                             ))}
                         </div>
                     </div>
-                    <div ref={stripe2Ref} className="absolute bg-[#111] py-8 w-[200vw] flex justify-center items-center transform -rotate-[15deg] shadow-lg border-y border-gray-800 opacity-0">
-                        <div ref={marqueeRow2Ref} className="flex whitespace-nowrap w-max opacity-90">
-                            {[...Array(8)].map((_, i) => (
-                                <h2 key={i} className="font-space-grotesk font-bold text-[4vw] leading-none text-white mr-12 tracking-wider flex items-center">
-                                    PYTHON <span className="text-red-500 mx-4 text-4xl">■</span> NEXT.JS <span className="text-red-500 mx-4 text-4xl">■</span>
-                                </h2>
+                    <div ref={stripe2Ref} className="absolute bg-[#111] py-2 sm:py-3 md:py-5 lg:py-6 w-[200vw] flex justify-center items-center transform -rotate-[15deg] shadow-lg border-y border-gray-800 opacity-0 overflow-hidden">
+                        <div ref={marqueeRow2Ref} className="flex whitespace-nowrap w-max opacity-90 items-center justify-center">
+                            {[...Array(16)].map((_, i) => (
+                                <span key={i} className="font-space-grotesk font-bold text-[2.5vw] sm:text-[3vw] md:text-[4vw] leading-none text-white mr-4 sm:mr-8 md:mr-12 tracking-wider inline-flex items-center shrink-0">
+                                    PYTHON <span className="text-red-500 mx-2 md:mx-4 text-xl md:text-4xl">■</span> NEXT.JS <span className="text-red-500 mx-2 md:mx-4 text-xl md:text-4xl">■</span>
+                                </span>
                             ))}
                         </div>
                     </div>
@@ -293,11 +294,12 @@ const HeroScroll = () => {
             </div>
             <style jsx>{`
                 @keyframes grid-flow {
-                    0% { transform: translateY(0); }
-                    100% { transform: translateY(-40px); }
+                    0% { transform: translate3d(0, 0, 0); }
+                    100% { transform: translate3d(0, -40px, 0); }
                 }
                 .animate-grid-flow {
-                    animation: grid-flow 2s linear infinite;
+                    animation: grid-flow 3s linear infinite;
+                    transform: translate3d(0, 0, 0);
                 }
             `}</style>
         </div>

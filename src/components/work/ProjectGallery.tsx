@@ -1,98 +1,90 @@
 "use client";
-import React, { useRef, useState } from "react";
+
+import React, { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import ProjectCard from "./ProjectCard";
-import { projects, Project } from "./projectsData"; // Updated import
+import { projects } from "./projectsData";
 
 if (typeof window !== "undefined") {
     gsap.registerPlugin(ScrollTrigger);
 }
 
-// Separate component for Row Logic to manage state cleanly
-const ProjectRow = ({ projectsPair, rowIndex }: { projectsPair: Project[], rowIndex: number }) => {
-    const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-
-    return (
-        <div className="project-row flex flex-col md:flex-row w-full h-[60vh] md:h-[55vh] gap-1">
-            {projectsPair.map((project, index) => {
-                // Determine flex basis class
-                // Default: flex-1
-                // Hovered: flex-[2.5]
-                // Others (when one is hovered): flex-[0.5]
-
-                let flexClass = "flex-1";
-                if (hoveredIndex !== null) {
-                    if (hoveredIndex === index) {
-                        flexClass = "flex-[1.5]";
-                    } else {
-                        flexClass = "flex-[0.75]";
-                    }
-                }
-
-                return (
-                    <div
-                        key={project.id}
-                        className={`relative h-full transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden cursor-pointer ${flexClass}`}
-                        onMouseEnter={() => setHoveredIndex(index)}
-                        onMouseLeave={() => setHoveredIndex(null)}
-                    >
-                        <ProjectCard project={project} />
-                    </div>
-                )
-            })}
-        </div>
-    );
-};
-
 const ProjectGallery = () => {
-    const containerRef = useRef(null);
+    const containerRef = useRef<HTMLElement>(null);
 
     useGSAP(() => {
-        // Animate Rows on Scroll
-        const rows = gsap.utils.toArray(".project-row", containerRef.current);
+        const container = containerRef.current;
+        if (!container) return;
 
-        rows.forEach((row: any, i) => {
-            gsap.fromTo(row,
-                { y: 100, opacity: 0, scale: 0.95 },
-                {
-                    y: 0,
-                    opacity: 1,
-                    scale: 1,
-                    duration: 1,
-                    ease: "power3.out",
+        const cards = gsap.utils.toArray<HTMLElement>(".work-card", container);
+
+        cards.forEach((card, index) => {
+            if (index === cards.length - 1) return; // Don't animate the last card
+
+            // Scale, border-radius, and rotation animation
+            const tl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: card,
+                    start: "top top",
+                    end: "bottom top",
+                    scrub: true,
+                },
+            });
+
+            tl.to(card, {
+                scale: 0.65,
+                borderRadius: "32px",
+                ease: "none",
+            })
+                .fromTo(
+                    card,
+                    { rotation: 0 },
+                    {
+                        rotation: index % 2 === 0 ? 8 : -8,
+                        ease: "sine.inOut",
+                        duration: 0.2,
+                    },
+                    0
+                );
+
+            // Hide the card when the next one reaches the top
+            if (index < cards.length - 1) {
+                gsap.to(card, {
+                    opacity: 0,
+                    pointerEvents: "none",
                     scrollTrigger: {
-                        trigger: row,
-                        start: "top 85%", // Trigger when row top hits 85% of viewport
-                        toggleActions: "play none none reverse"
-                    }
-                }
-            );
+                        trigger: cards[index + 1],
+                        start: "top 5%",
+                        end: "top top",
+                        scrub: 0.5,
+                    },
+                });
+            }
         });
 
-    }, { scope: containerRef });
-
-    // Chunk projects into pairs
-    const chunkedProjects = [];
-    for (let i = 0; i < projects.length; i += 2) {
-        chunkedProjects.push(projects.slice(i, i + 2));
-    }
+        return () => {
+            ScrollTrigger.getAll().forEach((st) => st.kill());
+        };
+    }, { scope: containerRef, dependencies: [] });
 
     return (
-        <section
-            ref={containerRef}
-            className="w-full bg-[#f4f4f5] pb-24 pt-12 flex flex-col gap-1 min-h-screen"
-        >
-            <div className="project-row opacity-0 translate-y-10 px-4 md:px-12 lg:px-24 mb-0"> {/* Initial hidden state for animation */}
-                <h2 className="font-space-grotesk font-black tracking-tighter text-gray-900 text-[11.5vw] leading-[0.8] mb-[-1vw]">
+        <section ref={containerRef} className="w-full relative bg-neutral-50">
+            <div className="px-6 md:px-12 lg:px-24 pt-16 pb-8">
+                <h2 className="font-space-grotesk font-black tracking-tighter text-neutral-900 text-[11.5vw] leading-[0.8]">
                     SELECTED WORK
                 </h2>
             </div>
 
-            <div className="flex flex-col gap-1 w-full px-1">
-                {chunkedProjects.map((pair, i) => (
-                    <ProjectRow key={i} rowIndex={i} projectsPair={pair} />
+            <div className="relative">
+                {projects.map((project, i) => (
+                    <div
+                        key={project.id}
+                        className="work-card sticky top-0 h-screen w-full overflow-hidden"
+                    >
+                        <ProjectCard project={project} index={i + 1} />
+                    </div>
                 ))}
             </div>
         </section>
