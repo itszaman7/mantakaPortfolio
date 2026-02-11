@@ -15,62 +15,74 @@ export interface Project {
     media?: MediaItem[];
     /** Optional: URL for "See work" button */
     link?: string;
-    /** Optional: full-section card background (e.g. #F0FFF0). Fallback from palette by index. */
+    /** Optional: full-section card background (e.g. #F0FFF0). If omitted and project has an image (src/media), the card uses a color derived from that image; otherwise uses palette by index. */
     backgroundColor?: string;
     /** Optional: subtitle line under the section number (e.g. "Global Events, Brand Activations"). */
     subtitle?: string;
 }
 
-const CARD_BG_PALETTE = ["#F0FFF0", "#E0F4FF", "#FFF8E0", "#F0E8FF"] as const;
+const CARD_BG_PALETTE = ["#1DB954", "#851121", "#5038A0", "#FFFFE0"] as const;
 
 export const projects: Project[] = [
     {
         id: "1",
-        title: "Project Alpha",
-        category: "FINTECH",
-        subtitle: "Dashboards, Data Viz, Real-time Analytics",
-        src: "/pattern.png",
-        description: "A next-gen financial dashboard that visualizes complex data streams in real-time.",
-        techStack: ["React", "Next.js", "TS"],
-        award: { name: "Site of the Day", link: "https://www.awwwards.com" },
+        title: "OptiHealth",
+        category: "HEALTH-TECH",
+        subtitle: "Agentic AI, Multimodal Diagnostics, Telemedicine",
+        src: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=2070&auto=format&fit=crop",
+        description: "An award-winning 'Virtual Doctor' ecosystem featuring an autonomous health analyzer and multimodal symptom checker using Gemini Vision.",
+        techStack: ["Django", "Next.js", "LangGraph", "Gemini Vision", "Llama 3"],
+        award: { 
+            name: "Winner - IUB CARD 2025", 
+            link: "#" 
+        },
         link: "#",
-        backgroundColor: "#F0FFF0",
+        backgroundColor: "#1DB954",
     },
     {
         id: "2",
-        title: "Neon Horizon",
-        category: "ART",
-        subtitle: "WebGL, Interactive Experiences, 3D",
-        src: "/pattern.png",
-        description: "Interactive WebGL experience exploring futuristic cityscapes.",
-        techStack: ["Three.js", "GLSL"],
+        title: "Krishi Sahay",
+        category: "AGRI-TECH",
+        subtitle: "IoT, Microservices, Computer Vision",
+        src: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2070&auto=format&fit=crop",
+        description: "AI agricultural platform streaming real-time data from 1,500+ IoT sensors with 95.3% accuracy in crop disease detection.",
+        techStack: ["FastAPI", "Next.js", "YOLOv11", "Gemini Pro", "ESP32"],
+        award: { 
+            name: "Finalist - DU VisionX 2025", 
+            link: "#" 
+        },
         link: "#",
-        backgroundColor: "#E0F4FF",
+        backgroundColor: "#851121",
     },
     {
         id: "3",
-        title: "EcoTrack",
-        category: "SUSTAINABILITY",
-        subtitle: "Carbon Tracking, Enterprise, AI",
-        src: "/pattern.png",
-        description: "AI-driven carbon footprint tracking for enterprise logistics.",
-        techStack: ["Python", "TensorFlow"],
+        title: "Oasis Planner",
+        category: "CLIMATE",
+        subtitle: "GIS, Satellite Data, Urban Resilience",
+        src: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2070&auto=format&fit=crop",
+        description: "A NASA-recognized urban planning dashboard that models flood risks by integrating satellite climate data.",
+        techStack: ["Next.js", "Python", "GIS", "Leaflet", "NASA Earthdata"],
+        award: { 
+            name: "NASA Space Apps Global Nominee", 
+            link: "#" 
+        },
         link: "#",
-        backgroundColor: "#FFF8E0",
+        backgroundColor: "#5038A0",
     },
     {
         id: "4",
-        title: "Quantum UI",
-        category: "DESIGN SYSTEM",
-        subtitle: "Design Systems, Components, Figma",
-        src: "/pattern.png",
-        description: "A comprehensive design system for quantum computing interfaces.",
-        techStack: ["Figma", "React"],
-        award: { name: "Best UI", link: "https://www.behance.net" },
+        title: "PQDeals",
+        category: "E-COMMERCE",
+        subtitle: "B2B Logistics, RFQ Systems, DevOps",
+        src: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=2070&auto=format&fit=crop",
+        description: "A full-scale B2B platform with custom RFQ logic, secured via Docker and Nginx on AWS infrastructure.",
+        techStack: ["Django", "Docker", "Nginx", "PostgreSQL", "AWS EC2"],
         link: "#",
-        backgroundColor: "#F0E8FF",
+        backgroundColor: "#FFFFE0",
     },
 ];
+
+
 
 export function getProjectBackgroundColor(project: Project, index: number): string {
     return project.backgroundColor ?? CARD_BG_PALETTE[index % CARD_BG_PALETTE.length];

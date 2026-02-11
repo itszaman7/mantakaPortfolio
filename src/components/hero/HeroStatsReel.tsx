@@ -9,65 +9,7 @@ import {
   useMotionValue,
   AnimatePresence,
 } from "framer-motion";
-
-// --- Mock Data ---
-const defaultSlides = [
-  {
-    id: 1,
-    title: "Global Reach",
-    subtitle: "Connecting the world",
-    highlight: "150+",
-    suffix: "Countries",
-    image:
-      "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop",
-    description:
-      "Our infrastructure spans across continents, ensuring low latency and high availability for users everywhere.",
-  },
-  {
-    id: 2,
-    title: "Uptime Guarantee",
-    subtitle: "Always on",
-    highlight: "99.9%",
-    suffix: "SLA",
-    image:
-      "https://images.unsplash.com/photo-1558494949-ef526b0042a0?q=80&w=2668&auto=format&fit=crop",
-    description:
-      "We pride ourselves on reliability. Our systems are designed to handle failures gracefully.",
-  },
-  {
-    id: 3,
-    title: "Happy Users",
-    subtitle: "Growing community",
-    highlight: "2M+",
-    suffix: "Users",
-    image:
-      "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop",
-    description:
-      "Join millions of developers and creators building the future with our tools.",
-  },
-  {
-    id: 4,
-    title: "Data Security",
-    subtitle: "Bank-grade encryption",
-    highlight: "256",
-    suffix: "Bit",
-    image:
-      "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=1470&auto=format&fit=crop",
-    description:
-      "Your data is protected by state-of-the-art encryption protocols, ensuring complete privacy and compliance.",
-  },
-  {
-    id: 5,
-    title: "Team Growth",
-    subtitle: "Experts worldwide",
-    highlight: "500+",
-    suffix: "Engineers",
-    image:
-      "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1471&auto=format&fit=crop",
-    description:
-      "Our distributed team of experts works around the clock to build and maintain the platforms you love.",
-  },
-];
+import { statsSlides } from "./heroStatsData";
 
 const BackgroundGhostReel = ({ activeIndex, slides }) => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none flex items-center justify-center -z-10">
@@ -306,19 +248,20 @@ const HeroCard = ({ image, highlight, suffix }) => {
   );
 };
 
-export default function HeroStatsReel({ slides = defaultSlides }) {
+export default function HeroStatsReel({ slides = statsSlides }) {
   const containerRef = useRef(null);
+  // "start end" = progress 0 when section top hits viewport bottom (section just entering); "end start" = progress 1 when section bottom hits viewport top (section leaving). Envelope shows as soon as section enters, no white gap.
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start start", "end end"],
+    offset: ["start end", "end start"],
   });
 
   const [activeIndex, setActiveIndex] = useState(0);
 
-  // Fixed overlay only visible while section is in view (sticky fails with Lenis/smooth scroll)
+  // Show overlay as soon as section enters viewport (progress > 0); hide when section is below or above
   const overlayOpacity = useTransform(
     scrollYProgress,
-    [0, 0.02, 0.98, 1],
+    [0, 0.001, 0.999, 1],
     [0, 1, 1, 0]
   );
   const [overlayVisible, setOverlayVisible] = useState(true);

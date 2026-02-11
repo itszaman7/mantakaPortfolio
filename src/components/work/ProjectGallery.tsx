@@ -70,14 +70,14 @@ const ProjectGallery = () => {
     }, { scope: containerRef, dependencies: [] });
 
     return (
-        <section ref={containerRef} className="w-full relative bg-neutral-50">
+        <section ref={containerRef} className="w-full relative bg-neutral-50 overflow-hidden">
             <div className="px-6 md:px-12 lg:px-24 pt-16 pb-8">
                 <h2 className="font-space-grotesk font-black tracking-tighter text-neutral-900 text-[11.5vw] leading-[0.8]">
                     SELECTED WORK
                 </h2>
             </div>
 
-            <div className="relative">
+            <div className="relative block">
                 {projects.map((project, i) => (
                     <div
                         key={project.id}
