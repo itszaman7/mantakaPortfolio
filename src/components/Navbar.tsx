@@ -190,14 +190,14 @@ export default function Navbar() {
                                                         {/* Number and Text */}
                                                         <div className="relative flex items-baseline gap-6 md:gap-12">
                                                             <span
-                                                                className={`font-jetbrains-mono text-sm md:text-base text-pulse/60 group-hover:text-background transition-colors duration-300 font-mono`}
+                                                                className={`font-mono text-sm md:text-base text-pulse/60 group-hover:text-background transition-colors duration-300 font-mono`}
                                                             >
                                                                 {String(index + 1).padStart(2, "0")}
                                                             </span>
 
                                                             {/* Letter-by-letter animation */}
                                                             <div className="relative flex-1">
-                                                                <h2 className={`font-space-grotesk text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter text-foreground`}>
+                                                                <h2 className={`font-sans text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter text-foreground`}>
                                                                     <AnimatedText text={item.label} />
                                                                 </h2>
                                                             </div>
@@ -243,10 +243,10 @@ export default function Navbar() {
                                 <div className="flex flex-col justify-between p-12 w-full">
                                     {/* Email */}
                                     <div>
-                                        <p className={`font-jetbrains-mono text-xs text-pulse/60 mb-3 tracking-wider`}>EMAIL</p>
+                                        <p className={`font-mono text-xs text-pulse/60 mb-3 tracking-wider`}>EMAIL</p>
                                         <a
                                             href="mailto:hello@mantaka.dev"
-                                            className={`font-jetbrains-mono text-sm text-foreground hover:text-pulse transition-colors duration-300 block`}
+                                            className={`font-mono text-sm text-foreground hover:text-pulse transition-colors duration-300 block`}
                                         >
                                             hello@mantaka.dev
                                         </a>
@@ -254,7 +254,7 @@ export default function Navbar() {
 
                                     {/* Social Links */}
                                     <div>
-                                        <p className={`font-jetbrains-mono text-xs text-pulse/60 mb-4 tracking-wider`}>SOCIAL</p>
+                                        <p className={`font-mono text-xs text-pulse/60 mb-4 tracking-wider`}>SOCIAL</p>
                                         <div className="flex gap-4">
                                             {/* GitHub */}
                                             <a
@@ -308,8 +308,8 @@ export default function Navbar() {
 
                                     {/* Location */}
                                     <div>
-                                        <p className={`font-jetbrains-mono text-xs text-pulse/60 mb-3 tracking-wider`}>LOCATION</p>
-                                        <p className={`font-jetbrains-mono text-sm text-foreground`}>Dhaka, Bangladesh</p>
+                                        <p className={`font-mono text-xs text-pulse/60 mb-3 tracking-wider`}>LOCATION</p>
+                                        <p className={`font-mono text-sm text-foreground`}>Dhaka, Bangladesh</p>
                                     </div>
                                 </div>
                             </motion.div>

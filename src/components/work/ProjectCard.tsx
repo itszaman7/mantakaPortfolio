@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from 'next/link';
 import { Project } from "./projectsData";
 import { getProjectBackgroundColor } from "./projectsData";
+import { ArrowRight } from "lucide-react";
 
 /** Extract a dominant tint from an image URL for use as card background. */
 function getDominantColorFromImageUrl(url: string): Promise<string> {
@@ -36,7 +38,7 @@ function getDominantColorFromImageUrl(url: string): Promise<string> {
                 g = Math.round(g / count);
                 b = Math.round(b / count);
                 // Lighten so it works as a readable card background (tinted pastel)
-                const mix = 0.55;
+                const mix = 0.75; // Increased mix for lighter pastels
                 r = Math.round(r * mix + 255 * (1 - mix));
                 g = Math.round(g * mix + 255 * (1 - mix));
                 b = Math.round(b * mix + 255 * (1 - mix));
@@ -57,6 +59,20 @@ function getDominantColorFromImageUrl(url: string): Promise<string> {
         img.onerror = () => reject(new Error("Image load failed"));
         img.src = url;
     });
+}
+
+/**
+ * Calculate the relative luminance of a color.
+ * Returns a value between 0 (black) and 1 (white).
+ */
+function getLuminance(hex: string): number {
+    const rgb = parseInt(hex.slice(1), 16);
+    const r = (rgb >> 16) & 0xff;
+    const g = (rgb >> 8) & 0xff;
+    const b = (rgb >> 0) & 0xff;
+
+    // SMPTE C, Rec. 709 weightings
+    return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
 }
 
 interface ProjectCardProps {
@@ -84,87 +100,70 @@ const ProjectCard = ({ project, index, className = "" }: ProjectCardProps) => {
             .catch(() => setImageColor(null));
     }, [imageUrl, useImageColor]);
 
-    const subtitle = project.subtitle ?? project.category;
     const fallbackBg = getProjectBackgroundColor(project, index - 1);
     const bgColor = project.backgroundColor ?? imageColor ?? fallbackBg;
     const indexStr = String(index).padStart(2, "0");
 
-    return (
-        <section
-            className={`min-h-screen w-full flex flex-col md:flex-row items-stretch ${className}`}
-            style={{ backgroundColor: bgColor }}
-        >
-            {/* Left column: title, number, subtitle, description, CTA */}
-            <div className="flex-1 flex flex-col justify-center px-6 md:px-12 lg:px-24 py-16 md:py-24 min-w-0 md:max-w-[60%]">
-                <h2 className="font-space-grotesk text-5xl md:text-6xl lg:text-7xl font-bold text-neutral-900 tracking-tight leading-[0.95] mb-4">
-                    {project.title}
-                </h2>
-                <p className="font-space-grotesk text-4xl md:text-5xl lg:text-6xl font-bold text-neutral-900 tracking-tight mb-4">
-                    {indexStr}
-                </p>
-                <p className="font-space-grotesk text-base md:text-lg text-neutral-700 font-medium mb-6">
-                    {subtitle}
-                </p>
-                <p className="font-space-grotesk text-sm md:text-base text-neutral-600 leading-relaxed max-w-xl mb-10 line-clamp-3">
-                    {project.description}
-                </p>
-                <div className="flex items-center gap-3">
-                    <span className="font-space-grotesk text-base font-bold text-neutral-900">
-                        See what we create
-                    </span>
-                    {project.link ? (
-                        <a
-                            href={project.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-12 h-12 flex items-center justify-center bg-white rounded-xl border border-neutral-200 shadow-sm hover:shadow-md hover:border-neutral-300 transition-all duration-200 group/btn"
-                            aria-label="View project"
-                        >
-                            <svg
-                                width="20"
-                                height="20"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                className="group-hover/btn:translate-x-0.5 transition-transform"
-                            >
-                                <path d="M5 12h14M12 5l7 7-7 7" />
-                            </svg>
-                        </a>
-                    ) : (
-                        <span className="w-12 h-12 flex items-center justify-center bg-white rounded-xl border border-neutral-200 shadow-sm opacity-60 cursor-not-allowed">
-                            <svg
-                                width="20"
-                                height="20"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                            >
-                                <path d="M5 12h14M12 5l7 7-7 7" />
-                            </svg>
-                        </span>
-                    )}
-                </div>
-            </div>
+    const dark = getLuminance(bgColor) < 0.5;
 
-            {/* Right column: single image */}
-            <div className="flex-1 relative min-h-[50vh] md:min-h-full md:max-w-[45%] p-6 md:p-8 lg:p-12 flex items-center">
-                <div className="relative w-full h-full min-h-[320px] md:min-h-[480px] rounded-2xl overflow-hidden bg-neutral-200">
-                    <Image
-                        src={imageUrl}
-                        alt={project.title}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, 45vw"
-                        priority={index === 1}
-                        // 3. Fallback for broken links or loading errors
-                        onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = DEFAULT_IMAGE;
-                        }}
-                    />
+    return (
+        <section className={`min-h-screen w-full flex items-center justify-center p-4 md:p-6 ${className}`}>
+            <div
+                className="w-[98%] md:w-[94%] h-[85vh] md:h-[90vh] rounded-[40px] md:rounded-[64px] overflow-hidden shadow-[0_40px_120px_-30px_rgba(0,0,0,0.4)] relative flex items-center p-8 md:p-16 lg:p-24"
+                style={{ backgroundColor: bgColor }}
+            >
+                <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
+                    <div className="flex flex-col gap-8 relative z-10 order-2 lg:order-1">
+                        <div className="space-y-4">
+                            <div className={`text-4xl md:text-6xl font-black opacity-30 ${dark ? "text-white" : "text-black"}`}>
+                                {indexStr}
+                            </div>
+                            <h2 className={`text-5xl md:text-8xl font-black tracking-tighter leading-[0.85] ${dark ? "text-white" : "text-neutral-900"}`}>
+                                {project.title}
+                            </h2>
+                            <p className={`text-xl md:text-3xl font-bold tracking-tight ${dark ? "text-white/80" : "text-neutral-800"}`}>
+                                {project.subtitle || project.category}
+                            </p>
+                        </div>
+
+                        <p className={`text-lg md:text-xl leading-relaxed max-w-md font-medium opacity-70 ${dark ? "text-white" : "text-neutral-600"}`}>
+                            {project.description}
+                        </p>
+
+                        <div className="pt-2">
+                            {project.slug ? (
+                                <Link
+                                    href={`/work/${project.slug}`}
+                                    className={`group inline-flex items-center justify-center h-16 md:h-20 px-10 md:px-14 rounded-full font-black text-xl md:text-2xl transition-all shadow-xl ${dark ? "bg-white text-black hover:bg-neutral-100" : "bg-black text-white hover:bg-neutral-800"}`}
+                                >
+                                    <span>View Project</span>
+                                    <ArrowRight className="ml-3 w-6 h-6 md:w-8 md:h-8 group-hover:translate-x-2 transition-transform" />
+                                </Link>
+                            ) : (
+                                <button
+                                    disabled
+                                    className={`inline-flex items-center justify-center h-16 md:h-20 px-10 md:px-14 rounded-full font-black text-xl md:text-2xl opacity-60 cursor-not-allowed ${dark ? "bg-white/50 text-black" : "bg-neutral-400 text-white"}`}
+                                >
+                                    <span>Coming Soon</span>
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="relative aspect-[4/3] rounded-[32px] md:rounded-[48px] overflow-hidden shadow-2xl border-[12px] border-white/10 order-1 lg:order-2 project-image-container">
+                        <Image
+                            src={imageUrl}
+                            alt={project.title}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 1024px) 100vw, 50vw"
+                            priority={index === 1}
+                            onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = DEFAULT_IMAGE;
+                            }}
+                        />
+                    </div>
                 </div>
             </div>
         </section>

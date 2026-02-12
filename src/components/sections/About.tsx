@@ -128,11 +128,11 @@ const About = () => {
             <div className="md:w-1/2 relative z-10 h-full flex flex-col justify-center p-8 md:p-16 lg:p-24 pb-32">
 
                 <div className="max-w-xl relative z-20">
-                    <h3 className="anim-text font-space-grotesk text-sm font-bold tracking-widest text-red-500 uppercase mb-6">
+                    <h3 className="anim-text font-sans text-sm font-bold tracking-widest text-red-500 uppercase mb-6">
                         Bridging The Gap
                     </h3>
 
-                    <div className="font-space-grotesk text-4xl md:text-5xl lg:text-7xl font-medium leading-[1.1] text-gray-900 tracking-tight">
+                    <div className="font-sans text-4xl md:text-5xl lg:text-7xl font-medium leading-[1.1] text-gray-900 tracking-tight">
                         <div className="anim-text mb-2">
                             Between <span className="highlight box-decoration-clone inline-block px-1 bg-gradient-to-r from-red-600 to-red-600 bg-no-repeat text-white">intelligent AI</span>
                         </div>

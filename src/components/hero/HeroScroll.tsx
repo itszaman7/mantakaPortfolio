@@ -212,11 +212,11 @@ const HeroScroll = () => {
                     {/* Left Column */}
                     <div className="md:w-1/2 relative z-10 h-full flex flex-col justify-center p-6 sm:p-8 md:p-16 lg:p-24 pb-24 sm:pb-32 overflow-hidden">
                         <div className="max-w-xl relative z-20">
-                            <h3 className="anim-text font-space-grotesk text-xs sm:text-sm font-bold tracking-widest text-red-500 uppercase mb-4 sm:mb-6">
+                            <h3 className="anim-text font-sans text-xs sm:text-sm font-bold tracking-widest text-red-500 uppercase mb-4 sm:mb-6">
                                 Bridging The Gap
                             </h3>
 
-                            <div className="font-space-grotesk text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-medium leading-[1.1] text-gray-900 tracking-tight">
+                            <div className="font-sans text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-medium leading-[1.1] text-gray-900 tracking-tight">
                                 <div className="anim-text mb-1 sm:mb-2">
                                     Between <span className="highlight box-decoration-clone inline-block px-1 bg-gradient-to-r from-red-600 to-red-600 bg-no-repeat text-white">intelligent AI</span>
                                 </div>
@@ -275,7 +275,7 @@ const HeroScroll = () => {
                     <div ref={stripe1Ref} className="absolute bg-[#111] py-2 sm:py-3 md:py-5 lg:py-6 w-[200vw] flex justify-center items-center transform rotate-[15deg] shadow-lg border-y border-gray-800 opacity-0 overflow-hidden">
                         <div ref={marqueeRow1Ref} className="flex whitespace-nowrap w-max opacity-90 items-center justify-center">
                             {[...Array(16)].map((_, i) => (
-                                <span key={i} className="font-space-grotesk font-bold text-[2.5vw] sm:text-[3vw] md:text-[4vw] leading-none text-white mr-4 sm:mr-8 md:mr-12 tracking-wider inline-flex items-center shrink-0">
+                                <span key={i} className="font-sans font-bold text-[2.5vw] sm:text-[3vw] md:text-[4vw] leading-none text-white mr-4 sm:mr-8 md:mr-12 tracking-wider inline-flex items-center shrink-0">
                                     AGENTIC AI RESEARCHER <span className="text-red-500 mx-2 md:mx-4 text-xl md:text-4xl">■</span>
                                 </span>
                             ))}
@@ -284,7 +284,7 @@ const HeroScroll = () => {
                     <div ref={stripe2Ref} className="absolute bg-[#111] py-2 sm:py-3 md:py-5 lg:py-6 w-[200vw] flex justify-center items-center transform -rotate-[15deg] shadow-lg border-y border-gray-800 opacity-0 overflow-hidden">
                         <div ref={marqueeRow2Ref} className="flex whitespace-nowrap w-max opacity-90 items-center justify-center">
                             {[...Array(16)].map((_, i) => (
-                                <span key={i} className="font-space-grotesk font-bold text-[2.5vw] sm:text-[3vw] md:text-[4vw] leading-none text-white mr-4 sm:mr-8 md:mr-12 tracking-wider inline-flex items-center shrink-0">
+                                <span key={i} className="font-sans font-bold text-[2.5vw] sm:text-[3vw] md:text-[4vw] leading-none text-white mr-4 sm:mr-8 md:mr-12 tracking-wider inline-flex items-center shrink-0">
                                     PYTHON <span className="text-red-500 mx-2 md:mx-4 text-xl md:text-4xl">■</span> NEXT.JS <span className="text-red-500 mx-2 md:mx-4 text-xl md:text-4xl">■</span>
                                 </span>
                             ))}

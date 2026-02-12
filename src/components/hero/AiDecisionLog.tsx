@@ -81,7 +81,7 @@ export default function AiDecisionLog({ lines, onComplete }: AiDecisionLogProps)
             ref={scrollRef}
             className="w-full h-full flex flex-col overflow-y-auto overflow-x-hidden gap-0.5 text-[clamp(10px,1.4vw,18px)] leading-tight min-w-0 pb-3"
         >
-            <div className="font-jetbrains-mono text-red-500/90 flex flex-col min-w-0 flex-1">
+            <div className="font-mono text-red-500/90 flex flex-col min-w-0 flex-1">
                 {completedLines.map((line, i) => (
                     <div key={i} className="break-words min-w-0">
                         <span className="opacity-50 mr-1.5 select-none">›</span>

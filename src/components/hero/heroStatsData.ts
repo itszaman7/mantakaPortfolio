@@ -1,3 +1,5 @@
+import { supabase } from "@/lib/supabase";
+
 export interface StatsSlide {
     id: string;
     title: string;
@@ -8,7 +10,8 @@ export interface StatsSlide {
     image: string;
 }
 
-export const statsSlides: StatsSlide[] = [
+/** Fallback when DB is empty or fetch fails */
+export const statsSlidesFallback: StatsSlide[] = [
     {
         id: "2",
         title: "Hackathon",
@@ -54,3 +57,28 @@ export const statsSlides: StatsSlide[] = [
             "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop",
     },
 ];
+
+/** Fetches hero stats from Supabase. Table: hero_stats (id, title, subtitle, highlight, suffix, description, image, sort_order). Falls back to statsSlidesFallback if empty or error. */
+export async function getHeroStats(): Promise<StatsSlide[]> {
+    const { data, error } = await supabase
+        .from("hero_stats")
+        .select("id, title, subtitle, highlight, suffix, description, image, sort_order")
+        .order("sort_order", { ascending: true });
+
+    if (error) {
+        console.error("Error fetching hero stats:", error);
+        return statsSlidesFallback;
+    }
+
+    if (!data?.length) return statsSlidesFallback;
+
+    return data.map((row: { id: string; title: string; subtitle: string; highlight: string; suffix: string | null; description: string; image: string; sort_order?: number }) => ({
+        id: String(row.id),
+        title: row.title ?? "",
+        subtitle: row.subtitle ?? "",
+        highlight: row.highlight ?? "",
+        suffix: row.suffix ?? "",
+        description: row.description ?? "",
+        image: row.image ?? "",
+    }));
+}

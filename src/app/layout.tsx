@@ -1,21 +1,7 @@
 import type { Metadata } from "next";
-import { Geist, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import Navbar from "@/components/Navbar";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -28,14 +14,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="font-sans">
       <head>
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Geist+Mono&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap"
         />
       </head>
-      <body className={`${geistSans.variable} ${spaceGrotesk.variable} antialiased`}>
+      <body className="antialiased">
         <Navbar />
         <SmoothScroll>{children}</SmoothScroll>
       </body>

@@ -9,15 +9,15 @@ import {
   useMotionValue,
   AnimatePresence,
 } from "framer-motion";
-import { statsSlides } from "./heroStatsData";
+import { getHeroStats, statsSlidesFallback, type StatsSlide } from "./heroStatsData";
 
-const BackgroundGhostReel = ({ activeIndex, slides }) => (
+const BackgroundGhostReel = ({ activeIndex, slides }: { activeIndex: number; slides: StatsSlide[] }) => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none flex items-center justify-center -z-10">
     <motion.div
       animate={{
         y: `calc(50% - ${activeIndex * 40}vh - 20vh)`,
       }}
-      transition={{ type: "spring", stiffness: 50, damping: 20 }}
+      transition={{ type: "tween", duration: 0.2, ease: "easeOut" }}
       className="flex flex-col items-center opacity-[0.04]"
     >
       {slides.map((slide) => (
@@ -34,7 +34,7 @@ const BackgroundGhostReel = ({ activeIndex, slides }) => (
   </div>
 );
 
-const HeroCard = ({ image, highlight, suffix }) => {
+const HeroCard = ({ image, highlight, suffix }: { image: string; highlight: string; suffix: string }) => {
   const [isHovered, setHovered] = useState(false);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -59,7 +59,7 @@ const HeroCard = ({ image, highlight, suffix }) => {
     containerScale.set(isHovered ? 1.05 : 1);
   }, [isHovered, containerScale]);
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const w = rect.width;
     const h = rect.height;
@@ -76,7 +76,7 @@ const HeroCard = ({ image, highlight, suffix }) => {
       z: 40,
       transition: {
         duration: 0.3,
-        ease: "easeInOut",
+        ease: "easeInOut" as const,
         delay: 0.3,
       },
     },
@@ -85,7 +85,7 @@ const HeroCard = ({ image, highlight, suffix }) => {
       z: 40,
       transition: {
         duration: 0.3,
-        ease: "easeInOut",
+        ease: "easeInOut" as const,
         delay: 0,
       },
     },
@@ -98,7 +98,7 @@ const HeroCard = ({ image, highlight, suffix }) => {
       rotateX: 0,
       transition: {
         duration: 0.3,
-        ease: "easeInOut",
+        ease: "easeInOut" as const,
         delay: 0,
       },
     },
@@ -108,7 +108,7 @@ const HeroCard = ({ image, highlight, suffix }) => {
       rotateX: 5,
       transition: {
         duration: 0.3,
-        ease: "easeOut",
+        ease: "easeOut" as const,
         delay: 0.2,
       },
     },
@@ -248,63 +248,89 @@ const HeroCard = ({ image, highlight, suffix }) => {
   );
 };
 
-export default function HeroStatsReel({ slides = statsSlides }) {
-  const containerRef = useRef(null);
-  // "start end" = progress 0 when section top hits viewport bottom (section just entering); "end start" = progress 1 when section bottom hits viewport top (section leaving). Envelope shows as soon as section enters, no white gap.
+const VH_PER_SLIDE = 65;
+const VH_EXTRA_END = 40; // Extra scroll at end so the last slide is reachable
+
+export default function HeroStatsReel() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [slides, setSlides] = useState<StatsSlide[]>(statsSlidesFallback);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    getHeroStats().then(setSlides);
+  }, []);
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"],
   });
 
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  // Show overlay as soon as section enters viewport (progress > 0); hide when section is below or above
+  // Overlay fades in at start, stays full until near end, then fades out so next section doesn't appear before card is gone
   const overlayOpacity = useTransform(
     scrollYProgress,
-    [0, 0.001, 0.999, 1],
+    [0, 0.002, 0.96, 1],
     [0, 1, 1, 0]
   );
-  const [overlayVisible, setOverlayVisible] = useState(true);
+
+  // Hysteresis at boundaries so slide changes are consistent (same scroll distance each time, no delayed switch when smooth scroll catches up)
+  const prevIndexRef = useRef(0);
+  const HYST = 0.045; // dead zone: must scroll past boundary by this much to switch
 
   useEffect(() => {
     const unsubscribe = scrollYProgress.on("change", (latest) => {
-      const index = Math.floor(latest * slides.length);
-      setActiveIndex(Math.min(Math.max(index, 0), slides.length - 1));
-      setOverlayVisible(latest >= 0 && latest <= 1);
+      const n = slides.length;
+      if (n === 0) return;
+      const prev = prevIndexRef.current;
+      const progress = Math.max(0, Math.min(1, latest));
+      const segment = Math.min(Math.floor(progress * n), n - 1);
+
+      let next = prev;
+      if (segment > prev) {
+        next = progress >= (prev + 1) / n - HYST ? segment : prev;
+      } else if (segment < prev) {
+        next = progress <= prev / n + HYST ? segment : prev;
+      }
+      if (next !== prev) {
+        prevIndexRef.current = next;
+        setActiveIndex(next);
+      }
     });
     return () => unsubscribe();
   }, [scrollYProgress, slides.length]);
+
+  useEffect(() => {
+    prevIndexRef.current = Math.min(activeIndex, Math.max(0, slides.length - 1));
+  }, [activeIndex, slides.length]);
 
   const currentSlide = slides[activeIndex];
 
   if (!currentSlide) return null;
 
+  const sectionHeightVh = slides.length * VH_PER_SLIDE + VH_EXTRA_END;
+
   return (
     <div
       ref={containerRef}
-      style={{ height: `${slides.length * 100}vh` }}
+      style={{ minHeight: `${sectionHeightVh}vh`, height: `${sectionHeightVh}vh` }}
       className="relative w-full bg-neutral-50"
     >
-      {/* Fixed viewport overlay: envelope and text stay in place until first/last scroll */}
+      {/* Fixed overlay: pointer-events none so scroll works; only inner content captures hover/click */}
       <motion.div
-        className="fixed inset-0 z-0 overflow-hidden flex items-center justify-center bg-neutral-50"
-        style={{
-          opacity: overlayOpacity,
-          pointerEvents: overlayVisible ? "auto" : "none",
-        }}
+        className="fixed inset-0 z-0 overflow-hidden flex items-center justify-center bg-neutral-50 pointer-events-none"
+        style={{ opacity: overlayOpacity }}
       >
         <BackgroundGhostReel activeIndex={activeIndex} slides={slides} />
 
-        <div className="relative z-10 max-w-[1200px] mx-auto w-full px-6 md:px-12 grid grid-cols-1 md:grid-cols-12 gap-8 items-center min-h-0 flex-1">
+        <div className="relative z-10 max-w-[1200px] mx-auto w-full px-6 md:px-12 grid grid-cols-1 md:grid-cols-12 gap-8 items-center min-h-0 flex-1 pointer-events-auto">
           {/* Left Text */}
           <div className="md:col-span-4 text-center md:text-left order-2 md:order-1">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentSlide.title}
-                initial={{ y: 20, opacity: 0 }}
+                initial={{ y: 12, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                exit={{ y: -20, opacity: 0 }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
+                exit={{ y: -12, opacity: 0 }}
+                transition={{ duration: 0.18, ease: "easeOut" }}
               >
                 <h2 className="text-4xl lg:text-6xl font-bold tracking-tight text-neutral-900 mb-2">
                   {currentSlide.title}
@@ -334,7 +360,7 @@ export default function HeroStatsReel({ slides = statsSlides }) {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.4, delay: 0.1 }}
+                  transition={{ duration: 0.18 }}
                   className="text-neutral-600 leading-relaxed font-medium"
                 >
                   {currentSlide.description}

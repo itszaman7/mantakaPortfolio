@@ -28,11 +28,13 @@ html.lenis body {
   --accent-pulse: #ff002b;
   --accent-shadow: #800016;
   --hero-blue: #1d75de;
-  /* Loaded via stylesheet (no preload) to avoid "preload not used" warnings */
-  --font-geist-mono: "Geist Mono", ui-monospace, monospace;
-  --font-jetbrains-mono: "JetBrains Mono", ui-monospace, monospace;
+  /* Primary: system font stack (San Francisco, Segoe UI, etc.) */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* Monospace: system mono (footer labels, code) */
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono", "Liberation Mono", monospace;
   --font-cursive: "Dancing Script", cursive;
-  --font-li-ador: "Noto Sans Bengali", sans-serif;
+  /* Bangla / Bengali text – keep separate, loaded in layout */
+  --font-bangla: "Noto Sans Bengali", sans-serif;
 }
 
 @theme {
@@ -49,10 +51,8 @@ html.lenis body {
   --color-ferrari: #ff002b;
   --color-blood: #800016;
 
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-space-grotesk: var(--font-space-grotesk);
-  --font-jetbrains-mono: var(--font-jetbrains-mono);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
 * {
@@ -62,7 +62,7 @@ html.lenis body {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-sans);
 }
 
 .hero-cursive {
@@ -70,16 +70,61 @@ body {
     var(--font-cursive), "Dancing Script", "Brush Script MT", cursive;
 }
 
-.font-space-grotesk {
-  font-family: var(--font-space-grotesk), system-ui, sans-serif;
-}
-
-.font-jetbrains-mono {
-  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+/* Use for Bangla / Bengali text only */
+.font-bangla {
+  font-family: var(--font-bangla);
 }
 
 .work-card {
   will-change: transform;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+}
+
+/* Long project story text: scrollable area with subtle scrollbar */
+.story-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+.story-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.story-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.story-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 3px;
+}
+/* Legacy section is on white bg */
+section.bg-white .story-scroll {
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+section.bg-white .story-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* Footer: outlined greeting (light theme = dark stroke) */
+.footer-greeting-outline {
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 2px currentColor;
+  paint-order: stroke fill;
+}
+@media (min-width: 768px) {
+  .footer-greeting-outline {
+    -webkit-text-stroke-width: 3px;
+  }
+}
+
+/* Footer marquee: scroll left to right */
+@keyframes footer-marquee-ltr {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+.footer-marquee-track {
+  animation: footer-marquee-ltr 35s linear infinite;
+}
+.footer-marquee-track:hover {
+  animation-play-state: paused;
 }
