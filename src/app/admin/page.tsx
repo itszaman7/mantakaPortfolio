@@ -39,6 +39,17 @@ interface HeroStat {
     sort_order: number;
 }
 
+interface Milestone {
+    id?: string;
+    year: string;
+    title: string;
+    description: string;
+    images: string[];
+    tags: string[];
+    side: 'left' | 'right' | 'center';
+    sort_order: number;
+}
+
 const COLOR_PRESETS = [
     { name: 'Spotify Green', value: '#1DB954' },
     { name: 'Spotify Light Green', value: '#1ED760' },
@@ -81,7 +92,7 @@ const COLOR_PRESETS = [
     { name: 'Pastel Green', value: '#77DD77' },
 ];
 
-type AdminTab = 'projects' | 'stats';
+type AdminTab = 'projects' | 'stats' | 'milestones';
 
 export default function AdminPage() {
     const [activeTab, setActiveTab] = useState<AdminTab>('projects');
@@ -120,6 +131,19 @@ export default function AdminPage() {
         sort_order: 0,
     });
     const [statsSaving, setStatsSaving] = useState(false);
+    const [milestones, setMilestones] = useState<Milestone[]>([]);
+    const [milestonesLoading, setMilestonesLoading] = useState(false);
+    const [showMilestoneForm, setShowMilestoneForm] = useState(false);
+    const [milestoneFormData, setMilestoneFormData] = useState<Milestone>({
+        year: '',
+        title: '',
+        description: '',
+        images: [],
+        tags: [],
+        side: 'left',
+        sort_order: 0,
+    });
+    const [milestonesSaving, setMilestonesSaving] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -128,6 +152,7 @@ export default function AdminPage() {
 
     useEffect(() => {
         if (activeTab === 'stats') fetchHeroStats();
+        if (activeTab === 'milestones') fetchMilestones();
     }, [activeTab]);
 
     const fetchProjects = async () => {
@@ -280,6 +305,73 @@ export default function AdminPage() {
         if (!error) fetchHeroStats();
     };
 
+    const fetchMilestones = async () => {
+        setMilestonesLoading(true);
+        const { data, error } = await supabase
+            .from('milestones')
+            .select('*')
+            .order('sort_order', { ascending: true });
+        if (!error && data) {
+            setMilestones(data.map((row: Record<string, unknown>) => ({
+                id: row.id as string,
+                year: String(row.year ?? ''),
+                title: String(row.title ?? ''),
+                description: String(row.description ?? row.story ?? ''),
+                images: Array.isArray(row.images) ? (row.images as string[]) : [],
+                tags: Array.isArray(row.tags) ? (row.tags as string[]) : [],
+                side: (row.side === 'right' || row.side === 'center' ? row.side : 'left') as 'left' | 'right' | 'center',
+                sort_order: typeof row.sort_order === 'number' ? row.sort_order : 0,
+            })));
+        }
+        setMilestonesLoading(false);
+    };
+
+    const handleMilestoneSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setMilestonesSaving(true);
+        const { id, ...rest } = milestoneFormData;
+        if (id) {
+            const { error } = await supabase.from('milestones').update(rest).eq('id', id);
+            if (!error) {
+                setShowMilestoneForm(false);
+                resetMilestoneForm();
+                fetchMilestones();
+            } else alert(error.message);
+        } else {
+            const { error } = await supabase.from('milestones').insert([rest]);
+            if (!error) {
+                setShowMilestoneForm(false);
+                resetMilestoneForm();
+                fetchMilestones();
+            } else alert(error.message);
+        }
+        setMilestonesSaving(false);
+    };
+
+    const resetMilestoneForm = () => {
+        setMilestoneFormData({
+            year: '',
+            title: '',
+            description: '',
+            images: [],
+            tags: [],
+            side: 'left',
+            sort_order: milestones.length,
+        });
+    };
+
+    const handleEditMilestone = (m: Milestone) => {
+        setMilestoneFormData(m);
+        setShowMilestoneForm(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const deleteMilestone = async (id: string) => {
+        if (!confirm('Delete this milestone?')) return;
+        const { error } = await supabase.from('milestones').delete().eq('id', id);
+        if (!error) fetchMilestones();
+    };
+
     return (
         <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-red-600/30">
             {/* Header */}
@@ -308,6 +400,24 @@ export default function AdminPage() {
                             >
                                 <Plus className={`w-4 h-4 transition-transform duration-300 ${showForm ? 'rotate-45' : ''}`} />
                                 {showForm ? 'Cancel' : 'Add Project'}
+                            </button>
+                        ) : activeTab === 'milestones' ? (
+                            <button
+                                onClick={() => {
+                                    if (showMilestoneForm) {
+                                        setShowMilestoneForm(false);
+                                        resetMilestoneForm();
+                                    } else {
+                                        setShowMilestoneForm(true);
+                                        setMilestoneFormData((prev) => ({ ...prev, sort_order: milestones.length }));
+                                    }
+                                    setShowForm(false);
+                                    setShowStatsForm(false);
+                                }}
+                                className="bg-white text-black hover:bg-white/90 px-4 py-2 rounded-lg font-bold text-sm transition-all flex items-center gap-2 group"
+                            >
+                                <Plus className={`w-4 h-4 transition-transform duration-300 ${showMilestoneForm ? 'rotate-45' : ''}`} />
+                                {showMilestoneForm ? 'Cancel' : 'Add Milestone'}
                             </button>
                         ) : (
                             <button
@@ -341,16 +451,22 @@ export default function AdminPage() {
             <main className="max-w-7xl mx-auto px-6 py-12">
                 <div className="flex gap-2 mb-8 border-b border-white/10 pb-2">
                     <button
-                        onClick={() => { setActiveTab('projects'); setShowStatsForm(false); }}
+                        onClick={() => { setActiveTab('projects'); setShowStatsForm(false); setShowMilestoneForm(false); }}
                         className={`px-6 py-2.5 rounded-t-lg font-bold text-sm transition-all ${activeTab === 'projects' ? 'bg-red-600 text-white' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'}`}
                     >
                         Projects
                     </button>
                     <button
-                        onClick={() => { setActiveTab('stats'); setShowForm(false); }}
+                        onClick={() => { setActiveTab('stats'); setShowForm(false); setShowMilestoneForm(false); }}
                         className={`px-6 py-2.5 rounded-t-lg font-bold text-sm transition-all ${activeTab === 'stats' ? 'bg-red-600 text-white' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'}`}
                     >
                         Hero Stats
+                    </button>
+                    <button
+                        onClick={() => { setActiveTab('milestones'); setShowForm(false); setShowStatsForm(false); }}
+                        className={`px-6 py-2.5 rounded-t-lg font-bold text-sm transition-all ${activeTab === 'milestones' ? 'bg-red-600 text-white' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'}`}
+                    >
+                        Milestones
                     </button>
                 </div>
 
@@ -783,6 +899,153 @@ export default function AdminPage() {
                     </div>
                 )}
 
+                {showMilestoneForm && activeTab === 'milestones' && (
+                    <div className="mb-16 bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden shadow-2xl animate-in fade-in slide-in-from-top-4 duration-500">
+                        <div className="p-8 border-b border-white/5 bg-gradient-to-r from-red-600/10 to-transparent">
+                            <h2 className="text-2xl font-bold flex items-center gap-3">
+                                {milestoneFormData.id ? <Pencil className="text-red-600" /> : <Plus className="text-red-600" />}
+                                {milestoneFormData.id ? 'Edit Milestone' : 'New Milestone'}
+                            </h2>
+                        </div>
+                        <form onSubmit={handleMilestoneSubmit} className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="space-y-6">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Year & Title</label>
+                                    <div className="flex gap-4 mb-4">
+                                        <input
+                                            type="text"
+                                            placeholder="Year (e.g. 2024)"
+                                            className="w-24 bg-[#111] border border-white/5 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors"
+                                            value={milestoneFormData.year}
+                                            onChange={(e) => setMilestoneFormData({ ...milestoneFormData, year: e.target.value })}
+                                            required
+                                        />
+                                        <input
+                                            type="text"
+                                            placeholder="Title"
+                                            className="flex-1 bg-[#111] border border-white/5 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors"
+                                            value={milestoneFormData.title}
+                                            onChange={(e) => setMilestoneFormData({ ...milestoneFormData, title: e.target.value })}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Story / Description</label>
+                                    <textarea
+                                        placeholder="The story for this milestone..."
+                                        rows={6}
+                                        className="w-full bg-[#111] border border-white/5 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors resize-none"
+                                        value={milestoneFormData.description}
+                                        onChange={(e) => setMilestoneFormData({ ...milestoneFormData, description: e.target.value })}
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Tags (Comma separated)</label>
+                                    <input
+                                        type="text"
+                                        placeholder="React, Node.js, Leadership..."
+                                        className="w-full bg-[#111] border border-white/5 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors"
+                                        value={(milestoneFormData.tags || []).join(', ')}
+                                        onChange={(e) => setMilestoneFormData({ ...milestoneFormData, tags: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
+                                    />
+                                </div>
+                                <div className="flex gap-4 items-center">
+                                    <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Side on timeline</label>
+                                    <select
+                                        className="bg-[#111] border border-white/5 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors"
+                                        value={milestoneFormData.side}
+                                        onChange={(e) => setMilestoneFormData({ ...milestoneFormData, side: e.target.value as 'left' | 'right' | 'center' })}
+                                    >
+                                        <option value="left">Left</option>
+                                        <option value="right">Right</option>
+                                        <option value="center">Center</option>
+                                    </select>
+                                    <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Order</label>
+                                    <input
+                                        type="number"
+                                        min={0}
+                                        className="w-20 bg-[#111] border border-white/5 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors"
+                                        value={milestoneFormData.sort_order}
+                                        onChange={(e) => setMilestoneFormData({ ...milestoneFormData, sort_order: parseInt(e.target.value, 10) || 0 })}
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-6">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Images</label>
+                                    <div className="space-y-4">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            {milestoneFormData.images?.map((url, index) => (
+                                                <div key={index} className="relative group aspect-video bg-[#111] rounded-xl overflow-hidden border border-white/5">
+                                                    <img src={url} alt={`Milestone ${index}`} className="w-full h-full object-cover" />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const newImages = [...(milestoneFormData.images || [])];
+                                                            newImages.splice(index, 1);
+                                                            setMilestoneFormData({ ...milestoneFormData, images: newImages });
+                                                        }}
+                                                        className="absolute top-2 right-2 bg-red-600/80 p-1.5 rounded-lg text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <CldUploadWidget
+                                            uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'portfolio_preset'}
+                                            options={{ folder: 'portfolio/milestones', resourceType: 'image' }}
+                                            onSuccess={(result: any) => {
+                                                const url = result?.info?.secure_url;
+                                                if (url) setMilestoneFormData(prev => ({ ...prev, images: [...(prev.images || []), url] }));
+                                            }}
+                                        >
+                                            {({ open }) => (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => open()}
+                                                    className="w-full bg-[#111] border-2 border-dashed border-white/10 rounded-xl p-6 hover:border-white/20 hover:bg-white/5 transition-all text-gray-400 hover:text-white flex flex-col items-center gap-2 group"
+                                                >
+                                                    <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                                        <Plus className="w-5 h-5" />
+                                                    </div>
+                                                    <span className="text-xs font-bold uppercase tracking-widest">Add Image</span>
+                                                </button>
+                                            )}
+                                        </CldUploadWidget>
+                                        <input
+                                            type="url"
+                                            placeholder="Or paste image URL and press Enter"
+                                            className="w-full bg-[#111] border border-white/5 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors text-sm"
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    e.preventDefault();
+                                                    const input = e.currentTarget;
+                                                    const url = input.value.trim();
+                                                    if (url) {
+                                                        setMilestoneFormData(prev => ({ ...prev, images: [...(prev.images || []), url] }));
+                                                        input.value = '';
+                                                    }
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                                <button
+                                    type="submit"
+                                    disabled={milestonesSaving}
+                                    className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                                >
+                                    {milestonesSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                                    {milestoneFormData.id ? 'Update Milestone' : 'Add Milestone'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                )}
+
                 {activeTab === 'projects' && (
                 <div className="space-y-6">
                     <div className="flex items-center justify-between mb-8">
@@ -920,6 +1183,59 @@ export default function AdminPage() {
                                     <div className="flex gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button onClick={() => handleEditStat(stat)} className="p-2 hover:bg-white/20 text-gray-500 hover:text-white rounded-lg" title="Edit"><Pencil className="w-4 h-4" /></button>
                                         <button onClick={() => deleteStat(stat.id!)} className="p-2 hover:bg-red-900/20 text-gray-500 hover:text-red-500 rounded-lg" title="Delete"><Trash2 className="w-4 h-4" /></button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+                )}
+
+                {activeTab === 'milestones' && (
+                <div className="space-y-6">
+                    <div className="flex items-center justify-between mb-8">
+                        <h2 className="text-4xl font-black tracking-tighter">MILESTONES</h2>
+                        <div className="h-px bg-white/10 flex-grow mx-8 hidden md:block" />
+                        <span className="text-gray-500 font-mono text-sm">{milestones.length} TOTAL</span>
+                    </div>
+                    {milestonesLoading ? (
+                        <div className="flex flex-col items-center justify-center py-32 gap-4 border border-white/5 rounded-3xl bg-white/[0.02]">
+                            <Loader2 className="w-12 h-12 text-red-600 animate-spin" />
+                            <p className="text-gray-500 font-bold tracking-widest uppercase text-[10px]">Loading...</p>
+                        </div>
+                    ) : milestones.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-32 gap-6 border-2 border-dashed border-white/5 rounded-3xl bg-white/[0.01]">
+                            <p className="text-xl font-bold text-gray-400">No milestones yet</p>
+                            <p className="text-gray-600 text-sm">Click &quot;Add Milestone&quot; to build your About timeline. Create the <code className="bg-white/10 px-1 rounded">milestones</code> table in Supabase first.</p>
+                            <a href="/about" target="_blank" className="text-red-500 hover:text-red-400 text-sm font-mono">View /about page →</a>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {milestones.map((m) => (
+                                <div key={m.id} className="group bg-[#0a0a0a] border border-white/5 rounded-2xl p-6 hover:border-red-600/50 transition-all">
+                                    <div className="aspect-video rounded-xl overflow-hidden mb-4 bg-white/5 relative">
+                                        {m.images?.[0] ? (
+                                            <img src={m.images[0]} alt={m.title} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all" />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center">
+                                                <ImageIcon className="text-white/20 w-12 h-12" />
+                                            </div>
+                                        )}
+                                        <div className="absolute top-2 left-2">
+                                            <span className="px-2 py-1 bg-black/80 rounded text-xs font-bold text-red-500">{m.year}</span>
+                                        </div>
+                                    </div>
+                                    <h3 className="text-lg font-bold tracking-tight">{m.title}</h3>
+                                    <p className="text-gray-600 text-xs mt-2 line-clamp-2">{m.description}</p>
+                                    <div className="flex flex-wrap gap-1 mt-2">
+                                        {m.tags?.slice(0, 3).map((tag, i) => (
+                                            <span key={i} className="text-[9px] font-bold text-gray-500 uppercase tracking-wider bg-white/5 px-2 py-0.5 rounded border border-white/5">{tag}</span>
+                                        ))}
+                                    </div>
+                                    <div className="flex gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button onClick={() => handleEditMilestone(m)} className="p-2 hover:bg-white/20 text-gray-500 hover:text-white rounded-lg" title="Edit"><Pencil className="w-4 h-4" /></button>
+                                        <button onClick={() => deleteMilestone(m.id!)} className="p-2 hover:bg-red-900/20 text-gray-500 hover:text-red-500 rounded-lg" title="Delete"><Trash2 className="w-4 h-4" /></button>
+                                        <a href="/about" target="_blank" className="p-2 hover:bg-white/20 text-gray-500 hover:text-white rounded-lg" title="View About"><ExternalLink className="w-4 h-4" /></a>
                                     </div>
                                 </div>
                             ))}

@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const menuItems = [
-    { label: "Home", href: "#home" },
-    { label: "Projects & Awards", href: "#projects" },
-    { label: "About me", href: "#about" },
-    { label: "Contact", href: "#contact" },
+    { label: "Home", href: "/" },
+    { label: "Projects & Awards", href: "/#projects" },
+    { label: "About me", href: "/about" },
+    { label: "Contact", href: "/#contact" },
 ];
 
 // Letter-by-letter animation component

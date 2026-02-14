@@ -60,24 +60,32 @@ function MarqueeContent() {
 
 export default function Footer() {
   const footerRef = useRef<HTMLElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
   const emailRef = useRef<HTMLAnchorElement>(null);
   const dividerRef = useRef<HTMLDivElement>(null);
   const socialsRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
-  const legalRef = useRef<HTMLDivElement>(null);
+  const copyrightRef = useRef<HTMLParagraphElement>(null);
 
   useGSAP(
     () => {
-      if (!footerRef.current) return;
+      if (!footerRef.current || !innerRef.current) return;
 
       const tl = gsap.timeline({ paused: true });
 
+      // Footer container: slide up + fade in on scroll
+      tl.fromTo(
+        innerRef.current,
+        { y: 48, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6, ease: "power2.out" },
+        0
+      );
       if (emailRef.current) {
         tl.fromTo(
           emailRef.current,
-          { y: 12, opacity: 0 },
+          { y: 16, opacity: 0 },
           { y: 0, opacity: 1, duration: 0.4, ease: "power2.out" },
-          0
+          0.15
         );
       }
       if (dividerRef.current) {
@@ -85,31 +93,31 @@ export default function Footer() {
           dividerRef.current,
           { scaleX: 0 },
           { scaleX: 1, duration: 0.5, ease: "power2.out" },
-          0.1
+          0.2
         );
       }
       if (socialsRef.current) {
         const links = socialsRef.current.querySelectorAll("a");
         tl.fromTo(
           links,
-          { y: 8, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.35, stagger: 0.04, ease: "power2.out" },
-          0.2
+          { y: 10, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.3, stagger: 0.04, ease: "power2.out" },
+          0.25
         );
       }
       if (logoRef.current) {
         tl.fromTo(
           logoRef.current,
-          { x: 12, opacity: 0 },
+          { x: 16, opacity: 0 },
           { x: 0, opacity: 1, duration: 0.4, ease: "power2.out" },
-          0.25
+          0.3
         );
       }
-      if (legalRef.current) {
+      if (copyrightRef.current) {
         tl.fromTo(
-          legalRef.current,
-          { y: 6, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.4, ease: "power2.out" },
+          copyrightRef.current,
+          { y: 8, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.35, ease: "power2.out" },
           0.35
         );
       }
@@ -132,6 +140,7 @@ export default function Footer() {
       ref={footerRef}
       className="relative z-10 w-full font-sans bg-[#f4f4f5] text-neutral-900 selection:bg-red-600 selection:text-white overflow-hidden"
     >
+      <div ref={innerRef}>
       {/* Marquee: greetings left to right */}
       <div className="pt-16 md:pt-20 pb-4">
         <div className="flex overflow-hidden">
@@ -175,7 +184,7 @@ export default function Footer() {
           <a
             ref={emailRef}
             href="mailto:mantaka35@gmail.com"
-            className="inline-block px-8 py-4 rounded-2xl border-2 border-neutral-900 text-neutral-900 text-sm md:text-base font-bold uppercase tracking-widest hover:bg-red-600 hover:border-red-600 hover:text-white transition-all duration-300 hover:scale-[1.02]"
+            className="inline-block px-8 py-4 rounded-2xl border-2 border-neutral-900 text-neutral-900 text-sm md:text-base font-bold uppercase tracking-widest transition-all duration-300 hover:bg-red-600 hover:border-red-600 hover:text-white hover:scale-105 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-red-600/20"
           >
             HELLO@MANTAKA.DESIGN
           </a>
@@ -200,42 +209,53 @@ export default function Footer() {
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[11px] font-bold uppercase tracking-[0.25em] text-neutral-700 hover:text-red-600 transition-colors duration-200"
+                className="footer-social-link inline-flex text-base md:text-lg font-bold uppercase tracking-[0.2em] text-neutral-700"
               >
-                {link.name}
+                {link.name.split("").map((char, i) => (
+                  <span
+                    key={`${link.name}-${i}`}
+                    className="footer-social-letter"
+                    style={{ ["--i" as string]: i }}
+                  >
+                    {char}
+                  </span>
+                ))}
               </a>
             ))}
           </div>
           <div
             ref={logoRef}
-            className="text-2xl md:text-3xl font-black uppercase tracking-tighter text-neutral-900"
+            className="footer-logo-link flex text-2xl md:text-3xl font-black uppercase tracking-tighter text-neutral-900"
           >
-            Mantaka
+            {"Mantaka".split("").map((char, i) => (
+              <span
+                key={`logo-${i}`}
+                className="footer-logo-letter"
+                style={{ ["--i" as string]: i }}
+              >
+                {char}
+              </span>
+            ))}
           </div>
         </div>
 
-        <div
-          ref={legalRef}
-          className="flex flex-col md:flex-row justify-between items-center gap-6 mt-10 pt-8 border-t border-neutral-200"
-        >
-          <div className="flex items-center gap-6">
-            <a
-              href="#"
-              className="text-[11px] font-bold uppercase tracking-[0.25em] text-neutral-600 hover:text-red-600 transition-colors duration-200"
-            >
-              Impressum
-            </a>
-            <a
-              href="#"
-              className="text-[11px] font-bold uppercase tracking-[0.25em] text-neutral-600 hover:text-red-600 transition-colors duration-200"
-            >
-              Privacy
-            </a>
-          </div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-neutral-500">
-            Copyright 2026 © Mantaka
+        <div className="flex justify-center md:justify-end mt-10 pt-8 border-t border-neutral-200">
+          <p
+            ref={copyrightRef}
+            className="footer-copyright"
+          >
+            {"Copyright 2026 © Mantaka".split("").map((char, i) => (
+              <span
+                key={`copy-${i}`}
+                className="footer-copyright-letter"
+                style={{ ["--i" as string]: i }}
+              >
+                {char}
+              </span>
+            ))}
           </p>
         </div>
+      </div>
       </div>
     </footer>
   );

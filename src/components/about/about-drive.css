@@ -1,0 +1,495 @@
+@import url("https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&display=swap");
+
+.about-drive-root {
+  margin: 0;
+  padding: 0;
+  background-color: #f0f0f0;
+  color: #111111;
+  font-family: var(--font-sans), "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+.about-canvas-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 0;
+}
+
+.about-canvas-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+.about-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.about-drive-root .scroll-marker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+  cursor: pointer;
+  will-change: transform;
+  transform-origin: bottom center;
+}
+
+.about-drive-root .marker-preview {
+  background: rgba(255, 255, 255, 0.92);
+  padding: 10px 14px 10px 14px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease;
+  max-width: 240px;
+}
+
+.about-drive-root .marker-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.about-drive-root .marker-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.about-drive-root .marker-title {
+  font-weight: 600;
+  font-size: 0.8125rem;
+  letter-spacing: 0.01em;
+  color: #1a1a1a;
+  line-height: 1.25;
+  margin-bottom: 2px;
+}
+
+.about-drive-root .marker-teaser {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #6b6b6b;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.about-drive-root .marker-line {
+  width: 1px;
+  height: 28px;
+  background: rgba(0, 0, 0, 0.12);
+  margin-top: 2px;
+  transform-origin: top;
+}
+
+.about-drive-root .scroll-marker:hover .marker-preview,
+.about-drive-root .scroll-marker.active .marker-preview {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  z-index: 20;
+}
+
+.about-drive-root .scroll-marker.active .marker-preview {
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.about-drive-root .scroll-marker.expanded {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  transform: none !important;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.about-drive-root .scroll-marker.expanded .marker-preview,
+.about-drive-root .scroll-marker.expanded .marker-line {
+  display: none;
+}
+
+.about-drive-root .card-content {
+  display: none;
+  background: #ffffff;
+  width: 90%;
+  max-width: 720px;
+  max-height: 90vh;
+  border-radius: 8px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  flex-direction: column;
+  animation: about-popIn 0.35s ease-out;
+}
+
+@keyframes about-popIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.about-drive-root .scroll-marker.expanded .card-content {
+  display: flex;
+}
+
+.about-drive-root .gallery-container {
+  width: 100%;
+  height: 400px;
+  background: #111;
+  position: relative;
+}
+
+.about-drive-root .gallery-track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  height: 100%;
+  scrollbar-width: none;
+}
+
+.about-drive-root .gallery-track::-webkit-scrollbar {
+  display: none;
+}
+
+.about-drive-root .gallery-item {
+  min-width: 100%;
+  height: 100%;
+  scroll-snap-align: center;
+  position: relative;
+}
+
+.about-drive-root .gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.9;
+}
+
+.about-drive-root .gallery-caption {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.about-drive-root .card-body {
+  padding: 32px 40px 40px;
+  overflow-y: auto;
+}
+
+.about-drive-root .tech-line {
+  width: 24px;
+  height: 2px;
+  background: #1a1a1a;
+  margin-bottom: 20px;
+}
+
+.about-drive-root .card-body h2 {
+  margin: 0 0 12px 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #1a1a1a;
+  line-height: 1.2;
+}
+
+.about-drive-root .card-body p {
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.65;
+  color: #4a4a4a;
+  max-width: 52ch;
+}
+
+.about-drive-root .btn-minimize {
+  background: transparent;
+  color: #1a1a1a;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 10px 20px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  border-radius: 4px;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+  margin-top: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.about-drive-root .btn-minimize:hover {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.about-scroll-proxy {
+  width: 100%;
+  position: relative;
+  pointer-events: none;
+}
+
+/* Milestone scoreboard (navbar) - matches F1-style glass panel */
+.about-scoreboard {
+  position: fixed;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%);
+  z-index: 20;
+  pointer-events: auto;
+  max-height: 85vh;
+  width: 100%;
+  max-width: 22rem;
+}
+
+.about-scoreboard-panel.glass-panel {
+  background: rgba(20, 20, 24, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.about-scoreboard-list {
+  overflow-y: auto;
+  max-height: min(50vh, 420px);
+  padding-right: 4px;
+}
+
+.about-scoreboard-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.about-scoreboard-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+}
+
+.about-scoreboard-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+.about-title-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  pointer-events: none;
+  padding: 1.5rem 1.5rem;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.35), transparent);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.about-title-bar-badge {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.about-title-bar-label {
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.about-title-bar-teaser {
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.about-drive-root .scroll-instruction {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  color: #4a4a4a;
+  font-weight: 500;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.about-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  color: #ff3300;
+  font-size: 2rem;
+  font-weight: 900;
+  font-style: italic;
+  transition: opacity 0.5s;
+}
+
+/* Minimal animated overlay buttons at bottom center */
+.about-end-overlay {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  max-width: 90vw;
+  animation: slideUpFade 0.6s ease-out;
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.about-end-overlay a,
+.about-end-overlay button {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.about-end-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+.about-end-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 24px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  border-radius: 12px;
+  text-decoration: none;
+  color: #1a1a1a;
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.about-end-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.about-end-btn:hover::before {
+  opacity: 1;
+}
+
+.about-end-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+}
+
+.about-end-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.about-end-btn-primary {
+  background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.24);
+}
+
+.about-end-btn-primary:hover {
+  background: linear-gradient(135deg, #333 0%, #1a1a1a 100%);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.32);
+}
+
+.about-end-btn-replay {
+  width: 100%;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.9);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(255, 68, 68, 0.3);
+  }
+}

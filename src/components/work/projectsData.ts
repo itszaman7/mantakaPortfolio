@@ -84,6 +84,12 @@ export async function getNextProject(currentSlug: string): Promise<Project | und
     return projects[(currentIndex + 1) % projects.length];
 }
 
+/** Returns other projects (excluding current by slug), for "Other projects" section. */
+export async function getOtherProjects(currentSlug: string, limit = 4): Promise<Project[]> {
+    const projects = await getProjects();
+    return projects.filter((p) => p.slug !== currentSlug).slice(0, limit);
+}
+
 // Keep the existing helper
 export function getProjectBackgroundColor(project: Project, index: number): string {
     return project.backgroundColor ?? CARD_BG_PALETTE[index % CARD_BG_PALETTE.length];

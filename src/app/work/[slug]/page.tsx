@@ -7,255 +7,358 @@ import { useParams } from 'next/navigation';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowUpRight, ArrowLeft } from 'lucide-react';
-import { getProjectBySlug, getNextProject, type Project } from '@/components/work/projectsData';
+import { ArrowUpRight, ChevronDown } from 'lucide-react';
+import Footer from '@/components/Footer';
+import { getProjectBySlug, getOtherProjects, type Project } from '@/components/work/projectsData';
 
 if (typeof window !== 'undefined') {
-    gsap.registerPlugin(ScrollTrigger);
+  gsap.registerPlugin(ScrollTrigger);
 }
 
 export default function ProjectPage() {
-    const { slug } = useParams<{ slug: string }>();
-    const [project, setProject] = useState<Project | null>(null);
-    const [nextProject, setNextProject] = useState<Project | null>(null);
-    const [loading, setLoading] = useState(true);
-    const containerRef = useRef<HTMLDivElement>(null);
+  const { slug } = useParams<{ slug: string }>();
+  const [project, setProject] = useState<Project | null>(null);
+  const [otherProjects, setOtherProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const heroWrapRef = useRef<HTMLDivElement>(null);
+  const heroLineRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        const loadData = async () => {
-            if (!slug) return;
-            setLoading(true);
-            const current = await getProjectBySlug(slug);
-            const next = await getNextProject(slug);
-            setProject(current || null);
-            setNextProject(next || null);
-            setLoading(false);
-        };
-        loadData();
-    }, [slug]);
+  useEffect(() => {
+    const loadData = async () => {
+      if (!slug) return;
+      setLoading(true);
+      const [current, others] = await Promise.all([
+        getProjectBySlug(slug),
+        getOtherProjects(slug as string, 4),
+      ]);
+      setProject(current || null);
+      setOtherProjects(others);
+      setLoading(false);
+    };
+    loadData();
+  }, [slug]);
 
-    useGSAP(() => {
-        if (loading || !project || !containerRef.current) return;
+  useGSAP(
+    () => {
+      if (loading || !project || !containerRef.current) return;
 
-        // Animate section headings
-        gsap.utils.toArray<HTMLElement>('.story-heading').forEach((heading) => {
-            gsap.from(heading, {
-                scrollTrigger: {
-                    trigger: heading,
-                    start: 'top 85%',
-                    toggleActions: 'play none none reverse'
-                },
-                y: 50,
-                opacity: 0,
-                duration: 1,
-                ease: 'power3.out'
-            });
-        });
-
-        // Animate text blocks
-        gsap.utils.toArray<HTMLElement>('.story-text').forEach((text) => {
-            gsap.from(text, {
-                scrollTrigger: {
-                    trigger: text,
-                    start: 'top 85%',
-                    toggleActions: 'play none none reverse'
-                },
-                y: 30,
-                opacity: 0,
-                duration: 1,
-                delay: 0.2,
-                ease: 'power3.out'
-            });
-        });
-
-    }, { dependencies: [loading, project], scope: containerRef });
-
-    if (loading) {
-        return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
-                <div className="w-10 h-10 border-4 border-neutral-800 border-t-red-600 rounded-full animate-spin"></div>
-            </div>
+      // Hero title: word-by-word stagger
+      if (heroWrapRef.current) {
+        const words = heroWrapRef.current.querySelectorAll('.hero-word');
+        gsap.fromTo(
+          words,
+          { y: 80, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: 'power3.out',
+            stagger: 0.06,
+            delay: 0.15,
+          }
         );
-    }
-
-    if (!project) {
-        return (
-            <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
-                <h1 className="text-4xl font-bold mb-4">Project Not Found</h1>
-                <Link href="/" className="text-neutral-500 hover:text-white transition-colors underline">
-                    Return Home
-                </Link>
-            </div>
+      }
+      // Hero underline: draw after title
+      if (heroLineRef.current) {
+        gsap.fromTo(
+          heroLineRef.current,
+          { scaleX: 0 },
+          {
+            scaleX: 1,
+            duration: 0.8,
+            ease: 'power2.inOut',
+            delay: 0.5,
+          }
         );
-    }
+      }
 
+      // Left column: section label then body stagger
+      gsap.utils.toArray<HTMLElement>('.reveal-section').forEach((el) => {
+        const label = el.querySelector('.reveal-label');
+        const body = el.querySelector('.reveal-body');
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 85%',
+            toggleActions: 'play none none reverse',
+          },
+        });
+        tl.fromTo(el, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out' });
+        if (label) tl.fromTo(label, { x: -12, opacity: 0 }, { x: 0, opacity: 1, duration: 0.4, ease: 'power2.out' }, 0.1);
+        if (body) tl.fromTo(body, { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out' }, 0.18);
+      });
+
+      // Right column media cards: scale + slide + slight rotation on scroll
+      gsap.utils.toArray<HTMLElement>('.media-card').forEach((el, i) => {
+        gsap.fromTo(
+          el,
+          { y: 72, scale: 0.94, opacity: 0 },
+          {
+            y: 0,
+            scale: 1,
+            opacity: 1,
+            duration: 0.9,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: el,
+              start: 'top 88%',
+              toggleActions: 'play none none reverse',
+            },
+            delay: i * 0.12,
+          }
+        );
+      });
+
+      // Footer: "Next Project" heading + cards with inner stagger
+      const nextHeading = containerRef.current.querySelector('.next-project-heading');
+      if (nextHeading) {
+        gsap.fromTo(
+          nextHeading,
+          { y: 32, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.7,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: nextHeading,
+              start: 'top 88%',
+              toggleActions: 'play none none reverse',
+            },
+          }
+        );
+      }
+      gsap.utils.toArray<HTMLElement>('.next-project-card').forEach((el, i) => {
+        const cardContent = el.querySelector('.next-card-content');
+        gsap.fromTo(
+          el,
+          { y: 48, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.65,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: el,
+              start: 'top 90%',
+              toggleActions: 'play none none reverse',
+            },
+            delay: 0.05 + i * 0.1,
+          }
+        );
+        if (cardContent) {
+          const cat = cardContent.querySelector('.next-card-cat');
+          const title = cardContent.querySelector('.next-card-title');
+          const btn = cardContent.querySelector('.next-card-btn');
+          const tl = gsap.timeline({
+            scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none reverse' },
+            delay: 0.2 + i * 0.1,
+          });
+          if (cat) tl.fromTo(cat, { y: 8, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: 'power2.out' });
+          if (title) tl.fromTo(title, { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out' }, 0.05);
+          if (btn) tl.fromTo(btn, { scale: 0.8, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: 'back.out(1.2)' }, 0.1);
+        }
+      });
+    },
+    { dependencies: [loading, project], scope: containerRef }
+  );
+
+  if (loading) {
     return (
-        <main ref={containerRef} className="bg-black text-white font-sans selection:bg-red-600 selection:text-white overflow-x-hidden">
-            <style jsx global>{`
-                .text-stroke { -webkit-text-stroke: 1px rgba(255, 255, 255, 0.2); color: transparent; }
-            `}</style>
-
-            {/* Back Navigation */}
-            <div className="fixed top-0 left-0 p-8 z-50">
-                <Link href="/" className="flex items-center gap-2 text-[10px] font-bold tracking-[0.2em] uppercase hover:text-red-500 transition-colors">
-                    <ArrowLeft className="w-4 h-4" /> Back
-                </Link>
-            </div>
-
-            {/* Hero Section */}
-            <section className="min-h-screen relative flex flex-col justify-end px-8 pb-32">
-                {/* Background Image with Gradient Overlay */}
-                <div className="absolute inset-0 z-0">
-                    <Image
-                        src={project.src}
-                        alt={project.title}
-                        fill
-                        className="object-cover opacity-60"
-                        priority
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
-                </div>
-
-                <div className="relative z-10 max-w-7xl mx-auto w-full">
-                    <p className="text-red-500 font-black tracking-[0.5em] uppercase text-[10px] font-sans mb-6 animate-in slide-in-from-bottom-4 duration-1000">
-                        {project.category}
-                    </p>
-                    <h1 className="text-7xl md:text-9xl font-black tracking-tighter mb-8 font-sans leading-none mix-blend-color-dodge animate-in slide-in-from-bottom-8 duration-1000 delay-100">
-                        {project.title.toUpperCase()}
-                    </h1>
-                    <div className="flex flex-wrap gap-4 animate-in slide-in-from-bottom-8 duration-1000 delay-200">
-                        {project.techStack?.map((tech, i) => (
-                            <span key={i} className="px-4 py-2 border border-white/20 rounded-full text-[10px] font-mono tracking-wider uppercase bg-black/50 backdrop-blur-md">
-                                {tech}
-                            </span>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* Phase 1: The Spark (Origin) */}
-            <section className="min-h-[80vh] flex items-center py-24 px-8 bg-[#0a0a0a] border-t border-white/5">
-                <div className="max-w-4xl mx-auto w-full">
-                    <span className="text-[200px] leading-none font-black text-stroke absolute -translate-x-32 -translate-y-20 opacity-20 select-none pointer-events-none font-sans hidden lg:block">01</span>
-                    <h2 className="story-heading text-4xl md:text-6xl font-bold mb-12 font-sans relative">The Spark</h2>
-                    <div className="story-text text-xl md:text-2xl text-neutral-400 font-light leading-relaxed max-h-[70vh] overflow-y-auto pr-2 story-scroll">
-                        {project.story_challenge ? (
-                            <p>{project.story_challenge}</p>
-                        ) : (
-                            <p>{project.description}</p>
-                        )}
-                    </div>
-                </div>
-            </section>
-
-            {/* Phase 2: The Blueprint (System Design/Algo) */}
-            <section className="min-h-screen py-32 px-8 bg-[#050505] relative overflow-hidden">
-                {/* Grid Background */}
-                <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
-
-                <div className="max-w-6xl mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-20 items-start">
-                    <div className="min-w-0">
-                        <span className="text-red-600 font-mono text-xs tracking-[0.3em] uppercase block mb-6">System Architecture</span>
-                        <h2 className="story-heading text-4xl md:text-6xl font-bold mb-12 font-sans">The Blueprint</h2>
-                        <div className="story-text font-mono text-sm md:text-base text-neutral-400 leading-relaxed space-y-8 max-h-[70vh] overflow-y-auto pr-2 story-scroll">
-                            {project.story_solution ? (
-                                <p className="whitespace-pre-line">{project.story_solution}</p>
-                            ) : (
-                                <p>Technical deep dive pending...</p>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Visual aide for "Blueprint" feel - could be a code snippet or diagram if available, otherwise stylized abstract */}
-                    <div className="border border-white/10 rounded-xl p-8 bg-black/50 backdrop-blur-sm self-start sticky top-32">
-                        <div className="flex items-center gap-2 mb-6 border-b border-white/10 pb-4">
-                            <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                            <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                            <span className="ml-auto text-xs font-mono text-neutral-500">system_core.ts</span>
-                        </div>
-                        <div className="space-y-2">
-                            <div className="h-2 w-3/4 bg-neutral-800 rounded"></div>
-                            <div className="h-2 w-1/2 bg-neutral-800 rounded"></div>
-                            <div className="h-2 w-full bg-neutral-800 rounded"></div>
-                            <div className="h-2 w-2/3 bg-neutral-800 rounded"></div>
-                        </div>
-                        <div className="mt-8 pt-8 border-t border-dashed border-white/10">
-                            <h4 className="text-xs font-bold uppercase tracking-widest text-neutral-500 mb-4">Core Technologies</h4>
-                            <div className="flex flex-wrap gap-2">
-                                {project.techStack?.map((tech, i) => (
-                                    <span key={i} className="text-[10px] text-red-500 font-mono">{`> ${tech}`}</span>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Phase 3: The Legacy (Outcome/Gallery) */}
-            <section className="min-h-screen py-32 px-8 bg-white text-black">
-                <div className="max-w-7xl mx-auto">
-                    <div className="max-w-3xl mb-24">
-                        <span className="text-[200px] leading-none font-black text-neutral-100 absolute -translate-x-32 -translate-y-20 select-none pointer-events-none font-sans hidden lg:block">03</span>
-                        <h2 className="story-heading text-4xl md:text-6xl font-bold mb-12 font-sans relative">The Legacy</h2>
-                        <div className="story-text text-xl md:text-2xl font-light leading-relaxed max-h-[70vh] overflow-y-auto pr-2 story-scroll">
-                            {project.story_outcome ? (
-                                <p>{project.story_outcome}</p>
-                            ) : (
-                                <p>Project completed successfully.</p>
-                            )}
-                        </div>
-
-                        <div className="mt-12">
-                            {project.link && (
-                                <a href={project.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-6 border-2 border-black px-10 py-4 font-black tracking-widest text-[11px] uppercase hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-300 rounded-full">
-                                    Visit Live Project
-                                    <ArrowUpRight className="w-4 h-4" />
-                                </a>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Gallery Grid */}
-                    {project.media && project.media.length > 0 && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {project.media.map((item, idx) => (
-                                <div key={idx} className="aspect-video relative rounded-2xl overflow-hidden bg-neutral-100">
-                                    {item.type === 'video' ? (
-                                        <video src={item.url} autoPlay muted loop playsInline className="w-full h-full object-cover" />
-                                    ) : (
-                                        <Image
-                                            src={item.url}
-                                            alt={`Gallery ${idx}`}
-                                            fill
-                                            className="object-cover hover:scale-105 transition-transform duration-700"
-                                        />
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </section>
-
-            {/* Next Project Footer */}
-            {nextProject && (
-                <footer className="px-8 py-32 bg-black text-white relative z-10">
-                    <div className="max-w-7xl mx-auto text-center">
-                        <p className="text-neutral-500 font-bold tracking-[0.5em] uppercase text-[10px] mb-10 font-sans">Next Chapter</p>
-                        <Link href={`/work/${nextProject.slug}`} className="group inline-block">
-                            <h2 className="text-5xl md:text-8xl font-black tracking-tighter mb-20 group-hover:text-neutral-500 transition-colors font-sans leading-none">
-                                {nextProject.title.toUpperCase()}<br />
-                                <span className="opacity-0 group-hover:opacity-100 text-red-600 text-lg tracking-widest absolute bottom-0 left-1/2 -translate-x-1/2 transition-opacity duration-300">READ STORY</span>
-                            </h2>
-                        </Link>
-
-                        <div className="flex flex-col md:flex-row justify-between items-center pt-20 border-t border-white/10 gap-8">
-                            <p className="text-[9px] font-bold tracking-widest text-neutral-500 uppercase font-sans">© 2026 MANTAKA</p>
-                        </div>
-                    </div>
-                </footer>
-            )}
-        </main>
+      <div className="fixed inset-0 bg-[#f4f4f5] flex items-center justify-center z-[100]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-2 border-neutral-200 border-t-neutral-900 rounded-full animate-spin" />
+          <p className="text-[10px] font-bold tracking-[0.3em] uppercase">Loading</p>
+        </div>
+      </div>
     );
+  }
+
+  if (!project) {
+    return (
+      <div className="min-h-screen bg-[#f4f4f5] flex flex-col items-center justify-center text-neutral-900">
+        <h1 className="text-4xl font-bold mb-4">Project Not Found</h1>
+        <Link href="/" className="text-neutral-600 hover:text-red-600 transition-colors underline">
+          Return Home
+        </Link>
+      </div>
+    );
+  }
+
+  const mediaItems =
+    project.media && project.media.length > 0
+      ? project.media
+      : [{ type: 'image' as const, url: project.src }];
+
+  return (
+    <div
+      ref={containerRef}
+      className="min-h-screen bg-[#f4f4f5] text-neutral-900 font-sans selection:bg-neutral-900 selection:text-white overflow-x-hidden"
+    >
+      {/* Main Title Hero Section */}
+      <section className="relative border-b border-neutral-200 bg-white pt-8 md:pt-12 pb-12 px-6 md:px-12 overflow-hidden">
+        <div ref={heroWrapRef} className="flex flex-wrap items-baseline gap-x-[0.25em] gap-y-0">
+          {project.title.split(/\s+/).map((word, i) => (
+            <span
+              key={i}
+              className="hero-word font-sans text-[clamp(2.75rem,12vw,10rem)] font-bold leading-[0.88] tracking-[-0.04em] uppercase text-[#1a1a1a] inline-block"
+            >
+              {word}
+            </span>
+          ))}
+        </div>
+        <div
+          ref={heroLineRef}
+          className="mt-6 h-[3px] w-24 bg-[#1a1a1a] origin-left rounded-full"
+        />
+      </section>
+
+      {/* Project Body: Info & Media */}
+      <main className="grid grid-cols-1 lg:grid-cols-12 min-h-screen">
+        {/* Left Column: Project Metadata */}
+        <aside className="lg:col-span-5 xl:col-span-4 border-r border-neutral-200 px-6 md:px-12 py-16 md:py-24 space-y-20 bg-white/50">
+          <div className="reveal-section space-y-5">
+            <h2 className="reveal-label font-sans text-xs font-bold tracking-[0.28em] uppercase text-neutral-500">
+              Concept & Objectives
+            </h2>
+            <p className="reveal-body font-sans text-xl md:text-2xl font-medium leading-[1.35] tracking-[-0.01em] text-[#1a1a1a] max-w-[32ch]">
+              {project.story_challenge || project.description}
+            </p>
+          </div>
+
+          {(project.story_solution || project.story_outcome) && (
+            <div className="reveal-section space-y-5">
+              <h2 className="reveal-label font-sans text-xs font-bold tracking-[0.28em] uppercase text-neutral-500">
+                My Role
+              </h2>
+              <p className="reveal-body font-sans text-lg md:text-xl text-neutral-600 leading-[1.6]">
+                {project.story_solution || project.story_outcome}
+              </p>
+            </div>
+          )}
+
+          <div className="reveal-section space-y-5">
+            <h2 className="reveal-label font-sans text-xs font-bold tracking-[0.28em] uppercase text-neutral-500">
+              Details
+            </h2>
+            <div className="reveal-body grid grid-cols-2 gap-8 pt-8 border-t border-neutral-200">
+              <div>
+                <h3 className="font-sans text-[10px] font-bold tracking-[0.22em] uppercase text-neutral-500 mb-2">
+                  Industry
+                </h3>
+                <p className="font-sans font-semibold text-sm tracking-tight text-[#1a1a1a]">{project.category}</p>
+              </div>
+              <div>
+                <h3 className="font-sans text-[10px] font-bold tracking-[0.22em] uppercase text-neutral-500 mb-2">
+                  Release
+                </h3>
+                {project.link && project.link !== '#' ? (
+                  <a
+                    href={project.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 group"
+                  >
+                    <span className="font-sans font-semibold text-sm tracking-tight text-[#1a1a1a] border-b border-[#1a1a1a] border-opacity-40 group-hover:border-opacity-100 transition-colors">
+                      Visit Site
+                    </span>
+                    <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  </a>
+                ) : (
+                  <span className="font-sans font-semibold text-sm tracking-tight text-neutral-400">—</span>
+                )}
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        {/* Right Column: Imagery Gallery */}
+        <div className="lg:col-span-7 xl:col-span-8 bg-[#f0f0f2] p-4 md:p-8 lg:p-16 space-y-12">
+          {mediaItems.map((item, idx) => (
+            <div
+              key={idx}
+              className="media-card relative w-full aspect-[16/10] bg-white rounded-2xl overflow-hidden shadow-2xl shadow-black/5 group"
+            >
+              {item.type === 'video' ? (
+                <video
+                  src={item.url}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000"
+                />
+              ) : (
+                <Image
+                  src={item.url}
+                  alt={idx === 0 ? project.title : `Gallery ${idx}`}
+                  fill
+                  className="object-cover scale-105 group-hover:scale-100 transition-transform duration-1000"
+                  sizes="(max-width: 1024px) 100vw, 66vw"
+                />
+              )}
+              <div className="absolute inset-0 border-[1px] border-black/5 rounded-2xl pointer-events-none" />
+              {idx === 0 && (
+                <div className="absolute bottom-8 left-8 p-3 rounded-full bg-white/90 backdrop-blur shadow-lg md:flex hidden animate-bounce">
+                  <ChevronDown className="w-4 h-4" />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </main>
+
+      {/* Footer: Other Work */}
+      {otherProjects.length > 0 && (
+        <footer className="bg-white border-t border-neutral-200 px-6 md:px-12 py-24">
+          <div className="flex items-baseline justify-between mb-16 next-project-heading">
+            <h2 className="font-sans text-3xl md:text-4xl font-bold leading-tight tracking-[-0.03em] uppercase text-[#1a1a1a]">
+              Next Project
+            </h2>
+            <Link
+              href="/"
+              className="font-sans text-xs font-bold tracking-[0.22em] uppercase text-[#1a1a1a] border-b-2 border-[#1a1a1a] pb-1 hover:text-neutral-500 hover:border-neutral-500 transition-colors duration-200"
+            >
+              View All
+            </Link>
+          </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-neutral-200 border border-neutral-200 overflow-hidden">
+            {otherProjects.map((p) => (
+              <Link
+                key={p.id}
+                href={`/work/${p.slug}`}
+                className="next-project-card group relative aspect-[4/3] overflow-hidden bg-white p-8 md:p-10 block"
+              >
+                <div className="absolute inset-0 bg-neutral-100">
+                  <Image
+                    src={p.src}
+                    alt={p.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover grayscale opacity-60 scale-105 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-100 transition-all duration-700"
+                  />
+                </div>
+                <div className="next-card-content relative z-10 h-full flex flex-col justify-between">
+                  <span className="next-card-cat font-sans text-[10px] font-bold tracking-[0.32em] uppercase text-neutral-500">
+                    {p.category}
+                  </span>
+                  <div>
+                    <h3 className="next-card-title font-sans text-2xl md:text-3xl font-bold leading-tight tracking-[-0.02em] uppercase text-[#1a1a1a] mb-4 transition-transform duration-300 group-hover:-translate-y-1">
+                      {p.title}
+                    </h3>
+                    <div className="next-card-btn w-10 h-10 border-2 border-neutral-300 rounded-full flex items-center justify-center transition-all duration-300 group-hover:bg-[#1a1a1a] group-hover:text-white group-hover:border-[#1a1a1a]">
+                      <ArrowUpRight className="w-4 h-4" />
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </footer>
+      )}
+      <Footer />
+    </div>
+  );
 }

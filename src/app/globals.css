@@ -125,6 +125,66 @@ section.bg-white .story-scroll::-webkit-scrollbar-thumb {
 .footer-marquee-track {
   animation: footer-marquee-ltr 35s linear infinite;
 }
-.footer-marquee-track:hover {
-  animation-play-state: paused;
+
+/* Footer social link: bigger, letter-by-letter hover animation */
+.footer-social-link {
+  position: relative;
+  gap: 0.05em;
+}
+.footer-social-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  width: 0;
+  height: 2px;
+  background: var(--accent-pulse);
+  transition: width 0.35s ease-out;
+}
+.footer-social-link:hover::after {
+  width: 100%;
+}
+.footer-social-letter {
+  display: inline-block;
+  transition: transform 0.25s ease-out, color 0.2s ease-out;
+  transition-delay: calc(0.03s * var(--i, 0));
+}
+.footer-social-link:hover .footer-social-letter {
+  color: var(--accent-pulse);
+  transform: translateY(-3px);
+}
+
+/* Footer logo "Mantaka": letter-by-letter hover */
+.footer-logo-link {
+  cursor: default;
+  gap: 0.02em;
+}
+.footer-logo-letter {
+  display: inline-block;
+  transition: transform 0.25s ease-out, color 0.2s ease-out;
+  transition-delay: calc(0.04s * var(--i, 0));
+}
+.footer-logo-link:hover .footer-logo-letter {
+  color: var(--accent-pulse);
+  transform: translateY(-4px) scale(1.05);
+}
+
+/* Footer copyright: letter-by-letter hover */
+.footer-copyright {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: rgb(115 115 115);
+  display: inline-block;
+  white-space: nowrap;
+}
+.footer-copyright-letter {
+  display: inline-block;
+  transition: transform 0.2s ease-out, color 0.2s ease-out;
+  transition-delay: calc(0.02s * var(--i, 0));
+}
+.footer-copyright:hover .footer-copyright-letter {
+  color: var(--accent-pulse);
+  transform: translateY(-2px);
 }
