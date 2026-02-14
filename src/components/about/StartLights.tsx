@@ -3,9 +3,9 @@
 import React, { useMemo } from "react";
 import { Text } from "@react-three/drei";
 import * as THREE from "three";
-import { createTrackCurve, START_FINISH_POSITION, TRACK_WIDTH } from "./trackCurve";
+import { START_FINISH_POSITION, TRACK_WIDTH } from "./trackCurve";
 
-const curve = createTrackCurve();
+const STRAIGHT_TANGENT = new THREE.Vector3(0, 0, -1);
 const GANTRY_HEIGHT = 10;
 const LIGHT_RADIUS = 0.55;
 const LIGHT_SPACING = 1.8;
@@ -17,9 +17,9 @@ export function StartLights() {
   const { position, quaternion } = useMemo(() => {
     const pos = START_FINISH_POSITION.clone();
     pos.y = 0.05;
-    const tangent = curve.getTangentAt(0).normalize();
+    // Align with the straight section
     const quat = new THREE.Quaternion();
-    quat.setFromUnitVectors(new THREE.Vector3(0, 0, 1), tangent);
+    quat.setFromUnitVectors(new THREE.Vector3(0, 0, 1), STRAIGHT_TANGENT);
     return { position: pos, quaternion: quat };
   }, []);
 

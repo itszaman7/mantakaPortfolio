@@ -7,7 +7,7 @@ import { F1CarOnTrack } from "./F1CarOnTrack";
 import { MarkerProjector } from "./MarkerProjector";
 import { CameraController } from "./CameraController";
 import { StartFinishLine } from "./StartFinishLine";
-import { Garage2D } from "./Garage2D";
+import { Garage3D } from "./Garage3D";
 
 const TRACK_COLOR = 0x9a9a9a;
 const FOG_COLOR = 0xf8f8f8;
@@ -72,7 +72,9 @@ export function TrackScene({ trackPositions }: TrackSceneProps) {
       <directionalLight position={[-80, 80, -80]} intensity={0.6} />
       <primitive object={trackMesh} />
       <StartFinishLine />
-      <Garage2D />
+      <Suspense fallback={null}>
+        <Garage3D milestoneCount={trackPositions.length} />
+      </Suspense>
       <mesh
         geometry={groundGeo}
         material={groundMat}

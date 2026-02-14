@@ -5,12 +5,13 @@ import { useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { useScrollDrive } from "./ScrollDriveContext";
-import { createTrackCurve } from "./trackCurve";
-import { CAR_AT_GARAGE_POSITION } from "./trackCurve";
+import { createTrackCurve, getStartFinishT } from "./trackCurve";
 
 const MODEL_URL = "/3D_Assets/f1BDLivery.glb";
 const curve = createTrackCurve();
-const GARAGE_LERP = 0.035;
+const CAR_Y = 0.25;
+const _point = new THREE.Vector3();
+const _tangent = new THREE.Vector3();
 
 export function F1CarOnTrack() {
   const groupRef = useRef<THREE.Group>(null);
@@ -29,24 +30,13 @@ export function F1CarOnTrack() {
   useFrame(() => {
     if (!groupRef.current) return;
 
-    if (carAtGarage) {
-      groupRef.current.position.lerp(CAR_AT_GARAGE_POSITION.clone(), GARAGE_LERP);
-      groupRef.current.rotation.y = THREE.MathUtils.lerp(
-        groupRef.current.rotation.y,
-        Math.PI / 2,
-        0.02
-      );
-      return;
-    }
+    const t = carAtGarage ? getStartFinishT() : Math.max(0, Math.min(1, carProgress % 1));
+    curve.getPointAt(t, _point);
+    curve.getTangentAt(t, _tangent).normalize();
 
-    const t = Math.max(0, Math.min(1, carProgress % 1));
-    const point = curve.getPointAt(t);
-    const tangent = curve.getTangentAt(t).normalize();
-
-    groupRef.current.position.copy(point);
-    groupRef.current.position.y = 0.25;
-
-    const angle = Math.atan2(tangent.x, tangent.z) - Math.PI / 2;
+    groupRef.current.position.copy(_point);
+    groupRef.current.position.y = CAR_Y;
+    const angle = Math.atan2(_tangent.x, _tangent.z) - Math.PI / 2;
     groupRef.current.rotation.y = angle;
   });
 
