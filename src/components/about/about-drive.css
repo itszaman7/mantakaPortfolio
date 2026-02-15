@@ -60,9 +60,9 @@
 }
 
 .about-drive-root .marker-preview {
-  width: 280px;
+  width: 320px;
   min-height: 0;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 16 / 10;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -121,9 +121,10 @@
 
 .about-drive-root .marker-teaser {
   font-size: 0.8125rem;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.8);
-  line-height: 1.45;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.5;
+  letter-spacing: 0.01em;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -164,19 +165,21 @@
 }
 
 .about-drive-root .scroll-marker:hover .marker-preview,
-.about-drive-root .scroll-marker.active .marker-preview,
-.about-drive-root .scroll-marker.near .marker-preview {
+.about-drive-root .scroll-marker.active .marker-preview {
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
   z-index: 20;
   transform: scale(1.02);
 }
 
-.about-drive-root .scroll-marker.near .marker-preview {
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25), 0 0 0 2px rgba(34, 139, 34, 0.4);
-}
-
 .about-drive-root .scroll-marker.active .marker-preview {
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+}
+
+/* Highlight when car is near this milestone (ring via box-shadow only, no border) */
+.about-drive-root .scroll-marker.near .marker-preview {
+  z-index: 25;
+  transform: scale(1.05);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3), 0 0 0 2px rgba(34, 197, 94, 0.55), 0 0 20px rgba(34, 197, 94, 0.2);
 }
 
 .about-drive-root .scroll-marker.expanded {
@@ -226,6 +229,22 @@
 
 .about-drive-root .scroll-marker.expanded .card-content {
   display: flex;
+  position: relative;
+}
+
+.about-drive-root .card-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.about-drive-root .card-content .gallery-container,
+.about-drive-root .card-content .card-body {
+  position: relative;
+  z-index: 1;
 }
 
 @media (max-width: 640px) {
@@ -235,7 +254,8 @@
     max-height: 90vh;
   }
   .about-drive-root .gallery-container {
-    min-height: min(40vh, 360px);
+    min-height: min(28vh, 280px);
+    max-height: 32vh;
   }
   .about-drive-root .gallery-item {
     min-width: 92%;
@@ -244,7 +264,8 @@
 
 .about-drive-root .gallery-container {
   width: 100%;
-  min-height: min(48vh, 480px);
+  min-height: min(32vh, 340px);
+  max-height: 38vh;
   background: #0a0a0a;
   position: relative;
   overflow: hidden;
@@ -295,35 +316,98 @@
   color: rgba(255, 255, 255, 0.9);
 }
 
+.about-drive-root .gallery-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.about-drive-root .gallery-nav:hover {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.about-drive-root .gallery-nav-prev {
+  left: 12px;
+}
+
+.about-drive-root .gallery-nav-next {
+  right: 12px;
+}
+
+.about-drive-root .gallery-dots {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+.about-drive-root .gallery-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.about-drive-root .gallery-dot:hover {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.about-drive-root .gallery-dot-active {
+  background: #fff;
+  transform: scale(1.2);
+}
+
 .about-drive-root .card-body {
   padding: 28px 40px 40px;
   overflow-y: auto;
-  min-height: 160px;
-  background: #141414;
+  min-height: 200px;
+  flex: 1 1 auto;
+  background: #fff;
 }
 
 .about-drive-root .tech-line {
-  width: 24px;
+  width: 32px;
   height: 2px;
-  background: rgba(255, 255, 255, 0.4);
+  background: rgba(0, 0, 0, 0.2);
   margin-bottom: 20px;
 }
 
 .about-drive-root .card-body h2 {
-  margin: 0 0 12px 0;
+  margin: 0 0 14px 0;
   font-size: 1.75rem;
   font-weight: 800;
   letter-spacing: -0.03em;
-  color: #fff;
+  color: #111;
   line-height: 1.2;
+  max-width: 100%;
 }
 
 .about-drive-root .card-body p {
   font-size: 0.9375rem;
   font-weight: 400;
-  line-height: 1.65;
-  color: rgba(255, 255, 255, 0.82);
-  max-width: 52ch;
+  line-height: 1.7;
+  color: #333;
+  max-width: 100%;
 }
 
 .about-drive-root .btn-minimize {
@@ -331,8 +415,8 @@
   padding: 10px 24px;
   border: none;
   border-radius: 9999px;
-  background: #fff;
-  color: #111;
+  background: #111;
+  color: #fff;
   font-weight: 600;
   font-size: 0.875rem;
   letter-spacing: 0.02em;
@@ -344,7 +428,7 @@
 }
 
 .about-drive-root .btn-minimize:hover {
-  background: #f0f0f0;
+  background: #333;
 }
 
 .about-scroll-proxy {
@@ -536,11 +620,11 @@
 }
 
 .about-title-bar-badge {
-  font-size: 0.6875rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  letter-spacing: 0.25em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(0, 0, 0, 0.55);
+  color: rgba(0, 0, 0, 0.5);
 }
 
 .about-title-bar-label {
@@ -553,10 +637,11 @@
 }
 
 .about-title-bar-teaser {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 500;
-  letter-spacing: 0.02em;
-  color: rgba(0, 0, 0, 0.6);
+  letter-spacing: 0.03em;
+  color: rgba(0, 0, 0, 0.65);
+  line-height: 1.4;
 }
 
 .about-drive-root .scroll-instruction {
@@ -565,14 +650,29 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: 2;
-  color: rgba(0, 0, 0, 0.78);
+  color: #222;
   font-weight: 600;
-  font-size: 0.8125rem;
-  letter-spacing: 0.06em;
+  font-size: 0.875rem;
+  letter-spacing: 0.08em;
   pointer-events: none;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  animation: about-scroll-hint 2.2s ease-in-out infinite;
+}
+
+.about-drive-root .scroll-instruction svg {
+  animation: about-scroll-chevron 2.2s ease-in-out infinite;
+}
+
+@keyframes about-scroll-hint {
+  0%, 100% { opacity: 0.85; transform: translateX(-50%) translateY(0); }
+  50% { opacity: 1; transform: translateX(-50%) translateY(4px); }
+}
+
+@keyframes about-scroll-chevron {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(3px); }
 }
 
 @media (max-width: 767px) {

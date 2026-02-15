@@ -8,10 +8,10 @@ import { useScrollDrive } from "./ScrollDriveContext";
 import { createTrackCurve, getStartFinishT } from "./trackCurve";
 
 const curve = createTrackCurve();
-const CAM_HEIGHT = 60;
-const CAM_DISTANCE = 50;
-const CAM_HEIGHT_END = 22;
-const CAM_DISTANCE_END = 28;
+const CAM_HEIGHT = 44;
+const CAM_DISTANCE = 40;
+const CAM_HEIGHT_END = 20;
+const CAM_DISTANCE_END = 26;
 const LERP_NORMAL = 0.05;
 const LERP_END = 0.14; /* faster so zoom-in is clearly visible */
 
@@ -23,7 +23,7 @@ const _carLook = new THREE.Vector3();
 export function CameraController() {
   const { camera } = useThree();
   const { carProgress, carAtGarage } = useScrollDrive();
-  const posRef = useRef(new THREE.Vector3(0, 60, 60));
+  const posRef = useRef(new THREE.Vector3(0, 44, 40));
   const lookRef = useRef(new THREE.Vector3(0, 0, 0));
 
   useFrame(() => {

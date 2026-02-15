@@ -38,6 +38,8 @@ export default function MonitorHero() {
     const monitorRef = useRef<HTMLDivElement>(null);
     const heroRef = useRef<HTMLDivElement>(null);
     const titlesRef = useRef<HTMLDivElement>(null);
+    const scrollIndicatorRef = useRef<HTMLDivElement>(null);
+    const scrollArrowRef = useRef<HTMLDivElement>(null);
 
     const checkWinner = (currentBoard: Board) => {
         for (const combo of WINNING_COMBINATIONS) {
@@ -103,6 +105,8 @@ export default function MonitorHero() {
     };
 
     const resetGame = () => {
+        aiTurnStartedRef.current = false;
+        pendingMoveRef.current = null;
         setBoard(Array(9).fill(null));
         setIsPlayerTurn(true);
         setWinner(null);
@@ -167,8 +171,38 @@ export default function MonitorHero() {
         };
     }, []);
 
+    // Scroll indicator: loop animation + fade out on scroll
+    useEffect(() => {
+        const arrow = scrollArrowRef.current;
+        const indicator = scrollIndicatorRef.current;
+        if (!arrow || !indicator) return;
+
+        gsap.set(indicator, { opacity: 1 });
+        const bounce = gsap.to(arrow, {
+            y: 10,
+            duration: 0.7,
+            ease: "sine.inOut",
+            yoyo: true,
+            repeat: -1,
+        });
+        const fadeSt = ScrollTrigger.create({
+            trigger: heroRef.current,
+            start: "top top",
+            end: "top top-=120",
+            onUpdate: (self) => {
+                gsap.set(indicator, { opacity: 1 - self.progress });
+            },
+        });
+        return () => {
+            bounce.kill();
+            fadeSt.kill();
+        };
+    }, []);
+
     const togglePower = () => {
         if (screenPowered) {
+            aiTurnStartedRef.current = false;
+            pendingMoveRef.current = null;
             setAiLogs([]);
             setScreenPoweringOff(true);
             setTimeout(() => {
@@ -190,39 +224,45 @@ export default function MonitorHero() {
             className="relative w-full min-h-screen overflow-hidden bg-[#f4f4f5] px-4 md:px-12 py-12 md:py-0"
             style={{ perspective: "1400px" }}
         >
-            {/* Scroll Indicator (Moved to Right Side) */}
-            <div className="absolute right-4 md:right-8 bottom-4 md:bottom-8 flex flex-col items-center gap-2 animate-bounce z-20">
-                <span className="text-xs uppercase tracking-widest text-gray-800 rotate-90 origin-right translate-y-8 -translate-x-1 font-bold">Scroll</span>
-                <div className="w-[2px] h-12 bg-gray-800 mt-8"></div>
-                <div className="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[8px] border-t-gray-800"></div>
+            {/* Scroll Indicator */}
+            <div
+                ref={scrollIndicatorRef}
+                className="absolute right-4 md:right-8 bottom-6 md:bottom-10 flex flex-col items-center justify-center z-20 pointer-events-none"
+            >
+                <span className="text-[10px] md:text-xs uppercase tracking-[0.35em] text-[#1a1a1a]/90 rotate-90 origin-center whitespace-nowrap font-semibold">
+                    Scroll
+                </span>
+                <div className="w-px h-10 md:h-12 bg-gradient-to-b from-[#1a1a1a]/40 to-[#FF2800]/60 mt-6 md:mt-8 rounded-full" aria-hidden />
+                <div
+                    ref={scrollArrowRef}
+                    className="mt-1 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[8px] border-t-[#FF2800] drop-shadow-[0_0_6px_rgba(255,40,0,0.4)]"
+                    aria-hidden
+                />
             </div>
-            {/* 1. TITLES – in-flow left; size changes don't move the monitor */}
+            {/* 1. TITLES – in-flow left */}
             <div
                 ref={titlesRef}
-                className="relative z-0 pointer-events-auto flex flex-col items-center md:items-start justify-center min-h-screen md:min-h-0 md:h-screen w-full md:max-w-[55%] mb-8 md:mb-0 origin-center will-change-transform"
+                className="relative z-0 pointer-events-auto flex flex-col items-center md:items-start justify-center min-h-screen md:min-h-0 md:h-screen w-full md:max-w-[50%] mb-8 md:mb-0 origin-center will-change-transform pl-2 md:pl-0"
                 style={{ transformStyle: "preserve-3d", backfaceVisibility: "hidden" }}
             >
-
-
                 <div className="flex flex-col items-center md:items-start space-y-[-4vw] md:space-y-[-1rem]">
                     <AnimatedTitle
                         text="ZAMAN"
                         translatedText="জামান"
-                        className="text-[22vw] md:text-[clamp(5rem,13vw,16rem)] text-[#1a1a1a]"
+                        className="text-[22vw] md:text-[clamp(5rem,13vw,16rem)] font-black tracking-tighter text-[#1a1a1a] drop-shadow-hero transition-all duration-300 ease-out hover:drop-shadow-hero-hover hover:scale-[1.02] origin-left"
                     />
                     <AnimatedTitle
                         text="MANTAKA"
                         translatedText="মানতাকা"
-                        // Increased ml to 32 (8rem) to indent significantly more
-                        className="text-[22vw] md:text-[clamp(5rem,13vw,16rem)] text-[#1a1a1a] ml-0 md:ml-32"
+                        className="text-[22vw] md:text-[clamp(5rem,13vw,16rem)] font-black tracking-tighter text-[#FF2800] ml-0 md:ml-32 drop-shadow-hero-red transition-all duration-300 ease-out hover:drop-shadow-hero-red-hover hover:scale-[1.02] origin-left"
                     />
                 </div>
             </div>
 
-            {/* 2. MONITOR – fixed position (right); independent of text size */}
+            {/* 2. MONITOR – lower on mobile; centered on desktop */}
             <div
                 ref={monitorRef}
-                className="absolute right-4 md:right-12 lg:right-20 top-1/2 -translate-y-1/2 w-[min(92vw,500px)] md:w-[min(55vw,1000px)] max-w-[500px] md:max-w-[1000px] aspect-[4/3] z-10 drop-shadow-2xl pointer-events-none will-change-transform"
+                className="absolute right-4 md:right-0 lg:right-0 xl:right-8 top-[62%] md:top-1/2 -translate-y-1/2 w-[min(88vw,420px)] md:w-[min(42vw,720px)] max-w-[420px] md:max-w-[720px] aspect-[4/3] z-10 drop-shadow-2xl pointer-events-none will-change-transform"
             >
 
                 <Image
@@ -293,6 +333,12 @@ export default function MonitorHero() {
                 </button>
             </div>
 
+            <style dangerouslySetInnerHTML={{ __html: `
+                .drop-shadow-hero { filter: drop-shadow(0 2px 8px rgba(0,0,0,0.12)) drop-shadow(0 4px 16px rgba(0,0,0,0.08)); }
+                .drop-shadow-hero-hover { filter: drop-shadow(0 4px 16px rgba(0,0,0,0.18)) drop-shadow(0 8px 28px rgba(0,0,0,0.12)); }
+                .drop-shadow-hero-red { filter: drop-shadow(0 2px 10px rgba(255,40,0,0.35)) drop-shadow(0 4px 20px rgba(0,0,0,0.15)); }
+                .drop-shadow-hero-red-hover { filter: drop-shadow(0 4px 20px rgba(255,40,0,0.5)) drop-shadow(0 8px 32px rgba(0,0,0,0.2)); }
+            `}} />
             <style jsx>{`
                 @keyframes powerFlicker {
                     0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(34, 197, 94, 0.6); }

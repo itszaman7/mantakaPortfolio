@@ -5,9 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const menuItems = [
     { label: "Home", href: "/" },
-    { label: "Projects & Awards", href: "/#projects" },
+    { label: "Work", href: "/work" },
     { label: "About me", href: "/about" },
-    { label: "Contact", href: "/#contact" },
+    { label: "Contact", href: "/contact" },
 ];
 
 // Letter-by-letter animation component

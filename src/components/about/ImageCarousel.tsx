@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ImageCarouselProps {
@@ -35,10 +36,11 @@ export function ImageCarousel({ images, title, className = "aspect-video" }: Ima
             idx === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
           }`}
         >
-          <img
+          <Image
             src={img}
             alt={`${title} - view ${idx + 1}`}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
             unoptimized={img.startsWith("http")}
           />
         </div>

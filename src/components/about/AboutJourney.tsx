@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useLenis } from "lenis/react";
-import { ChevronDown, Download, Linkedin, Github, RotateCcw } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, Download, Linkedin, Github, RotateCcw } from "lucide-react";
 import { ScrollDriveProvider, useScrollDrive, INITIAL_CAR_PROGRESS } from "./ScrollDriveContext";
 import { getStartFinishT } from "./trackCurve";
 import { MilestoneScoreboard } from "./MilestoneScoreboard";
@@ -160,7 +160,7 @@ function ScrollLogic({
   return null;
 }
 
-const NEAR_THRESHOLD = 0.07;
+const NEAR_THRESHOLD = 0.035;
 
 function OverlayMarkers({
   milestones,
@@ -176,6 +176,33 @@ function OverlayMarkers({
   onMinimize: (e: React.MouseEvent, index: number) => void;
 }) {
   const { markerScreenPositions, activeMarkerIndex, carProgress } = useScrollDrive();
+  const galleryTrackRef = useRef<HTMLDivElement | null>(null);
+  const cardBodyRef = useRef<HTMLDivElement | null>(null);
+  const [galleryIndex, setGalleryIndex] = useState(0);
+
+  useEffect(() => {
+    setGalleryIndex(0);
+  }, [expandedIndex]);
+
+  const images = expandedIndex >= 0 && expandedIndex < milestones.length ? (milestones[expandedIndex].images ?? []) : [];
+  const hasMultipleImages = images.length > 1;
+
+  const scrollGallery = (direction: -1 | 1) => {
+    const el = galleryTrackRef.current;
+    if (!el) return;
+    const itemWidth = el.offsetWidth * 0.85;
+    const next = Math.max(0, Math.min(images.length - 1, galleryIndex + direction));
+    el.scrollTo({ left: next * itemWidth, behavior: "smooth" });
+    setGalleryIndex(next);
+  };
+
+  const scrollGalleryTo = (i: number) => {
+    const el = galleryTrackRef.current;
+    if (!el) return;
+    const itemWidth = el.offsetWidth * 0.85;
+    el.scrollTo({ left: i * itemWidth, behavior: "smooth" });
+    setGalleryIndex(i);
+  };
 
   return (
     <>
@@ -191,6 +218,7 @@ function OverlayMarkers({
             ? milestone.description.substring(0, 50) + "..."
             : milestone.description;
         const thumb = milestone.images?.[0];
+        const milestoneImages = milestone.images ?? [];
 
         return (
           <div
@@ -229,8 +257,27 @@ function OverlayMarkers({
             <div className="marker-line" />
 
             <div className="card-content">
+              {isExpanded && (milestone.images?.length ?? 0) > 0 && (
+                <div
+                  className="card-backdrop"
+                  style={{
+                    backgroundImage: `url(${milestone.images?.[galleryIndex] ?? milestone.images?.[0]})`,
+                  }}
+                  aria-hidden
+                />
+              )}
               <div className="gallery-container">
-                <div className="gallery-track">
+                <div
+                  className="gallery-track"
+                  ref={isExpanded ? galleryTrackRef : undefined}
+                  onScroll={() => {
+                    const el = galleryTrackRef.current;
+                    if (!el || !isExpanded) return;
+                    const itemWidth = el.offsetWidth * 0.85;
+                    const i = Math.round(el.scrollLeft / itemWidth);
+                    setGalleryIndex(Math.max(0, Math.min(milestoneImages.length - 1, i)));
+                  }}
+                >
                   {(milestone.images ?? []).map((img, i) => (
                     <div key={i} className="gallery-item">
                       <img src={img} alt={`${milestone.title} ${i + 1}`} />
@@ -238,8 +285,55 @@ function OverlayMarkers({
                     </div>
                   ))}
                 </div>
+                {isExpanded && hasMultipleImages && (
+                  <>
+                    <button
+                      type="button"
+                      className="gallery-nav gallery-nav-prev"
+                      onClick={(e) => { e.stopPropagation(); scrollGallery(-1); }}
+                      aria-label="Previous image"
+                    >
+                      <ChevronLeft className="w-6 h-6" />
+                    </button>
+                    <button
+                      type="button"
+                      className="gallery-nav gallery-nav-next"
+                      onClick={(e) => { e.stopPropagation(); scrollGallery(1); }}
+                      aria-label="Next image"
+                    >
+                      <ChevronRight className="w-6 h-6" />
+                    </button>
+                    <div className="gallery-dots">
+                      {images.map((_, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          className={`gallery-dot ${i === galleryIndex ? "gallery-dot-active" : ""}`}
+                          onClick={(e) => { e.stopPropagation(); scrollGalleryTo(i); }}
+                          aria-label={`Image ${i + 1}`}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
-              <div className="card-body">
+              <div
+                ref={isExpanded ? cardBodyRef : undefined}
+                className="card-body"
+                onWheel={(e) => {
+                  e.stopPropagation();
+                  const el = cardBodyRef.current;
+                  if (!el) return;
+                  const canScrollUp = el.scrollTop > 0;
+                  const canScrollDown = el.scrollTop < el.scrollHeight - el.clientHeight;
+                  const scrollingDown = e.deltaY > 0;
+                  const scrollingUp = e.deltaY < 0;
+                  if ((scrollingDown && canScrollDown) || (scrollingUp && canScrollUp)) {
+                    e.preventDefault();
+                    el.scrollTop += e.deltaY;
+                  }
+                }}
+              >
                 <div className="tech-line" />
                 <h2>{milestone.title}</h2>
                 <p>{milestone.description}</p>

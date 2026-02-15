@@ -29,12 +29,13 @@ export function generateTrackPoints(milestoneCount: number): THREE.Vector3[] {
     points.push(new THREE.Vector3(x, 0, bottomZ));
   }
   
-  // RIGHT CURVE (bottom to top)
-  const curvePoints = 8;
+  // RIGHT CURVE (bottom to top) – many points + smooth quarter-circle
+  const curvePoints = 32;
+  const curveRadius = width * 0.35;
   for (let i = 1; i <= curvePoints; i++) {
     const t = i / (curvePoints + 1);
     const angle = -Math.PI / 2 + t * Math.PI;
-    const x = halfWidth + Math.cos(angle) * (width * 0.3);
+    const x = halfWidth + Math.cos(angle) * curveRadius;
     const z = bottomZ + (t * totalLength);
     points.push(new THREE.Vector3(x, 0, z));
   }
@@ -51,7 +52,7 @@ export function generateTrackPoints(milestoneCount: number): THREE.Vector3[] {
   for (let i = 1; i <= curvePoints; i++) {
     const t = i / (curvePoints + 1);
     const angle = Math.PI / 2 + t * Math.PI;
-    const x = -halfWidth + Math.cos(angle) * (width * 0.3);
+    const x = -halfWidth + Math.cos(angle) * curveRadius;
     const z = topZ - (t * totalLength);
     points.push(new THREE.Vector3(x, 0, z));
   }
@@ -79,18 +80,18 @@ export function createTrackCurve(): THREE.CatmullRomCurve3 {
   const points = getTrackPoints();
   const curve = new THREE.CatmullRomCurve3(points);
   curve.closed = true;
-  curve.tension = 0.5;
+  curve.tension = 0.25;
   return curve;
 }
 
-// Start/finish at center of bottom straight; use midpoint between points 4 and 5 for tangent
-const START_FINISH_POINT_INDEX = 2.5;
+// Start/finish at center of bottom straight (point 4 = center of 0..8)
+const START_FINISH_POINT_INDEX = 5;
 
-/** Curve parameter t (0..1) where the car should stop when the journey ends. Slightly past center of bottom straight so car is clearly over the START line. */
+/** Curve parameter t (0..1) where the car should stop when the journey ends — center of bottom straight, in front of garage. */
 export function getStartFinishT(): number {
   const points = getTrackPoints();
   if (points.length <= 0) return 0;
-  return 2.5 / points.length; /* a bit past center (point 4) so stop is over the line */
+  return START_FINISH_POINT_INDEX / points.length;
 }
 
 /** Tangent at the start/finish line so the line can be aligned to the track. */

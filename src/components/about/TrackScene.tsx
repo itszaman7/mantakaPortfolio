@@ -20,7 +20,7 @@ interface TrackSceneProps {
 export function TrackScene({ trackPositions }: TrackSceneProps) {
   const curve = useMemo(() => createTrackCurve(), []);
   const trackGeo = useMemo(
-    () => new THREE.TubeGeometry(curve, 400, TRACK_WIDTH / 2, 12, true),
+    () => new THREE.TubeGeometry(curve, 500, TRACK_WIDTH / 2, 16, true),
     [curve]
   );
   const trackMat = useMemo(

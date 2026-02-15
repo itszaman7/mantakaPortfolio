@@ -99,7 +99,7 @@ export default function AnimatedTitle({ text, translatedText, className = "" }: 
                 style={{
                     transformStyle: "preserve-3d",
                     fontFamily: isTranslated ? 'var(--font-li-ador), sans-serif' : 'inherit',
-                    fontSize: isTranslated ? '0.85em' : 'inherit',
+                    fontSize: isTranslated ? '1.15em' : 'inherit',
                     padding: isTranslated ? '0.1em 0' : '0',
                     letterSpacing: isTranslated ? 'normal' : '-0.05em'
                 }}

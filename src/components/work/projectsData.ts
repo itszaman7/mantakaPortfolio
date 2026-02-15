@@ -30,6 +30,8 @@ export interface Project {
     backgroundColor?: string;
     /** Optional: subtitle line under the section number (e.g. "Global Events, Brand Activations"). */
     subtitle?: string;
+    /** Optional: year for timeline display. Falls back to created_at year if omitted. */
+    year?: string;
 }
 
 const CARD_BG_PALETTE = ["#1DB954", "#851121", "#5038A0", "#FFFFE0"] as const;
@@ -69,6 +71,7 @@ export async function getProjects(): Promise<Project[]> {
         media: p.media || [],
         link: p.link || '#',
         backgroundColor: p.background_color,
+        year: p.year ?? (p.created_at ? String(new Date(p.created_at).getFullYear()) : undefined),
     }));
 }
 

@@ -29,12 +29,17 @@ html.lenis body {
   --accent-shadow: #800016;
   --hero-blue: #1d75de;
   /* Primary: system font stack (San Francisco, Segoe UI, etc.) */
-  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
   /* Monospace: system mono (footer labels, code) */
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono", "Liberation Mono", monospace;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, "Cascadia Mono",
+    "Segoe UI Mono", "Liberation Mono", monospace;
   --font-cursive: "Dancing Script", cursive;
   /* Bangla / Bengali text – keep separate, loaded in layout */
   --font-bangla: "Noto Sans Bengali", sans-serif;
+  --font-hero: "Syne", var(--font-sans);
 }
 
 @theme {
@@ -119,8 +124,12 @@ section.bg-white .story-scroll::-webkit-scrollbar-thumb {
 
 /* Footer marquee: scroll left to right */
 @keyframes footer-marquee-ltr {
-  0% { transform: translateX(-50%); }
-  100% { transform: translateX(0); }
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 .footer-marquee-track {
   animation: footer-marquee-ltr 35s linear infinite;
@@ -146,7 +155,9 @@ section.bg-white .story-scroll::-webkit-scrollbar-thumb {
 }
 .footer-social-letter {
   display: inline-block;
-  transition: transform 0.25s ease-out, color 0.2s ease-out;
+  transition:
+    transform 0.25s ease-out,
+    color 0.2s ease-out;
   transition-delay: calc(0.03s * var(--i, 0));
 }
 .footer-social-link:hover .footer-social-letter {
@@ -161,7 +172,9 @@ section.bg-white .story-scroll::-webkit-scrollbar-thumb {
 }
 .footer-logo-letter {
   display: inline-block;
-  transition: transform 0.25s ease-out, color 0.2s ease-out;
+  transition:
+    transform 0.25s ease-out,
+    color 0.2s ease-out;
   transition-delay: calc(0.04s * var(--i, 0));
 }
 .footer-logo-link:hover .footer-logo-letter {
@@ -181,7 +194,9 @@ section.bg-white .story-scroll::-webkit-scrollbar-thumb {
 }
 .footer-copyright-letter {
   display: inline-block;
-  transition: transform 0.2s ease-out, color 0.2s ease-out;
+  transition:
+    transform 0.2s ease-out,
+    color 0.2s ease-out;
   transition-delay: calc(0.02s * var(--i, 0));
 }
 .footer-copyright:hover .footer-copyright-letter {

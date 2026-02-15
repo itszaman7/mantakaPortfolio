@@ -25,7 +25,7 @@ const BackgroundGhostReel = ({ activeIndex, slides }: { activeIndex: number; sli
           key={slide.id}
           className="h-[40vh] flex items-center justify-center"
         >
-          <span className="text-[40vh] font-black leading-none font-sans text-neutral-900 whitespace-nowrap">
+          <span className="text-[40vh] serif-font font-medium leading-[0.9] tracking-tight text-neutral-900 whitespace-nowrap">
             {slide.highlight}
           </span>
         </div>
@@ -232,11 +232,11 @@ const HeroCard = ({ image, highlight, suffix }: { image: string; highlight: stri
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
               className="flex items-baseline drop-shadow-2xl"
             >
-              <span className="text-[4rem] md:text-[5.5rem] font-bold leading-none tracking-tighter text-red-600 drop-shadow-lg whitespace-nowrap">
+              <span className="text-[4rem] md:text-[5.5rem] serif-font font-medium leading-[0.9] tracking-tight text-[#FF2800] drop-shadow-lg whitespace-nowrap">
                 {highlight}
               </span>
               {suffix && (
-                <span className="text-xl md:text-3xl font-medium text-neutral-400 ml-2 drop-shadow-sm whitespace-nowrap">
+                <span className="text-xl md:text-3xl serif-font font-medium text-neutral-500 ml-2 drop-shadow-sm whitespace-nowrap tracking-tight">
                   {suffix}
                 </span>
               )}
@@ -314,6 +314,10 @@ export default function HeroStatsReel() {
       style={{ minHeight: `${sectionHeightVh}vh`, height: `${sectionHeightVh}vh` }}
       className="relative w-full bg-neutral-50"
     >
+      <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+        rel="stylesheet"
+      />
       {/* Fixed overlay: pointer-events none so scroll works; only inner content captures hover/click */}
       <motion.div
         className="fixed inset-0 z-0 overflow-hidden flex items-center justify-center bg-neutral-50 pointer-events-none"
@@ -321,9 +325,9 @@ export default function HeroStatsReel() {
       >
         <BackgroundGhostReel activeIndex={activeIndex} slides={slides} />
 
-        <div className="relative z-10 max-w-[1200px] mx-auto w-full px-6 md:px-12 grid grid-cols-1 md:grid-cols-12 gap-8 items-center min-h-0 flex-1 pointer-events-auto">
+        <div className="relative z-10 max-w-[1200px] mx-auto w-full px-6 md:px-12 grid grid-cols-1 md:grid-cols-12 gap-8 items-center min-h-0 flex-1 pointer-events-none">
           {/* Left Text */}
-          <div className="md:col-span-4 text-center md:text-left order-2 md:order-1">
+          <div className="md:col-span-4 text-center md:text-left order-2 md:order-1 pointer-events-auto">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentSlide.title}
@@ -332,10 +336,10 @@ export default function HeroStatsReel() {
                 exit={{ y: -12, opacity: 0 }}
                 transition={{ duration: 0.18, ease: "easeOut" }}
               >
-                <h2 className="text-4xl lg:text-6xl font-bold tracking-tight text-neutral-900 mb-2">
+                <h2 className="text-4xl lg:text-6xl serif-font font-medium leading-[0.9] tracking-tight text-[#1a1a1a] mb-2">
                   {currentSlide.title}
                 </h2>
-                <p className="text-xl text-neutral-500 font-medium">
+                <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-neutral-500">
                   {currentSlide.subtitle}
                 </p>
               </motion.div>
@@ -343,7 +347,7 @@ export default function HeroStatsReel() {
           </div>
 
           {/* Center Envelope */}
-          <div className="md:col-span-4 flex justify-center order-1 md:order-2 py-8 md:py-0">
+          <div className="md:col-span-4 flex justify-center order-1 md:order-2 py-8 md:py-0 pointer-events-auto">
             <HeroCard
               image={currentSlide.image}
               highlight={currentSlide.highlight}
@@ -352,7 +356,7 @@ export default function HeroStatsReel() {
           </div>
 
           {/* Right Text */}
-          <div className="md:col-span-4 text-center md:text-right order-3 flex flex-col items-center md:items-end">
+          <div className="md:col-span-4 text-center md:text-right order-3 flex flex-col items-center md:items-end pointer-events-auto">
             <div className="max-w-[300px]">
               <AnimatePresence mode="wait">
                 <motion.p
@@ -361,7 +365,7 @@ export default function HeroStatsReel() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.18 }}
-                  className="text-neutral-600 leading-relaxed font-medium"
+                  className="text-neutral-600 leading-relaxed font-medium text-sm serif-font"
                 >
                   {currentSlide.description}
                 </motion.p>
@@ -370,6 +374,11 @@ export default function HeroStatsReel() {
           </div>
         </div>
       </motion.div>
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `.serif-font { font-family: 'Playfair Display', serif; }`,
+        }}
+      />
     </div>
   );
 }

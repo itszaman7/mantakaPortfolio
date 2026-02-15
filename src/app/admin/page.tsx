@@ -133,6 +133,7 @@ export default function AdminPage() {
     const [statsSaving, setStatsSaving] = useState(false);
     const [milestones, setMilestones] = useState<Milestone[]>([]);
     const [milestonesLoading, setMilestonesLoading] = useState(false);
+    const [milestonesError, setMilestonesError] = useState<string | null>(null);
     const [showMilestoneForm, setShowMilestoneForm] = useState(false);
     const [milestoneFormData, setMilestoneFormData] = useState<Milestone>({
         year: '',
@@ -307,12 +308,16 @@ export default function AdminPage() {
 
     const fetchMilestones = async () => {
         setMilestonesLoading(true);
+        setMilestonesError(null);
         const { data, error } = await supabase
             .from('milestones')
             .select('*')
             .order('sort_order', { ascending: true });
-        if (!error && data) {
-            setMilestones(data.map((row: Record<string, unknown>) => ({
+        if (error) {
+            setMilestonesError(error.message);
+            setMilestones([]);
+        } else {
+            setMilestones((data ?? []).map((row: Record<string, unknown>) => ({
                 id: row.id as string,
                 year: String(row.year ?? ''),
                 title: String(row.title ?? ''),
@@ -1203,10 +1208,18 @@ export default function AdminPage() {
                             <Loader2 className="w-12 h-12 text-red-600 animate-spin" />
                             <p className="text-gray-500 font-bold tracking-widest uppercase text-[10px]">Loading...</p>
                         </div>
+                    ) : milestonesError ? (
+                        <div className="flex flex-col items-center justify-center py-32 gap-6 border-2 border-dashed border-red-500/20 rounded-3xl bg-red-500/5">
+                            <p className="text-xl font-bold text-red-400">Could not load milestones</p>
+                            <p className="text-gray-500 text-sm text-center max-w-md">{milestonesError}</p>
+                            <p className="text-gray-600 text-xs text-center max-w-md">Check that the <code className="bg-white/10 px-1 rounded">milestones</code> table exists in Supabase and RLS allows read (e.g. &quot;Allow public read&quot; for select).</p>
+                            <button type="button" onClick={() => fetchMilestones()} className="px-4 py-2 bg-red-600 hover:bg-red-500 rounded-lg text-sm font-bold">Retry</button>
+                            <a href="/about" target="_blank" className="text-red-500 hover:text-red-400 text-sm font-mono">View /about page →</a>
+                        </div>
                     ) : milestones.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-32 gap-6 border-2 border-dashed border-white/5 rounded-3xl bg-white/[0.01]">
                             <p className="text-xl font-bold text-gray-400">No milestones yet</p>
-                            <p className="text-gray-600 text-sm">Click &quot;Add Milestone&quot; to build your About timeline. Create the <code className="bg-white/10 px-1 rounded">milestones</code> table in Supabase first.</p>
+                            <p className="text-gray-600 text-sm">Click &quot;Add Milestone&quot; to build your About timeline.</p>
                             <a href="/about" target="_blank" className="text-red-500 hover:text-red-400 text-sm font-mono">View /about page →</a>
                         </div>
                     ) : (
