@@ -1,245 +1,372 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { getProjectBySlug, getOtherProjects, type Project } from '@/components/work/projectsData';
 
-function ProjectDetail({
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
+// --- Horizontal Scroll Project View ---
+function ProjectView({
   project,
   otherProjects,
-  onBack,
 }: {
   project: Project;
   otherProjects: Project[];
-  onBack: () => void;
 }) {
-  const detailRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+  const hintRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
-  useEffect(() => {
-    if (!project || !detailRef.current) return;
+  useLayoutEffect(() => {
+    if (!containerRef.current || !innerRef.current) return;
 
-    const tl = gsap.timeline();
-    tl.fromTo(detailRef.current, { opacity: 0 }, { opacity: 1, duration: 1 });
-    tl.fromTo(
-      '.det-stagger',
-      { y: 60, opacity: 0 },
-      { y: 0, opacity: 1, duration: 1.5, stagger: 0.1, ease: 'expo.out' },
-      '-=0.5'
-    );
-    tl.fromTo(
-      '.det-img-reveal',
-      { clipPath: 'inset(100% 0% 0% 0%)' },
-      { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.8, ease: 'power4.inOut' },
-      '-=1.2'
-    );
+    const ctx = gsap.context(() => {
+      const inner = innerRef.current!;
+      const totalWidth = inner.scrollWidth;
+      const viewportWidth = window.innerWidth;
+
+      // Horizontal scroll via ScrollTrigger pin
+      gsap.to(inner, {
+        x: -(totalWidth - viewportWidth),
+        ease: 'none',
+        scrollTrigger: {
+          trigger: containerRef.current,
+          pin: true,
+          pinReparent: false,
+          scrub: 1,
+          end: () => `+=${totalWidth - viewportWidth}`,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            if (progressRef.current) {
+              progressRef.current.style.transform = `scaleX(${self.progress})`;
+            }
+          },
+        },
+      });
+
+      // Stagger-in animations for the first panel
+      gsap.fromTo(
+        '.intro-stagger',
+        { y: 40, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 1.2,
+          stagger: 0.1,
+          ease: 'expo.out',
+          delay: 0.3,
+        }
+      );
+
+      // Fade out scroll hint after a bit of scrolling
+      if (hintRef.current) {
+        gsap.to(hintRef.current, {
+          opacity: 0,
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: 'top top',
+            end: '+=300',
+            scrub: true,
+          },
+        });
+      }
+    }, containerRef);
+
+    return () => ctx.revert();
   }, [project]);
 
-  const mediaItems =
+  // Build media/gallery
+  const gallery =
     project.media && project.media.length > 0
       ? project.media
-      : [{ type: 'image' as const, url: project.src }];
+      : project.src
+        ? [{ type: 'image' as const, url: project.src }]
+        : [];
+
   const techList = project.techStack ?? [];
+  const year = project.year ?? new Date().getFullYear().toString();
+
+  const handleNext = () => {
+    if (otherProjects.length > 0) {
+      router.push(`/work/${otherProjects[0].slug}`);
+    } else {
+      router.push('/work');
+    }
+  };
 
   return (
-    <div
-      ref={detailRef}
-      className="bg-[#FBFBFA] text-[#1a1a1a] min-h-screen pb-60 relative"
-    >
-      <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=Inter:wght@300;400;700;900&display=swap"
-        rel="stylesheet"
-      />
+    <div ref={containerRef} className="overflow-hidden bg-[#FBFBFA]">
+      {/* Scroll progress bar — fixed at bottom */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 h-[3px] bg-black/5">
+        <div
+          ref={progressRef}
+          className="h-full bg-[#FF2800] origin-left"
+          style={{ transform: 'scaleX(0)' }}
+        />
+      </div>
 
-      <div className="max-w-7xl mx-auto px-8 md:px-12 pt-8 md:pt-10">
-        <header className="mb-24 relative z-30">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 items-end">
-            <div className="md:col-span-7 relative z-10 min-w-0">
-              {project.subtitle && (
-                <p className="det-stagger text-[#FF2800] font-bold text-[10px] tracking-[0.5em] uppercase mb-4 font-sans">
-                  {project.subtitle}
-                </p>
-              )}
-              <div className="det-stagger">
-                {(() => {
-                  const words = project.title.trim().split(/\s+/);
-                  const lastWord = words[words.length - 1];
-                  const rest = words.slice(0, -1);
-                  return (
-                    <>
-                      {rest.length > 0 && (
-                        <div className="overflow-hidden">
-                          <h1 className="text-7xl md:text-9xl serif-font font-medium leading-[0.9] tracking-tight text-[#1a1a1a]">
-                            {rest.map((w, i) => (
-                              <span key={i}>
-                                {i > 0 ? ' ' : ''}
-                                <span className={i === rest.length - 1 ? 'italic' : ''}>{w}</span>
-                              </span>
-                            ))}
-                          </h1>
-                        </div>
-                      )}
-                      <div className="overflow-hidden">
-                        <h1 className="text-7xl md:text-9xl serif-font font-medium leading-[0.9] tracking-tight text-[#FF2800]">
-                          {lastWord}
-                        </h1>
-                      </div>
-                    </>
-                  );
-                })()}
-              </div>
-            </div>
-            <div className="md:col-span-5 pb-2 relative z-20">
-              <div className="det-stagger border-l border-[#FF2800] pl-6">
-                <p className="text-sm font-normal text-[#1a1a1a]/70 leading-relaxed italic serif-font tracking-wide max-w-md">
-                  {project.description}
-                </p>
-              </div>
-            </div>
+      {/* Scroll hint — fades out as you scroll */}
+      <div
+        ref={hintRef}
+        className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400"
+      >
+        <span>Scroll to explore</span>
+        <svg className="w-4 h-4 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+        </svg>
+      </div>
+
+      <div
+        ref={innerRef}
+        className="flex h-screen w-max items-center px-6 md:px-24 gap-16 md:gap-32"
+      >
+        {/* ─── Panel 1: Introduction & Metadata ─── */}
+        <div className="w-[90vw] md:w-[75vw] shrink-0 h-full flex flex-col justify-center pt-24 pb-12">
+          {/* Back link */}
+          <div className="intro-stagger mb-8">
+            <Link
+              href="/work"
+              className="inline-flex items-center gap-2 text-xs tracking-widest uppercase text-gray-400 hover:text-[#FF2800] transition-colors group"
+            >
+              <svg
+                className="w-4 h-4 rotate-180 group-hover:-translate-x-1 transition-transform"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+              </svg>
+              All Projects
+            </Link>
           </div>
-        </header>
 
-        <div className="det-img-reveal aspect-[21/9] bg-white overflow-hidden mb-60 mt-4 md:mt-8 shadow-sm border border-black/[0.03] relative z-0">
-          <img src={project.src} className="w-full h-full object-cover" alt="" />
-        </div>
+          {/* Title */}
+          <h1 className="intro-stagger serif-font text-[12vw] md:text-[8vw] leading-[0.9] text-[#FF2800] uppercase tracking-tighter">
+            {project.title}
+          </h1>
 
-        <div className={`grid grid-cols-1 gap-24 mb-60 ${techList.length > 0 ? 'md:grid-cols-12' : ''}`}>
-          {techList.length > 0 && (
-            <div className="md:col-span-4 space-y-24">
-              <div className="det-stagger">
-                <h4 className="font-sans text-[10px] font-bold text-black/20 uppercase mb-8 tracking-[0.3em]">
-                  Stack Archive
-                </h4>
-                <div className="flex flex-wrap gap-4">
-                  {techList.map((t) => (
+          {/* Subtitle */}
+          {project.subtitle && (
+            <p className="intro-stagger serif-font italic text-lg md:text-xl text-[#1a1a1a]/50 mt-4">
+              {project.subtitle}
+            </p>
+          )}
+
+          {/* Introduction */}
+          <div className="intro-stagger mt-8 md:mt-12 text-xl md:text-3xl serif-font font-medium leading-relaxed max-w-4xl text-gray-900">
+            {project.introduction}
+          </div>
+
+          {/* Metadata Grid */}
+          <div className="intro-stagger mt-16 md:mt-auto pt-8 border-t border-gray-300 grid grid-cols-2 md:grid-cols-4 gap-8 text-sm">
+            <div>
+              <span className="text-gray-400 text-xs tracking-widest uppercase mb-2 block">Category</span>
+              <span className="font-medium text-lg">{project.category}</span>
+            </div>
+            <div>
+              <span className="text-gray-400 text-xs tracking-widest uppercase mb-2 block">Year</span>
+              <span className="font-medium text-lg">{year}</span>
+            </div>
+            {techList.length > 0 && (
+              <div className="col-span-2">
+                <span className="text-gray-400 text-xs tracking-widest uppercase mb-3 block">Tech Stack</span>
+                <div className="flex flex-wrap gap-2">
+                  {techList.map((tech) => (
                     <span
-                      key={t}
-                      className="px-4 py-2 border border-black/5 font-sans text-[9px] font-bold tracking-widest uppercase"
+                      key={tech}
+                      className="px-3 py-1 border border-black/[0.06] text-sm font-medium rounded-full"
                     >
-                      {t}
+                      {tech}
                     </span>
                   ))}
                 </div>
               </div>
+            )}
+          </div>
+
+          {/* Links */}
+          {(project.demo_link || project.code_link) && (
+            <div className="intro-stagger mt-8 flex gap-4">
+              {project.demo_link && project.demo_link !== '#' && (
+                <a
+                  href={project.demo_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#FF2800] text-white text-xs font-bold tracking-widest uppercase rounded-full hover:bg-black transition-colors duration-300"
+                >
+                  Live Demo
+                  <svg className="w-3.5 h-3.5 -rotate-45" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+                  </svg>
+                </a>
+              )}
+              {project.code_link && project.code_link !== '#' && (
+                <a
+                  href={project.code_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 border border-black/10 text-[#1a1a1a] text-xs font-bold tracking-widest uppercase rounded-full hover:border-[#FF2800] hover:text-[#FF2800] transition-colors duration-300"
+                >
+                  Source Code
+                </a>
+              )}
             </div>
           )}
-
-          <div className={`${techList.length > 0 ? 'md:col-span-8' : ''} space-y-24`}>
-            {project.story_challenge && (
-              <div className="det-stagger group">
-                <h2 className="text-[#FF2800] text-[9px] font-bold uppercase tracking-[0.5em] mb-6 font-sans">
-                  01 / The Obstacle
-                </h2>
-                <p className="text-lg md:text-xl serif-font font-medium text-[#1a1a1a]/90 leading-relaxed max-w-2xl">
-                  {project.story_challenge}
-                </p>
-              </div>
-            )}
-            {project.story_solution && (
-              <div className="det-stagger group">
-                <h2 className="text-[#FF2800] text-[9px] font-bold uppercase tracking-[0.5em] mb-6 font-sans">
-                  02 / The Solution
-                </h2>
-                <p className="text-lg md:text-xl serif-font font-medium text-[#1a1a1a]/90 leading-relaxed max-w-2xl">
-                  {project.story_solution}
-                </p>
-              </div>
-            )}
-            {project.story_outcome && (
-              <div className="det-stagger group">
-                <h2 className="text-[#FF2800] text-[9px] font-bold uppercase tracking-[0.5em] mb-6 font-sans">
-                  03 / The Impact
-                </h2>
-                <p className="text-lg md:text-xl serif-font font-medium text-[#1a1a1a]/90 leading-relaxed max-w-2xl">
-                  {project.story_outcome}
-                </p>
-              </div>
-            )}
-          </div>
         </div>
 
-        {mediaItems.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {mediaItems.map((m, i) => (
-              <div
-                key={i}
-                className={`det-stagger overflow-hidden bg-[#eee] shadow-xl ${
-                  i % 3 === 0 ? 'md:col-span-2 aspect-[16/7]' : 'aspect-[4/5]'
-                }`}
-              >
-                {m.type === 'video' ? (
-                  <video
-                    src={m.url}
-                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-[3s] ease-out"
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                  />
-                ) : (
-                  <img
-                    src={m.url}
-                    alt=""
-                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-[3s] ease-out"
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+        {/* ─── Interleaved: Gallery images + Story sections ─── */}
+        {(() => {
+          // Build story blocks
+          const storyBlocks: { title: string; content: string }[] = [];
+          if (project.what_i_did) {
+            storyBlocks.push({ title: 'What I Did', content: project.what_i_did });
+          }
+          if (project.interesting_things) {
+            storyBlocks.push({ title: 'Things I Find Interesting', content: project.interesting_things });
+          }
 
-        {otherProjects.length > 0 && (
-          <section className="mt-60 mb-40">
-            <h2 className="text-[10px] serif-font font-semibold tracking-[0.35em] uppercase text-black/20 mb-12">
-              Other Projects
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {otherProjects.map((p) => (
-                <Link
-                  key={p.id}
-                  href={`/work/${p.slug}`}
-                  className="group block overflow-hidden bg-[#FBFBFA] border border-black/10 hover:border-[#FF2800]/40 transition-all duration-300"
+          // Decide how many images before each story block
+          // e.g. 6 images, 2 stories → [2, 2, 2] chunks  
+          // e.g. 3 images, 2 stories → [1, 1, 1] chunks
+          // e.g. 1 image, 2 stories → [1, 0, 0] chunks
+          const totalStories = storyBlocks.length;
+          const chunks: number = totalStories + 1; // number of image groups
+          const perChunk = Math.max(1, Math.floor(gallery.length / chunks));
+
+          const elements: React.ReactNode[] = [];
+          let imageIndex = 0;
+
+          for (let chunk = 0; chunk < chunks; chunk++) {
+            // How many images in this chunk
+            const isLastChunk = chunk === chunks - 1;
+            const count = isLastChunk
+              ? gallery.length - imageIndex // remaining images
+              : Math.min(perChunk, gallery.length - imageIndex);
+
+            // Render images for this chunk
+            for (let i = 0; i < count; i++) {
+              const item = gallery[imageIndex];
+              if (!item) break;
+              elements.push(
+                <div
+                  key={`img-${imageIndex}`}
+                  className="w-[85vw] md:w-[65vw] shrink-0 h-screen relative overflow-hidden group shadow-2xl"
                 >
-                  <div className="aspect-[4/3] overflow-hidden bg-[#eee]">
-                    <img
-                      src={p.src}
-                      alt={p.title}
-                      className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 scale-105 group-hover:scale-110 transition-all duration-500"
+                  {item.type === 'video' ? (
+                    <video
+                      src={item.url}
+                      className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105"
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
                     />
-                  </div>
-                  <div className="p-6 border-t border-black/5">
-                    <span className="text-[10px] serif-font font-semibold tracking-[0.2em] uppercase text-[#FF2800]">
-                      {p.category}
-                    </span>
-                    <h3 className="mt-3 text-xl serif-font font-bold tracking-tight leading-tight text-[#121212] group-hover:text-[#FF2800] transition-colors">
-                      {p.title}
-                    </h3>
-                  </div>
-                </Link>
-              ))}
-            </div>
-            <div className="mt-12 text-center">
-              <Link
-                href="/work"
-                className="text-[10px] serif-font font-semibold tracking-[0.35em] uppercase text-black/50 hover:text-[#FF2800] transition-colors"
-              >
-                View all work
-              </Link>
-            </div>
-          </section>
-        )}
-      </div>
+                  ) : (
+                    <img
+                      src={item.url}
+                      alt={`${project.title} ${imageIndex + 1}`}
+                      className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105"
+                    />
+                  )}
+                </div>
+              );
+              imageIndex++;
+            }
 
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `.serif-font { font-family: 'Playfair Display', serif; }`,
-        }}
-      />
+            // Insert story block after this image chunk (if one exists)
+            if (chunk < totalStories) {
+              const story = storyBlocks[chunk];
+              elements.push(
+                <div
+                  key={`story-${chunk}`}
+                  className="w-[85vw] md:w-[40vw] shrink-0 h-full flex flex-col justify-center"
+                >
+                  <h3 className="text-[#FF2800] text-xs md:text-sm tracking-widest uppercase font-bold mb-6">
+                    {story.title}
+                  </h3>
+                  <p className="text-lg md:text-xl leading-loose text-gray-800 serif-font">
+                    {story.content}
+                  </p>
+                </div>
+              );
+            }
+          }
+
+          return elements;
+        })()}
+
+        {/* ─── Final Panel: Next Projects ─── */}
+        <div className="w-[90vw] md:w-[60vw] shrink-0 h-full flex flex-col justify-center pr-12 md:pr-24">
+          <h2 className="serif-font text-3xl md:text-5xl text-gray-300 mb-12 italic">
+            More Projects
+          </h2>
+
+          {otherProjects.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {otherProjects.slice(0, 4).map((p) => {
+                const img = p.media?.[0]?.type === 'image' ? p.media[0].url : p.src;
+                return (
+                  <Link
+                    key={p.id}
+                    href={`/work/${p.slug}`}
+                    className="group block overflow-hidden rounded-xl border border-black/5 hover:border-[#FF2800]/30 transition-all duration-300 bg-white hover:shadow-xl"
+                  >
+                    <div className="aspect-[16/10] overflow-hidden bg-gray-100">
+                      {img ? (
+                        <img
+                          src={img}
+                          alt={p.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                          <span className="serif-font text-gray-300 text-2xl italic">{p.title[0]}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-5">
+                      <span className="text-[10px] font-bold tracking-widest uppercase text-[#FF2800]">
+                        {p.category}
+                      </span>
+                      <h3 className="mt-2 text-lg serif-font font-bold text-[#1a1a1a] group-hover:text-[#FF2800] transition-colors leading-tight">
+                        {p.title}
+                      </h3>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="serif-font italic text-gray-400">No other projects yet.</p>
+          )}
+
+          <div className="mt-12">
+            <Link
+              href="/work"
+              className="inline-flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-gray-500 hover:text-[#FF2800] transition-colors"
+            >
+              View All Work
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+              </svg>
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
+// --- Page Shell ---
 export default function ProjectPage() {
   const { slug } = useParams<{ slug: string }>();
   const router = useRouter();
@@ -262,16 +389,12 @@ export default function ProjectPage() {
     loadData();
   }, [slug]);
 
-  const onBack = () => router.push('/work');
-
   if (loading) {
     return (
       <div className="fixed inset-0 bg-[#FBFBFA] flex items-center justify-center z-[100]">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-2 border-neutral-200 border-t-neutral-900 rounded-full animate-spin" />
-          <p className="text-[10px] font-bold tracking-[0.3em] uppercase">
-            Loading
-          </p>
+          <p className="serif-font italic text-sm text-[#1a1a1a]/50">Loading</p>
         </div>
       </div>
     );
@@ -280,10 +403,10 @@ export default function ProjectPage() {
   if (!project) {
     return (
       <div className="min-h-screen bg-[#FBFBFA] flex flex-col items-center justify-center text-neutral-900">
-        <h1 className="text-4xl font-bold mb-4">Project Not Found</h1>
+        <h1 className="text-4xl serif-font font-bold mb-4">Project Not Found</h1>
         <Link
           href="/work"
-          className="text-neutral-600 hover:text-red-600 transition-colors underline"
+          className="text-neutral-600 hover:text-[#FF2800] transition-colors underline"
         >
           Back to Work
         </Link>
@@ -291,11 +414,5 @@ export default function ProjectPage() {
     );
   }
 
-  return (
-    <ProjectDetail
-      project={project}
-      otherProjects={otherProjects}
-      onBack={onBack}
-    />
-  );
+  return <ProjectView project={project} otherProjects={otherProjects} />;
 }

@@ -2,15 +2,9 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import gsap from 'gsap';
-import { useGSAP } from '@gsap/react';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { getProjects, type Project } from '@/components/work/projectsData';
 import Footer from '@/components/Footer';
-
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 function getProjectImage(project: Project): string {
   if (project.media?.length) {
@@ -20,74 +14,217 @@ function getProjectImage(project: Project): string {
   return project.src || '';
 }
 
-function ExploreProjectLink({ href, label }: { href: string; label: string }) {
-  const [hovered, setHovered] = useState(false);
-  const [textFlipped, setTextFlipped] = useState(false);
-  const flipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+// --- Stacked Section Component ---
+function StackedSection({
+  project,
+  index,
+  total,
+}: {
+  project: Project;
+  index: number;
+  total: number;
+}) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const imageUrl = getProjectImage(project);
+  const indexStr = String(index + 1).padStart(2, '0');
 
-  const clearFlipTimer = () => {
-    if (flipTimerRef.current) {
-      clearTimeout(flipTimerRef.current);
-      flipTimerRef.current = null;
-    }
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start end', 'end start'],
+  });
+
+  // Parallax image
+  const imageY = useTransform(scrollYProgress, [0, 1], ['-15%', '15%']);
+
+  // Scale down + fade as next section covers
+  const sectionScale = useTransform(scrollYProgress, [0.8, 1], [1, 0.95]);
+  const sectionOpacity = useTransform(scrollYProgress, [0.8, 1], [1, 0.5]);
+
+  const zIndex = index * 10;
+
+  // Letter-by-letter stagger reveal
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.04, delayChildren: 0.15 },
+    },
   };
 
-  const handleMouseEnter = () => {
-    clearFlipTimer();
-    setHovered(true);
-    setTextFlipped(true);
-    flipTimerRef.current = setTimeout(() => {
-      setTextFlipped(false);
-      flipTimerRef.current = null;
-    }, 400);
+  const letterVariants = {
+    hidden: { opacity: 0, y: 80, rotate: 8 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      rotate: 0,
+      transition: { type: 'spring', damping: 18, stiffness: 90 },
+    },
   };
 
-  const handleMouseLeave = () => {
-    clearFlipTimer();
-    setHovered(false);
-    setTextFlipped(false);
-  };
-
-  useEffect(() => {
-    return () => clearFlipTimer();
-  }, []);
+  // Build feature list from techStack if available, or a fallback
+  const features =
+    project.techStack && project.techStack.length > 0
+      ? project.techStack.slice(0, 4)
+      : [project.category];
 
   return (
-    <Link
-      href={href}
-      className="group flex items-center gap-6"
-      aria-label={`Discover ${label}`}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+    <motion.section
+      ref={sectionRef}
+      className="sticky top-0 h-screen w-full bg-white flex flex-col justify-between overflow-hidden origin-top"
+      style={{
+        zIndex,
+        scale: sectionScale,
+        opacity: sectionOpacity,
+        boxShadow: index > 0 ? '0 -20px 50px rgba(0,0,0,0.08)' : 'none',
+      }}
     >
-      <div className="accent-serif relative h-5 overflow-hidden text-[11px] font-semibold tracking-[0.15em] uppercase">
-        <div
-          className="transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
-          style={{ transform: textFlipped ? 'translateY(-100%)' : 'translateY(0)' }}
-        >
-          <span className="block h-5 leading-5 text-[#FF2800]">Discover Work</span>
-          <span className="block h-5 leading-5">Discover Work</span>
+      <div className="container mx-auto px-6 md:px-12 h-full flex flex-col pt-24 pb-8 md:pb-12 relative">
+        {/* Massive Typography Heading */}
+        <div className="relative w-full flex justify-center mt-auto mb-auto z-20 pointer-events-none">
+          <div className="relative flex items-start">
+            {/* Section Number */}
+            <motion.span
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ margin: '-100px' }}
+              className="absolute right-full mr-4 md:mr-8 lg:mr-10 top-2 md:top-4 lg:top-6 text-xl md:text-2xl font-medium text-[#1a1a1a] pointer-events-auto"
+            >
+              {indexStr}
+            </motion.span>
+
+            <motion.h2
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ margin: '-20%' }}
+              className="serif-font text-[18vw] md:text-[14vw] leading-[0.8] tracking-[-0.04em] text-[#FF2800] m-0 lowercase flex pt-4 pb-4"
+            >
+              {project.title.split('').map((char, i) => (
+                <motion.span
+                  key={i}
+                  variants={letterVariants}
+                  className="inline-block"
+                >
+                  {char === ' ' ? '\u00A0' : char}
+                </motion.span>
+              ))}
+            </motion.h2>
+          </div>
+        </div>
+
+        {/* Content Footer Area (Text + Image) */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16 mt-auto items-end z-20">
+          {/* Left: Description & Features */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ margin: '-50px' }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="md:col-span-5 flex flex-col justify-end pb-4 md:pb-0"
+          >
+            <p className="text-base md:text-lg lg:text-xl font-medium leading-relaxed mb-8 md:mb-12 text-gray-800 max-w-md">
+              {project.introduction}
+            </p>
+
+            <div className="w-full h-[1px] bg-gray-200 mb-6" />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-xs md:text-sm font-semibold tracking-wide uppercase text-gray-900">
+              {features.map((feature, i) => (
+                <div
+                  key={i}
+                  className="hover:text-[#FF2800] transition-colors cursor-default"
+                >
+                  {feature}
+                </div>
+              ))}
+            </div>
+
+            {/* View Project Button */}
+            {project.slug && (
+              <motion.div className="mt-10">
+                <Link
+                  href={`/work/${project.slug}`}
+                  className="view-project-btn group relative inline-flex items-center self-start h-12 md:h-14 rounded-full overflow-hidden"
+                >
+                  {/* Background layer — red, with a black sweep on hover */}
+                  <span className="absolute inset-0 bg-[#FF2800] rounded-full" />
+                  <span className="absolute inset-0 bg-[#1a1a1a] rounded-full origin-bottom scale-y-0 group-hover:scale-y-100 transition-transform duration-500 ease-[cubic-bezier(0.65,0,0.35,1)]" />
+
+                  {/* Text */}
+                  <span className="relative z-10 text-white text-xs md:text-sm font-bold tracking-widest uppercase pl-8 pr-2 group-hover:pl-7 transition-all duration-500 ease-out">
+                    View Project
+                  </span>
+
+                  {/* Arrow circle */}
+                  <span className="relative z-10 flex items-center justify-center w-8 h-8 md:w-10 md:h-10 mr-1.5 md:mr-2 rounded-full bg-white/20 group-hover:bg-white transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:scale-110">
+                    <svg
+                      className="w-3.5 h-3.5 md:w-4 md:h-4 text-white group-hover:text-[#1a1a1a] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:translate-x-0.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2.5}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M4 12h16m0 0l-6-6m6 6l-6 6"
+                      />
+                    </svg>
+                  </span>
+                </Link>
+              </motion.div>
+            )}
+          </motion.div>
+
+          {/* Right: Parallax Image — clickable with arrow overlay */}
+          <Link
+            href={project.slug ? `/work/${project.slug}` : '#'}
+            className="hidden md:block md:col-span-7 h-[30vh] sm:h-[35vh] lg:h-[45vh] w-full relative overflow-hidden bg-gray-50 group cursor-pointer"
+          >
+            <motion.div
+              style={{ y: imageY }}
+              className="absolute w-full h-[130%] -top-[15%] left-0"
+            >
+              {imageUrl ? (
+                <img
+                  src={imageUrl}
+                  alt={project.title}
+                  className="w-full h-full object-cover transition-transform duration-[1.5s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-110"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200" />
+              )}
+              {/* Darken overlay on hover */}
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-500" />
+            </motion.div>
+
+            {/* Diagonal arrow — appears on hover */}
+            <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+              <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white flex items-center justify-center scale-0 group-hover:scale-100 transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] shadow-xl">
+                <svg
+                  className="w-5 h-5 md:w-6 md:h-6 text-[#1a1a1a] -rotate-45"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 12h16m0 0l-6-6m6 6l-6 6"
+                  />
+                </svg>
+              </div>
+            </div>
+          </Link>
         </div>
       </div>
-      <div
-        className={`relative h-px transition-all duration-700 ${
-          hovered ? 'w-20 bg-[#FF2800]' : 'w-12 bg-black/20'
-        }`}
-      >
-        <div
-          className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 border-t border-r border-[#FF2800] transition-transform duration-500"
-          style={{ transform: hovered ? 'rotate(45deg) scale(1)' : 'rotate(45deg) scale(0)' }}
-        />
-      </div>
-    </Link>
+    </motion.section>
   );
 }
 
+// --- Main Work Page ---
 export default function WorkPage() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const lineRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<HTMLElement>(null);
-  const mountainRef = useRef<HTMLDivElement>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -105,203 +242,52 @@ export default function WorkPage() {
     load();
   }, []);
 
-  useGSAP(
-    () => {
-      if (loading || projects.length === 0 || !triggerRef.current || !lineRef.current) return;
-
-      if (mountainRef.current) {
-        gsap.to(mountainRef.current, {
-          y: -60,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: triggerRef.current,
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: 1,
-          },
-        });
-      }
-
-      gsap.fromTo(
-        lineRef.current,
-        { scaleY: 0 },
-        {
-          scaleY: 1,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: triggerRef.current,
-            start: 'top center',
-            end: 'bottom center',
-            scrub: true,
-          },
-        }
-      );
-      ScrollTrigger.refresh();
-
-      const items = gsap.utils.toArray<HTMLElement>('.project-item', containerRef.current);
-      items.forEach((item) => {
-        const img = item.querySelector('.img-reveal');
-        const text = item.querySelector('.text-reveal');
-
-        if (img) {
-          gsap.fromTo(
-            img,
-            { clipPath: 'inset(10% 10% 10% 10%)', opacity: 0 },
-            {
-              clipPath: 'inset(0% 0% 0% 0%)',
-              opacity: 1,
-              duration: 1.5,
-              ease: 'expo.out',
-              scrollTrigger: { trigger: item, start: 'top bottom-=100', toggleActions: 'play none none reverse' },
-            }
-          );
-        }
-
-        if (text) {
-          gsap.fromTo(
-            text,
-            { y: 30, opacity: 0 },
-            {
-              y: 0,
-              opacity: 1,
-              duration: 1.2,
-              delay: 0.2,
-              ease: 'power3.out',
-              scrollTrigger: { trigger: item, start: 'top bottom-=50', toggleActions: 'play none none reverse' },
-            }
-          );
-        }
-      });
-
-      return () => {
-        ScrollTrigger.getAll().forEach((t) => t.kill());
-      };
-    },
-    { scope: containerRef, dependencies: [loading, projects.length] }
-  );
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FBFBFA] flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-8 h-8 border-2 border-[#121212] border-t-transparent rounded-full animate-spin" />
-          <p className="text-[10px] tracking-[0.4em] uppercase font-bold text-[#121212]/60">Loading</p>
+          <p className="serif-font italic text-sm text-[#1a1a1a]/50">Loading</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div
-      className="bg-[#FBFBFA] text-[#1a1a1a] selection:bg-[#FF2800] selection:text-white min-h-screen font-sans overflow-x-hidden"
-      ref={containerRef}
-    >
-      <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=Inter:wght@300;400;700;900&display=swap"
-        rel="stylesheet"
-      />
+    <div className="bg-white min-h-screen font-sans text-gray-900 selection:bg-[#FF2800] selection:text-white">
+      {/* Navbar is provided by the root layout */}
 
-      <div
-        ref={mountainRef}
-        className="fixed top-0 left-0 w-full h-full pointer-events-none z-0 opacity-[0.03]"
-      >
-        <svg viewBox="0 0 1000 500" preserveAspectRatio="none" className="w-full h-full fill-none stroke-black stroke-[1]">
-          <path d="M-100,500 L300,100 L600,300 L900,50 L1200,450" />
-        </svg>
-      </div>
-
-      <section className="h-screen flex flex-col items-center justify-center relative px-6 z-10 text-center">
-        <div className="overflow-hidden">
-          <p className="text-[#FF2800] text-[10px] tracking-[0.5em] font-bold uppercase mb-8 font-sans">
-            Selected Expeditions
+      <main className="relative bg-white">
+        {/* Intro — scroll hint */}
+        <div className="h-[20vh] w-full flex items-center justify-center bg-white">
+          <p className="serif-font italic text-sm text-gray-400 animate-pulse">
+            Scroll Down
           </p>
         </div>
-        <h1 className="text-7xl md:text-[11rem] serif-font font-black leading-[0.8] tracking-tighter uppercase">
-          Grand <br /> <span className="italic font-light">Ascent</span>
-        </h1>
-        <div className="mt-20 flex flex-col items-center gap-6 opacity-20">
-          <div className="w-px h-16 bg-black" />
-          <span className="text-[8px] tracking-[0.4em] uppercase font-sans">Scroll to descend</span>
-        </div>
-      </section>
 
-      <section className="relative pb-60 pt-40" ref={triggerRef}>
-        <div className="absolute left-1/2 top-0 bottom-0 w-[0.5px] bg-black/[0.05] -translate-x-1/2 z-0" />
-        <div className="absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 pointer-events-none z-[5] overflow-hidden">
-          <div
-            ref={lineRef}
-            className="absolute left-0 top-0 w-full h-full bg-[#FF2800] origin-top"
-            style={{ transform: 'scaleY(0)' }}
-          />
-        </div>
+        {/* Stacking Sections */}
+        {projects.length === 0 ? (
+          <div className="min-h-[50vh] flex items-center justify-center">
+            <p className="text-[#1a1a1a]/60 serif-font italic">
+              No projects yet.
+            </p>
+          </div>
+        ) : (
+          projects.map((project, index) => (
+            <StackedSection
+              key={project.id}
+              project={project}
+              index={index}
+              total={projects.length}
+            />
+          ))
+        )}
 
-        <div className="max-w-7xl mx-auto px-10">
-          {projects.length === 0 ? (
-            <div className="min-h-[50vh] flex items-center justify-center">
-              <p className="text-[#1a1a1a]/60 italic">No projects yet.</p>
-            </div>
-          ) : (
-            projects.map((project) => {
-              const imageUrl = getProjectImage(project);
-              const year = project.year ?? new Date().getFullYear().toString();
-              return (
-                <div
-                  key={project.id}
-                  className="project-item min-h-screen grid grid-cols-1 md:grid-cols-12 md:gap-x-32 gap-y-16 gap-20 items-center relative mb-40"
-                >
-                  <div className="absolute left-1/2 -translate-x-1/2 top-0 z-10">
-                    <span className="font-sans text-[10px] font-bold text-[#FF2800] bg-[#FBFBFA] px-4 py-1 border border-[#FF2800]/20 rounded-full tracking-tighter">
-                      {year}
-                    </span>
-                  </div>
-
-                  <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 hidden md:block w-2 h-2 rounded-full bg-[#FF2800]" aria-hidden />
-
-                  <div className="md:col-span-5 z-20 min-w-0 relative md:order-1">
-                    <div className="text-reveal px-4">
-                      <p className="font-sans text-[10px] tracking-[0.4em] font-bold text-black/30 uppercase mb-8">
-                        {project.category}
-                      </p>
-                      <h3
-                        className="serif-font font-bold mb-10 tracking-tighter uppercase leading-[0.85] min-w-0"
-                        style={{ wordSpacing: '0.08em', fontSize: 'clamp(2.5rem, 5vw, 6rem)' }}
-                      >
-                        {project.title}
-                      </h3>
-                      <div className="project-text-cta">
-                        <ExploreProjectLink href={`/work/${project.slug}`} label={project.title} />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="md:col-span-7 z-10 md:order-2 md:pl-8">
-                    <Link href={`/work/${project.slug}`} className="block">
-                      <div className="img-reveal relative overflow-hidden aspect-[16/10] cursor-pointer bg-white group shadow-sm border border-black/[0.03] max-w-4xl md:ml-auto">
-                        <img
-                          src={imageUrl}
-                          alt={project.title}
-                          className="w-full h-full object-cover grayscale opacity-80 transition-all duration-[1.5s] group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105"
-                        />
-                      </div>
-                    </Link>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
-      </section>
+        {/* Spacer before footer so last section unsticks cleanly */}
+        <div className="h-screen" />
+      </main>
 
       <Footer />
-
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-            .serif-font { font-family: 'Playfair Display', serif; }
-            body { background-color: #FBFBFA; }
-          `,
-        }}
-      />
     </div>
   );
 }

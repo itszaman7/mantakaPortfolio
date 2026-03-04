@@ -141,121 +141,121 @@ export default function Footer() {
       className="relative z-10 w-full font-sans bg-[#f4f4f5] text-neutral-900 selection:bg-red-600 selection:text-white overflow-hidden"
     >
       <div ref={innerRef}>
-      {/* Marquee: greetings left to right */}
-      <div className="pt-16 md:pt-20 pb-4">
-        <div className="flex overflow-hidden">
-          <div className="footer-marquee-track flex items-center gap-x-8 md:gap-x-12 shrink-0">
-            <MarqueeContent />
-            <MarqueeContent />
+        {/* Marquee: greetings left to right */}
+        <div className="pt-16 md:pt-20 pb-4">
+          <div className="flex overflow-hidden">
+            <div className="footer-marquee-track flex items-center gap-x-8 md:gap-x-12 shrink-0">
+              <MarqueeContent />
+              <MarqueeContent />
+            </div>
           </div>
-        </div>
-        {/* Red wavy line under marquee (theme accent) */}
-        <div className="mt-2 flex justify-center">
-          <svg
-            className="w-full max-w-md h-3"
-            style={{ color: "var(--accent-pulse)" }}
-            viewBox="0 0 400 12"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden
-          >
-            <path
-              d="M0 8 Q50 2, 100 8 T200 8 T300 8 T400 8"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
+          {/* Red wavy line under marquee (theme accent) */}
+          <div className="mt-2 flex justify-center">
+            <svg
+              className="w-full max-w-md h-3"
+              style={{ color: "var(--accent-pulse)" }}
+              viewBox="0 0 400 12"
               fill="none"
-            />
-            <path
-              d="M0 10 Q60 4, 120 10 T240 10 T360 10 T400 10"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              fill="none"
-              opacity="0.7"
-            />
-          </svg>
-        </div>
-      </div>
-
-      {/* Email CTA */}
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12 pt-12 pb-16">
-        <div className="flex justify-center md:justify-start">
-          <a
-            ref={emailRef}
-            href="mailto:mantaka35@gmail.com"
-            className="inline-block px-8 py-4 rounded-2xl border-2 border-neutral-900 text-neutral-900 text-sm md:text-base font-bold uppercase tracking-widest transition-all duration-300 hover:bg-red-600 hover:border-red-600 hover:text-white hover:scale-105 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-red-600/20"
-          >
-            HELLO@MANTAKA.DESIGN
-          </a>
-        </div>
-      </div>
-
-      {/* Divider */}
-      <div ref={dividerRef} className="w-full max-w-[1440px] mx-auto px-6 md:px-12 origin-left">
-        <div className="h-px bg-neutral-300" />
-      </div>
-
-      {/* Socials + Logo */}
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-10 md:py-12">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-8 md:gap-0">
-          <div
-            ref={socialsRef}
-            className="flex flex-wrap justify-center md:justify-start gap-x-8 md:gap-x-10 gap-y-2"
-          >
-            {socialLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="footer-social-link inline-flex text-base md:text-lg font-bold uppercase tracking-[0.2em] text-neutral-700"
-              >
-                {link.name.split("").map((char, i) => (
-                  <span
-                    key={`${link.name}-${i}`}
-                    className="footer-social-letter"
-                    style={{ ["--i" as string]: i }}
-                  >
-                    {char}
-                  </span>
-                ))}
-              </a>
-            ))}
-          </div>
-          <div
-            ref={logoRef}
-            className="footer-logo-link flex text-2xl md:text-3xl font-black uppercase tracking-tighter text-neutral-900"
-          >
-            {"Mantaka".split("").map((char, i) => (
-              <span
-                key={`logo-${i}`}
-                className="footer-logo-letter"
-                style={{ ["--i" as string]: i }}
-              >
-                {char}
-              </span>
-            ))}
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden
+            >
+              <path
+                d="M0 8 Q50 2, 100 8 T200 8 T300 8 T400 8"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <path
+                d="M0 10 Q60 4, 120 10 T240 10 T360 10 T400 10"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                fill="none"
+                opacity="0.7"
+              />
+            </svg>
           </div>
         </div>
 
-        <div className="flex justify-center md:justify-end mt-10 pt-8 border-t border-neutral-200">
-          <p
-            ref={copyrightRef}
-            className="footer-copyright"
-          >
-            {"Copyright 2026 © Mantaka".split("").map((char, i) => (
-              <span
-                key={`copy-${i}`}
-                className="footer-copyright-letter"
-                style={{ ["--i" as string]: i }}
-              >
-                {char}
-              </span>
-            ))}
-          </p>
+        {/* Email CTA */}
+        <div className="max-w-[1440px] mx-auto px-6 md:px-12 pt-12 pb-16">
+          <div className="flex justify-center md:justify-start">
+            <a
+              ref={emailRef}
+              href="mailto:mantaka35@gmail.com"
+              className="inline-block px-8 py-4 rounded-2xl border-2 border-neutral-900 text-neutral-900 text-sm md:text-base serif-font italic transition-all duration-300 hover:bg-red-600 hover:border-red-600 hover:text-white hover:scale-105 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-red-600/20"
+            >
+              hello@mantaka.design
+            </a>
+          </div>
         </div>
-      </div>
+
+        {/* Divider */}
+        <div ref={dividerRef} className="w-full max-w-[1440px] mx-auto px-6 md:px-12 origin-left">
+          <div className="h-px bg-neutral-300" />
+        </div>
+
+        {/* Socials + Logo */}
+        <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-10 md:py-12">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-8 md:gap-0">
+            <div
+              ref={socialsRef}
+              className="flex flex-wrap justify-center md:justify-start gap-x-8 md:gap-x-10 gap-y-2"
+            >
+              {socialLinks.map((link) => (
+                <a
+                  key={link.name}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="footer-social-link inline-flex text-base md:text-lg font-bold uppercase tracking-[0.2em] text-neutral-700"
+                >
+                  {link.name.split("").map((char, i) => (
+                    <span
+                      key={`${link.name}-${i}`}
+                      className="footer-social-letter"
+                      style={{ ["--i" as string]: i }}
+                    >
+                      {char}
+                    </span>
+                  ))}
+                </a>
+              ))}
+            </div>
+            <div
+              ref={logoRef}
+              className="footer-logo-link flex text-2xl md:text-3xl font-black uppercase tracking-tighter text-neutral-900"
+            >
+              {"Mantaka".split("").map((char, i) => (
+                <span
+                  key={`logo-${i}`}
+                  className="footer-logo-letter"
+                  style={{ ["--i" as string]: i }}
+                >
+                  {char}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex justify-center md:justify-end mt-10 pt-8 border-t border-neutral-200">
+            <p
+              ref={copyrightRef}
+              className="footer-copyright"
+            >
+              {"Copyright 2026 © Mantaka".split("").map((char, i) => (
+                <span
+                  key={`copy-${i}`}
+                  className="footer-copyright-letter"
+                  style={{ ["--i" as string]: i }}
+                >
+                  {char}
+                </span>
+              ))}
+            </p>
+          </div>
+        </div>
       </div>
     </footer>
   );

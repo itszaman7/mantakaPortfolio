@@ -9,11 +9,11 @@ export interface Project {
     title: string;
     category: string;
     src: string;
-    description: string;
-    // Story Mode Fields
-    story_challenge?: string;
-    story_solution?: string;
-    story_outcome?: string;
+    /** Project introduction — 250 words max */
+    introduction: string;
+    // Story Fields
+    what_i_did?: string;
+    interesting_things?: string;
     // Links
     code_link?: string;
     demo_link?: string;
@@ -57,10 +57,9 @@ export async function getProjects(): Promise<Project[]> {
         category: p.category,
         subtitle: p.subtitle,
         src: p.src,
-        description: p.description,
-        story_challenge: p.story_challenge,
-        story_solution: p.story_solution,
-        story_outcome: p.story_outcome,
+        introduction: p.introduction ?? '',
+        what_i_did: p.what_i_did ?? '',
+        interesting_things: p.interesting_things ?? '',
         code_link: p.code_link,
         demo_link: p.demo_link,
         techStack: p.tech_stack || [],

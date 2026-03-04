@@ -103,9 +103,9 @@ const ProjectGallery = () => {
 
     if (isLoading) {
         return (
-            <section className="w-full h-screen flex items-center justify-center bg-neutral-50">
+            <section className="w-full h-screen flex items-center justify-center bg-[#FBFBFA]">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="w-8 h-8 border-4 border-neutral-900 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-8 h-8 border-4 border-neutral-200 border-t-neutral-900 rounded-full animate-spin"></div>
                     <p className="font-sans font-medium text-neutral-500">Loading works...</p>
                 </div>
             </section>
@@ -114,9 +114,9 @@ const ProjectGallery = () => {
 
     if (projects.length === 0) {
         return (
-            <section className="w-full py-32 flex items-center justify-center bg-neutral-50">
+            <section className="w-full py-32 flex items-center justify-center bg-[#FBFBFA]">
                 <div className="text-center px-6">
-                    <h2 className="font-sans font-bold text-3xl mb-4 text-neutral-900">No projects found</h2>
+                    <h2 className="serif-font font-bold text-3xl mb-4 text-[#1a1a1a]">No projects found</h2>
                     <p className="text-neutral-500 max-w-md mx-auto">
                         Check back later or ensure your database has entries.
                     </p>
@@ -127,10 +127,10 @@ const ProjectGallery = () => {
 
 
     return (
-        <section ref={containerRef} className="w-full relative bg-neutral-50">
+        <section ref={containerRef} className="w-full relative bg-[#FBFBFA]">
             <div className="px-6 md:px-12 lg:px-24 pt-16 pb-8">
-                <h2 className="font-sans font-black tracking-tighter text-neutral-900 text-[11.5vw] leading-[0.8]">
-                    SELECTED WORK
+                <h2 className="serif-font font-bold tracking-tighter text-[#1a1a1a] text-[11.5vw] leading-[0.8]">
+                    Selected <span className="italic text-[#FF2800]">Work</span>
                 </h2>
             </div>
 

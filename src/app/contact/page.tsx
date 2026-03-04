@@ -130,16 +130,11 @@ export default function ContactPage() {
       ref={mainRef}
       className="min-h-screen bg-white text-[#1a1a1a] font-sans selection:bg-[#FF2800] selection:text-white overflow-x-hidden"
     >
-      <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500&display=swap"
-        rel="stylesheet"
-      />
-
       <main className="pt-20 pb-20 px-6 md:px-12 lg:px-24 max-w-7xl mx-auto">
         <header className="mb-24">
           <div ref={titleRef}>
             <div className="overflow-hidden">
-              <span className="text-xs uppercase tracking-[0.3em] text-[#FF2800] font-bold mb-4 block">
+              <span className="serif-font italic text-sm text-[#FF2800] mb-4 block">
                 Available for Commissions
               </span>
             </div>
@@ -160,7 +155,7 @@ export default function ContactPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
           <div ref={infoRef} className="lg:col-span-5 space-y-16">
             <section>
-              <h3 className="text-xs uppercase tracking-[0.2em] font-bold text-gray-400 mb-8 border-b border-gray-100 pb-4">
+              <h3 className="serif-font italic text-sm text-gray-400 mb-8 border-b border-gray-100 pb-4">
                 Contact Details
               </h3>
               <div className="space-y-6">
@@ -191,7 +186,7 @@ export default function ContactPage() {
             </section>
 
             <section>
-              <h3 className="text-xs uppercase tracking-[0.2em] font-bold text-gray-400 mb-8 border-b border-gray-100 pb-4">
+              <h3 className="serif-font italic text-sm text-gray-400 mb-8 border-b border-gray-100 pb-4">
                 Connect
               </h3>
               <div className="grid grid-cols-1 gap-3">
@@ -339,11 +334,6 @@ export default function ContactPage() {
 
       <Footer />
 
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `.serif-font { font-family: 'Playfair Display', serif; }`,
-        }}
-      />
     </div>
   );
 }

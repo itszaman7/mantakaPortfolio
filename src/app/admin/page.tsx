@@ -14,16 +14,15 @@ interface Project {
     category: string;
     subtitle?: string;
     src: string;
-    description: string;
+    introduction: string;
     tech_stack: string[];
     award_name?: string;
     award_link?: string;
     media: { type: 'image' | 'video'; url: string }[];
     link?: string;
     background_color?: string;
-    story_challenge?: string;
-    story_solution?: string;
-    story_outcome?: string;
+    what_i_did?: string;
+    interesting_things?: string;
     code_link?: string;
     demo_link?: string;
 }
@@ -105,16 +104,15 @@ export default function AdminPage() {
         category: '',
         subtitle: '',
         src: '',
-        description: '',
+        introduction: '',
         tech_stack: [],
         award_name: '',
         award_link: '',
         media: [],
         link: '',
         background_color: '#1DB954',
-        story_challenge: '',
-        story_solution: '',
-        story_outcome: '',
+        what_i_did: '',
+        interesting_things: '',
         code_link: '',
         demo_link: '',
     });
@@ -216,16 +214,15 @@ export default function AdminPage() {
             category: '',
             subtitle: '',
             src: '',
-            description: '',
+            introduction: '',
             tech_stack: [],
             award_name: '',
             award_link: '',
             media: [],
             link: '',
             background_color: '#1DB954',
-            story_challenge: '',
-            story_solution: '',
-            story_outcome: '',
+            what_i_did: '',
+            interesting_things: '',
             code_link: '',
             demo_link: '',
         });
@@ -548,49 +545,38 @@ export default function AdminPage() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Description</label>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Introduction <span className="text-gray-600 font-normal">(250 words max)</span></label>
                                     <textarea
-                                        placeholder="Short project summary..."
+                                        placeholder="Brief project introduction — what is this project about?"
                                         rows={4}
                                         className="w-full bg-[#111] border border-white/5 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors resize-none mb-6"
-                                        value={formData.description || ''}
-                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                        value={formData.introduction || ''}
+                                        onChange={(e) => setFormData({ ...formData, introduction: e.target.value })}
                                         required
                                     />
 
                                     <div className="space-y-6 border-t border-white/5 pt-6">
-                                        <h3 className="text-sm font-bold text-red-500 uppercase tracking-widest">Story Mode</h3>
+                                        <h3 className="text-sm font-bold text-red-500 uppercase tracking-widest">Project Story</h3>
 
                                         <div>
-                                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">The Spark (Origin/Challenge)</label>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">What did I do?</label>
                                             <textarea
-                                                placeholder="How did this start? What was the hard problem? (Brainstorming phase)"
-                                                rows={4}
+                                                placeholder="Describe your role, contributions, and the work you personally did on this project."
+                                                rows={5}
                                                 className="w-full bg-[#111] border border-white/5 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors"
-                                                value={formData.story_challenge || ''}
-                                                onChange={(e) => setFormData({ ...formData, story_challenge: e.target.value })}
+                                                value={formData.what_i_did || ''}
+                                                onChange={(e) => setFormData({ ...formData, what_i_did: e.target.value })}
                                             />
                                         </div>
 
                                         <div>
-                                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">The Blueprint (System Design/Algo)</label>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Things I find interesting about the project</label>
                                             <textarea
-                                                placeholder="Deep dive into algorithms, system design, and technical decisions."
-                                                rows={6}
-                                                className="w-full bg-[#111] border border-white/5 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors font-mono text-sm"
-                                                value={formData.story_solution || ''}
-                                                onChange={(e) => setFormData({ ...formData, story_solution: e.target.value })}
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">The Legacy (Outcome/Learnings)</label>
-                                            <textarea
-                                                placeholder="What was the result? What did you learn? Collaboration highlights?"
-                                                rows={4}
+                                                placeholder="What aspects of the project fascinate you? Technical challenges, design decisions, unique approaches..."
+                                                rows={5}
                                                 className="w-full bg-[#111] border border-white/5 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors"
-                                                value={formData.story_outcome || ''}
-                                                onChange={(e) => setFormData({ ...formData, story_outcome: e.target.value })}
+                                                value={formData.interesting_things || ''}
+                                                onChange={(e) => setFormData({ ...formData, interesting_things: e.target.value })}
                                             />
                                         </div>
                                     </div>
@@ -1052,209 +1038,209 @@ export default function AdminPage() {
                 )}
 
                 {activeTab === 'projects' && (
-                <div className="space-y-6">
-                    <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-4xl font-black tracking-tighter">PROJECTS</h2>
-                        <div className="h-px bg-white/10 flex-grow mx-8 hidden md:block" />
-                        <span className="text-gray-500 font-mono text-sm">{projects.length} TOTAL</span>
-                    </div>
-
-                    {loading ? (
-                        <div className="flex flex-col items-center justify-center py-32 gap-4 border border-white/5 rounded-3xl bg-white/[0.02]">
-                            <Loader2 className="w-12 h-12 text-red-600 animate-spin" />
-                            <p className="text-gray-500 font-bold tracking-widest uppercase text-[10px]">Loading Database...</p>
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between mb-8">
+                            <h2 className="text-4xl font-black tracking-tighter">PROJECTS</h2>
+                            <div className="h-px bg-white/10 flex-grow mx-8 hidden md:block" />
+                            <span className="text-gray-500 font-mono text-sm">{projects.length} TOTAL</span>
                         </div>
-                    ) : projects.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-32 gap-6 border border-2 border-dashed border-white/5 rounded-3xl bg-white/[0.01]">
-                            <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center">
-                                <Plus className="text-gray-600 w-8 h-8" />
+
+                        {loading ? (
+                            <div className="flex flex-col items-center justify-center py-32 gap-4 border border-white/5 rounded-3xl bg-white/[0.02]">
+                                <Loader2 className="w-12 h-12 text-red-600 animate-spin" />
+                                <p className="text-gray-500 font-bold tracking-widest uppercase text-[10px]">Loading Database...</p>
                             </div>
-                            <div className="text-center">
-                                <p className="text-xl font-bold text-gray-400">Your portfolio is empty</p>
-                                <p className="text-gray-600 text-sm mt-1">Click "Add Project" to start building your legacy.</p>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {projects.map((project) => (
-                                <div key={project.id} className="group bg-[#0a0a0a] border border-white/5 rounded-2xl p-6 hover:border-red-600/50 transition-all duration-500 hover:shadow-[0_0_40px_rgba(220,38,38,0.1)]">
-                                    <div className="aspect-video rounded-xl overflow-hidden mb-6 bg-white/5 relative">
-                                        {project.src ? (
-                                            <img src={project.src} alt={project.title} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center bg-[#111]">
-                                                <ImageIcon className="text-white/20 w-12 h-12" />
-                                            </div>
-                                        )}
-                                        <div className="absolute top-4 left-4">
-                                            <span className="px-3 py-1 bg-black/80 backdrop-blur-md rounded-full text-[10px] font-bold tracking-widest text-white border border-white/10">
-                                                {project.category}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        <div className="flex items-start justify-between">
-                                            <div>
-                                                <h3 className="text-xl font-bold tracking-tight">{project.title}</h3>
-                                                <p className="text-gray-500 text-xs mt-1 line-clamp-1">{project.subtitle}</p>
-                                            </div>
-                                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button
-                                                    onClick={() => handleEdit(project)}
-                                                    className="p-2 hover:bg-white/20 text-gray-500 hover:text-white rounded-lg transition-colors"
-                                                    title="Edit"
-                                                >
-                                                    <Pencil className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => deleteProject(project.id!)}
-                                                    className="p-2 hover:bg-red-900/20 text-gray-500 hover:text-red-500 rounded-lg transition-colors"
-                                                    title="Delete"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex flex-wrap gap-2">
-                                            {project.tech_stack.slice(0, 3).map((tech, i) => (
-                                                <span key={i} className="text-[9px] font-bold text-gray-400 uppercase tracking-wider bg-white/5 px-2 py-1 rounded-md border border-white/5">
-                                                    {tech}
-                                                </span>
-                                            ))}
-                                            {project.tech_stack.length > 3 && <span className="text-[9px] text-gray-600 font-bold">+{project.tech_stack.length - 3}</span>}
-                                        </div>
-
-                                        <div className="h-px bg-white/10" />
-
-                                        <div className="flex items-center justify-between pt-2">
-                                            <span className="text-[10px] font-mono text-gray-600">ID: {project.id?.slice(0, 8)}...</span>
-                                            {project.slug && (
-                                                <a href={`/work/${project.slug}`} target="_blank" className="text-gray-600 hover:text-white p-1 transition-colors text-[10px] font-mono uppercase">
-                                                    /work/{project.slug}
-                                                </a>
-                                            )}
-                                            {project.link && (
-                                                <a href={project.link} target="_blank" className="text-red-600 hover:text-red-400 p-1 transition-colors">
-                                                    <ExternalLink className="w-4 h-4" />
-                                                </a>
-                                            )}
-                                        </div>
-                                    </div>
+                        ) : projects.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-32 gap-6 border border-2 border-dashed border-white/5 rounded-3xl bg-white/[0.01]">
+                                <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center">
+                                    <Plus className="text-gray-600 w-8 h-8" />
                                 </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
+                                <div className="text-center">
+                                    <p className="text-xl font-bold text-gray-400">Your portfolio is empty</p>
+                                    <p className="text-gray-600 text-sm mt-1">Click "Add Project" to start building your legacy.</p>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {projects.map((project) => (
+                                    <div key={project.id} className="group bg-[#0a0a0a] border border-white/5 rounded-2xl p-6 hover:border-red-600/50 transition-all duration-500 hover:shadow-[0_0_40px_rgba(220,38,38,0.1)]">
+                                        <div className="aspect-video rounded-xl overflow-hidden mb-6 bg-white/5 relative">
+                                            {project.src ? (
+                                                <img src={project.src} alt={project.title} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center bg-[#111]">
+                                                    <ImageIcon className="text-white/20 w-12 h-12" />
+                                                </div>
+                                            )}
+                                            <div className="absolute top-4 left-4">
+                                                <span className="px-3 py-1 bg-black/80 backdrop-blur-md rounded-full text-[10px] font-bold tracking-widest text-white border border-white/10">
+                                                    {project.category}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <div className="flex items-start justify-between">
+                                                <div>
+                                                    <h3 className="text-xl font-bold tracking-tight">{project.title}</h3>
+                                                    <p className="text-gray-500 text-xs mt-1 line-clamp-1">{project.subtitle}</p>
+                                                </div>
+                                                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button
+                                                        onClick={() => handleEdit(project)}
+                                                        className="p-2 hover:bg-white/20 text-gray-500 hover:text-white rounded-lg transition-colors"
+                                                        title="Edit"
+                                                    >
+                                                        <Pencil className="w-4 h-4" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => deleteProject(project.id!)}
+                                                        className="p-2 hover:bg-red-900/20 text-gray-500 hover:text-red-500 rounded-lg transition-colors"
+                                                        title="Delete"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-wrap gap-2">
+                                                {project.tech_stack.slice(0, 3).map((tech, i) => (
+                                                    <span key={i} className="text-[9px] font-bold text-gray-400 uppercase tracking-wider bg-white/5 px-2 py-1 rounded-md border border-white/5">
+                                                        {tech}
+                                                    </span>
+                                                ))}
+                                                {project.tech_stack.length > 3 && <span className="text-[9px] text-gray-600 font-bold">+{project.tech_stack.length - 3}</span>}
+                                            </div>
+
+                                            <div className="h-px bg-white/10" />
+
+                                            <div className="flex items-center justify-between pt-2">
+                                                <span className="text-[10px] font-mono text-gray-600">ID: {project.id?.slice(0, 8)}...</span>
+                                                {project.slug && (
+                                                    <a href={`/work/${project.slug}`} target="_blank" className="text-gray-600 hover:text-white p-1 transition-colors text-[10px] font-mono uppercase">
+                                                        /work/{project.slug}
+                                                    </a>
+                                                )}
+                                                {project.link && (
+                                                    <a href={project.link} target="_blank" className="text-red-600 hover:text-red-400 p-1 transition-colors">
+                                                        <ExternalLink className="w-4 h-4" />
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 )}
 
                 {activeTab === 'stats' && (
-                <div className="space-y-6">
-                    <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-4xl font-black tracking-tighter">HERO STATS</h2>
-                        <div className="h-px bg-white/10 flex-grow mx-8 hidden md:block" />
-                        <span className="text-gray-500 font-mono text-sm">{stats.length} TOTAL</span>
-                    </div>
-                    {statsLoading ? (
-                        <div className="flex flex-col items-center justify-center py-32 gap-4 border border-white/5 rounded-3xl bg-white/[0.02]">
-                            <Loader2 className="w-12 h-12 text-red-600 animate-spin" />
-                            <p className="text-gray-500 font-bold tracking-widest uppercase text-[10px]">Loading...</p>
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between mb-8">
+                            <h2 className="text-4xl font-black tracking-tighter">HERO STATS</h2>
+                            <div className="h-px bg-white/10 flex-grow mx-8 hidden md:block" />
+                            <span className="text-gray-500 font-mono text-sm">{stats.length} TOTAL</span>
                         </div>
-                    ) : stats.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-32 gap-6 border-2 border-dashed border-white/5 rounded-3xl bg-white/[0.01]">
-                            <p className="text-xl font-bold text-gray-400">No hero stats yet</p>
-                            <p className="text-gray-600 text-sm">Click &quot;Add Stat&quot; to add slides to the stats reel.</p>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {stats.map((stat) => (
-                                <div key={stat.id} className="group bg-[#0a0a0a] border border-white/5 rounded-2xl p-6 hover:border-red-600/50 transition-all">
-                                    <div className="aspect-video rounded-xl overflow-hidden mb-4 bg-white/5 relative">
-                                        {stat.image ? (
-                                            <img src={stat.image} alt={stat.title} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all" />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center">
-                                                <ImageIcon className="text-white/20 w-12 h-12" />
+                        {statsLoading ? (
+                            <div className="flex flex-col items-center justify-center py-32 gap-4 border border-white/5 rounded-3xl bg-white/[0.02]">
+                                <Loader2 className="w-12 h-12 text-red-600 animate-spin" />
+                                <p className="text-gray-500 font-bold tracking-widest uppercase text-[10px]">Loading...</p>
+                            </div>
+                        ) : stats.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-32 gap-6 border-2 border-dashed border-white/5 rounded-3xl bg-white/[0.01]">
+                                <p className="text-xl font-bold text-gray-400">No hero stats yet</p>
+                                <p className="text-gray-600 text-sm">Click &quot;Add Stat&quot; to add slides to the stats reel.</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {stats.map((stat) => (
+                                    <div key={stat.id} className="group bg-[#0a0a0a] border border-white/5 rounded-2xl p-6 hover:border-red-600/50 transition-all">
+                                        <div className="aspect-video rounded-xl overflow-hidden mb-4 bg-white/5 relative">
+                                            {stat.image ? (
+                                                <img src={stat.image} alt={stat.title} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all" />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center">
+                                                    <ImageIcon className="text-white/20 w-12 h-12" />
+                                                </div>
+                                            )}
+                                            <div className="absolute top-2 left-2">
+                                                <span className="px-2 py-1 bg-black/80 rounded text-xs font-bold text-red-500">{stat.highlight}{stat.suffix}</span>
                                             </div>
-                                        )}
-                                        <div className="absolute top-2 left-2">
-                                            <span className="px-2 py-1 bg-black/80 rounded text-xs font-bold text-red-500">{stat.highlight}{stat.suffix}</span>
+                                        </div>
+                                        <h3 className="text-lg font-bold tracking-tight">{stat.title}</h3>
+                                        <p className="text-gray-500 text-sm">{stat.subtitle}</p>
+                                        <p className="text-gray-600 text-xs mt-2 line-clamp-2">{stat.description}</p>
+                                        <div className="flex gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button onClick={() => handleEditStat(stat)} className="p-2 hover:bg-white/20 text-gray-500 hover:text-white rounded-lg" title="Edit"><Pencil className="w-4 h-4" /></button>
+                                            <button onClick={() => deleteStat(stat.id!)} className="p-2 hover:bg-red-900/20 text-gray-500 hover:text-red-500 rounded-lg" title="Delete"><Trash2 className="w-4 h-4" /></button>
                                         </div>
                                     </div>
-                                    <h3 className="text-lg font-bold tracking-tight">{stat.title}</h3>
-                                    <p className="text-gray-500 text-sm">{stat.subtitle}</p>
-                                    <p className="text-gray-600 text-xs mt-2 line-clamp-2">{stat.description}</p>
-                                    <div className="flex gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button onClick={() => handleEditStat(stat)} className="p-2 hover:bg-white/20 text-gray-500 hover:text-white rounded-lg" title="Edit"><Pencil className="w-4 h-4" /></button>
-                                        <button onClick={() => deleteStat(stat.id!)} className="p-2 hover:bg-red-900/20 text-gray-500 hover:text-red-500 rounded-lg" title="Delete"><Trash2 className="w-4 h-4" /></button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 )}
 
                 {activeTab === 'milestones' && (
-                <div className="space-y-6">
-                    <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-4xl font-black tracking-tighter">MILESTONES</h2>
-                        <div className="h-px bg-white/10 flex-grow mx-8 hidden md:block" />
-                        <span className="text-gray-500 font-mono text-sm">{milestones.length} TOTAL</span>
-                    </div>
-                    {milestonesLoading ? (
-                        <div className="flex flex-col items-center justify-center py-32 gap-4 border border-white/5 rounded-3xl bg-white/[0.02]">
-                            <Loader2 className="w-12 h-12 text-red-600 animate-spin" />
-                            <p className="text-gray-500 font-bold tracking-widest uppercase text-[10px]">Loading...</p>
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between mb-8">
+                            <h2 className="text-4xl font-black tracking-tighter">MILESTONES</h2>
+                            <div className="h-px bg-white/10 flex-grow mx-8 hidden md:block" />
+                            <span className="text-gray-500 font-mono text-sm">{milestones.length} TOTAL</span>
                         </div>
-                    ) : milestonesError ? (
-                        <div className="flex flex-col items-center justify-center py-32 gap-6 border-2 border-dashed border-red-500/20 rounded-3xl bg-red-500/5">
-                            <p className="text-xl font-bold text-red-400">Could not load milestones</p>
-                            <p className="text-gray-500 text-sm text-center max-w-md">{milestonesError}</p>
-                            <p className="text-gray-600 text-xs text-center max-w-md">Check that the <code className="bg-white/10 px-1 rounded">milestones</code> table exists in Supabase and RLS allows read (e.g. &quot;Allow public read&quot; for select).</p>
-                            <button type="button" onClick={() => fetchMilestones()} className="px-4 py-2 bg-red-600 hover:bg-red-500 rounded-lg text-sm font-bold">Retry</button>
-                            <a href="/about" target="_blank" className="text-red-500 hover:text-red-400 text-sm font-mono">View /about page →</a>
-                        </div>
-                    ) : milestones.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-32 gap-6 border-2 border-dashed border-white/5 rounded-3xl bg-white/[0.01]">
-                            <p className="text-xl font-bold text-gray-400">No milestones yet</p>
-                            <p className="text-gray-600 text-sm">Click &quot;Add Milestone&quot; to build your About timeline.</p>
-                            <a href="/about" target="_blank" className="text-red-500 hover:text-red-400 text-sm font-mono">View /about page →</a>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {milestones.map((m) => (
-                                <div key={m.id} className="group bg-[#0a0a0a] border border-white/5 rounded-2xl p-6 hover:border-red-600/50 transition-all">
-                                    <div className="aspect-video rounded-xl overflow-hidden mb-4 bg-white/5 relative">
-                                        {m.images?.[0] ? (
-                                            <img src={m.images[0]} alt={m.title} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all" />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center">
-                                                <ImageIcon className="text-white/20 w-12 h-12" />
+                        {milestonesLoading ? (
+                            <div className="flex flex-col items-center justify-center py-32 gap-4 border border-white/5 rounded-3xl bg-white/[0.02]">
+                                <Loader2 className="w-12 h-12 text-red-600 animate-spin" />
+                                <p className="text-gray-500 font-bold tracking-widest uppercase text-[10px]">Loading...</p>
+                            </div>
+                        ) : milestonesError ? (
+                            <div className="flex flex-col items-center justify-center py-32 gap-6 border-2 border-dashed border-red-500/20 rounded-3xl bg-red-500/5">
+                                <p className="text-xl font-bold text-red-400">Could not load milestones</p>
+                                <p className="text-gray-500 text-sm text-center max-w-md">{milestonesError}</p>
+                                <p className="text-gray-600 text-xs text-center max-w-md">Check that the <code className="bg-white/10 px-1 rounded">milestones</code> table exists in Supabase and RLS allows read (e.g. &quot;Allow public read&quot; for select).</p>
+                                <button type="button" onClick={() => fetchMilestones()} className="px-4 py-2 bg-red-600 hover:bg-red-500 rounded-lg text-sm font-bold">Retry</button>
+                                <a href="/about" target="_blank" className="text-red-500 hover:text-red-400 text-sm font-mono">View /about page →</a>
+                            </div>
+                        ) : milestones.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-32 gap-6 border-2 border-dashed border-white/5 rounded-3xl bg-white/[0.01]">
+                                <p className="text-xl font-bold text-gray-400">No milestones yet</p>
+                                <p className="text-gray-600 text-sm">Click &quot;Add Milestone&quot; to build your About timeline.</p>
+                                <a href="/about" target="_blank" className="text-red-500 hover:text-red-400 text-sm font-mono">View /about page →</a>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {milestones.map((m) => (
+                                    <div key={m.id} className="group bg-[#0a0a0a] border border-white/5 rounded-2xl p-6 hover:border-red-600/50 transition-all">
+                                        <div className="aspect-video rounded-xl overflow-hidden mb-4 bg-white/5 relative">
+                                            {m.images?.[0] ? (
+                                                <img src={m.images[0]} alt={m.title} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all" />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center">
+                                                    <ImageIcon className="text-white/20 w-12 h-12" />
+                                                </div>
+                                            )}
+                                            <div className="absolute top-2 left-2">
+                                                <span className="px-2 py-1 bg-black/80 rounded text-xs font-bold text-red-500">{m.year}</span>
                                             </div>
-                                        )}
-                                        <div className="absolute top-2 left-2">
-                                            <span className="px-2 py-1 bg-black/80 rounded text-xs font-bold text-red-500">{m.year}</span>
+                                        </div>
+                                        <h3 className="text-lg font-bold tracking-tight">{m.title}</h3>
+                                        <p className="text-gray-600 text-xs mt-2 line-clamp-2">{m.description}</p>
+                                        <div className="flex flex-wrap gap-1 mt-2">
+                                            {m.tags?.slice(0, 3).map((tag, i) => (
+                                                <span key={i} className="text-[9px] font-bold text-gray-500 uppercase tracking-wider bg-white/5 px-2 py-0.5 rounded border border-white/5">{tag}</span>
+                                            ))}
+                                        </div>
+                                        <div className="flex gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button onClick={() => handleEditMilestone(m)} className="p-2 hover:bg-white/20 text-gray-500 hover:text-white rounded-lg" title="Edit"><Pencil className="w-4 h-4" /></button>
+                                            <button onClick={() => deleteMilestone(m.id!)} className="p-2 hover:bg-red-900/20 text-gray-500 hover:text-red-500 rounded-lg" title="Delete"><Trash2 className="w-4 h-4" /></button>
+                                            <a href="/about" target="_blank" className="p-2 hover:bg-white/20 text-gray-500 hover:text-white rounded-lg" title="View About"><ExternalLink className="w-4 h-4" /></a>
                                         </div>
                                     </div>
-                                    <h3 className="text-lg font-bold tracking-tight">{m.title}</h3>
-                                    <p className="text-gray-600 text-xs mt-2 line-clamp-2">{m.description}</p>
-                                    <div className="flex flex-wrap gap-1 mt-2">
-                                        {m.tags?.slice(0, 3).map((tag, i) => (
-                                            <span key={i} className="text-[9px] font-bold text-gray-500 uppercase tracking-wider bg-white/5 px-2 py-0.5 rounded border border-white/5">{tag}</span>
-                                        ))}
-                                    </div>
-                                    <div className="flex gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button onClick={() => handleEditMilestone(m)} className="p-2 hover:bg-white/20 text-gray-500 hover:text-white rounded-lg" title="Edit"><Pencil className="w-4 h-4" /></button>
-                                        <button onClick={() => deleteMilestone(m.id!)} className="p-2 hover:bg-red-900/20 text-gray-500 hover:text-red-500 rounded-lg" title="Delete"><Trash2 className="w-4 h-4" /></button>
-                                        <a href="/about" target="_blank" className="p-2 hover:bg-white/20 text-gray-500 hover:text-white rounded-lg" title="View About"><ExternalLink className="w-4 h-4" /></a>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 )}
             </main>
         </div>

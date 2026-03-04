@@ -314,10 +314,6 @@ export default function HeroStatsReel() {
       style={{ minHeight: `${sectionHeightVh}vh`, height: `${sectionHeightVh}vh` }}
       className="relative w-full bg-neutral-50"
     >
-      <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
-        rel="stylesheet"
-      />
       {/* Fixed overlay: pointer-events none so scroll works; only inner content captures hover/click */}
       <motion.div
         className="fixed inset-0 z-0 overflow-hidden flex items-center justify-center bg-neutral-50 pointer-events-none"
@@ -339,7 +335,7 @@ export default function HeroStatsReel() {
                 <h2 className="text-4xl lg:text-6xl serif-font font-medium leading-[0.9] tracking-tight text-[#1a1a1a] mb-2">
                   {currentSlide.title}
                 </h2>
-                <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-neutral-500">
+                <p className="serif-font italic text-sm text-neutral-500">
                   {currentSlide.subtitle}
                 </p>
               </motion.div>
@@ -374,11 +370,6 @@ export default function HeroStatsReel() {
           </div>
         </div>
       </motion.div>
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `.serif-font { font-family: 'Playfair Display', serif; }`,
-        }}
-      />
     </div>
   );
 }

@@ -12,11 +12,11 @@ interface AnimatedTitleProps {
 export default function AnimatedTitle({ text, translatedText, className = "" }: AnimatedTitleProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const textRef = useRef<HTMLHeadingElement>(null);
-    
+
     // State
     const [isTranslated, setIsTranslated] = useState(false);
     const [currentText, setCurrentText] = useState(text);
-    
+
     // Animation Locks
     const isAnimating = useRef(false);
     const expectFlipIn = useRef(false);
@@ -28,10 +28,10 @@ export default function AnimatedTitle({ text, translatedText, className = "" }: 
             const x = (e.clientX / window.innerWidth - 0.5) * -20;
             const y = (e.clientY / window.innerHeight - 0.5) * -20;
 
-            gsap.to(textRef.current, { 
-                x, 
-                y, 
-                duration: 1, 
+            gsap.to(textRef.current, {
+                x,
+                y,
+                duration: 1,
                 ease: "power2.out",
                 overwrite: "auto"
             });
@@ -98,7 +98,7 @@ export default function AnimatedTitle({ text, translatedText, className = "" }: 
                 className="leading-[0.85] font-bold tracking-tighter inline-block origin-center will-change-transform transition-colors duration-0"
                 style={{
                     transformStyle: "preserve-3d",
-                    fontFamily: isTranslated ? 'var(--font-li-ador), sans-serif' : 'inherit',
+                    fontFamily: isTranslated ? 'var(--font-bangla)' : 'var(--font-inter)', // Replaced 'inherit' with 'var(--font-inter)'
                     fontSize: isTranslated ? '1.15em' : 'inherit',
                     padding: isTranslated ? '0.1em 0' : '0',
                     letterSpacing: isTranslated ? 'normal' : '-0.05em'
