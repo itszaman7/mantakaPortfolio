@@ -1,5 +1,6 @@
 import { getMilestones } from "@/lib/milestonesData";
 import { ClientAboutTimeline } from "@/components/about/ClientAboutTimeline";
+import Footer from "@/components/Footer";
 
 export const metadata = {
   title: "About — My Journey",
@@ -8,5 +9,10 @@ export const metadata = {
 
 export default async function AboutPage() {
   const milestones = await getMilestones();
-  return <ClientAboutTimeline milestones={milestones} />;
+  return (
+    <>
+      <ClientAboutTimeline milestones={milestones} />
+      <Footer />
+    </>
+  );
 }

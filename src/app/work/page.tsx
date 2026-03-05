@@ -43,7 +43,7 @@ function StackedSection({
   const zIndex = index * 10;
 
   // Letter-by-letter stagger reveal
-  const containerVariants = {
+  const containerVariants: any = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -51,7 +51,7 @@ function StackedSection({
     },
   };
 
-  const letterVariants = {
+  const letterVariants: any = {
     hidden: { opacity: 0, y: 80, rotate: 8 },
     visible: {
       opacity: 1,
