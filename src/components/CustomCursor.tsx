@@ -15,7 +15,7 @@ export default function CustomCursor() {
     }, []);
 
     // Disable on contact page, admin panel, and touch devices
-    const isDisabled = pathname === '/contact' || pathname.startsWith('/admin') || isTouch;
+    const isDisabled = pathname === '/contact' || pathname.startsWith('/admin') || pathname.startsWith('/blog/') || isTouch;
 
     useEffect(() => {
         if (isDisabled) {

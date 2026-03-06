@@ -245,7 +245,7 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             {related.map(post => (
-                                <Link href={`/blog/${post.slug}`} key={post.id} className="group block cursor-none">
+                                <Link href={`/blog/${post.slug}`} key={post.id} className="group block">
                                     <div className="w-full aspect-[4/3] bg-[#111] rounded-2xl overflow-hidden mb-6 relative">
                                         {post.cover_image && (
                                             <img src={post.cover_image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={post.title} />
