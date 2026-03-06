@@ -179,7 +179,7 @@ function StackedSection({
           {/* Right: Parallax Image — clickable with arrow overlay */}
           <Link
             href={project.slug ? `/work/${project.slug}` : '#'}
-            className="hidden md:block md:col-span-7 h-[30vh] sm:h-[35vh] lg:h-[45vh] w-full relative overflow-hidden bg-gray-50 group cursor-pointer"
+            className="block mt-8 md:mt-0 md:col-span-7 h-[30vh] sm:h-[35vh] lg:h-[45vh] w-full relative overflow-hidden bg-gray-50 group cursor-pointer"
           >
             <motion.div
               style={{ y: imageY }}

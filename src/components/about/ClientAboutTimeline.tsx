@@ -129,18 +129,6 @@ const MilestoneItem = ({ data, index }: { data: Milestone; index: number }) => {
                                 <span key={i}>{tag}</span>
                             ))}
                         </div>
-
-                        {/* Pill Button */}
-                        <motion.button
-                            whileHover={{ scale: 1.05, y: -2 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="bg-[#ff2800] text-white rounded-full px-8 py-3.5 text-xs font-bold font-sans tracking-[0.1em] uppercase hover:bg-red-700 hover:shadow-lg transition-colors duration-300 flex items-center gap-3"
-                        >
-                            VIEW PROJECT
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
-                        </motion.button>
                     </div>
                 </div>
 
@@ -151,7 +139,7 @@ const MilestoneItem = ({ data, index }: { data: Milestone; index: number }) => {
                     onMouseEnter={() => setIsHoveringGallery(true)}
                     onMouseLeave={() => setIsHoveringGallery(false)}
                     onClick={handleGalleryClick}
-                    className={`hidden lg:flex w-[38%] xl:w-[45%] aspect-[4/3] relative group ${hasGallery ? 'cursor-none' : ''}`}
+                    className={`flex w-full lg:w-[38%] xl:w-[45%] mt-8 lg:mt-0 aspect-[4/3] relative group ${hasGallery ? 'cursor-none' : ''}`}
                 >
                     {/* Inner image container that actually hides overflow */}
                     <div className="absolute inset-0 bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden rounded-sm">

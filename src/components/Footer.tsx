@@ -4,24 +4,18 @@ import React, { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { supabase } from "@/lib/supabase";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-const socialLinks = [
-  { name: "LinkedIn", url: "https://linkedin.com/in/mantaka" },
-  { name: "GitHub", url: "https://github.com/itszaman7" },
-  { name: "WhatsApp", url: "https://wa.me/8801778961590" },
-  { name: "Telegram", url: "#" },
-  { name: "Instagram", url: "#" },
-];
-
 // Greetings: outline = true means hollow/stroke style. More languages.
-const greetings: { text: string; outline: boolean }[] = [
+const greetings: { text: string; outline: boolean; fontClass?: string }[] = [
   { text: "HI", outline: true },
   { text: "HELLO!", outline: false },
   { text: "HEY", outline: true },
+  { text: "হ্যালো", outline: false, fontClass: "font-bangla" },
   { text: "مرحبا", outline: false },
   { text: "OLÁ!", outline: false },
   { text: "HOLA", outline: true },
@@ -46,9 +40,10 @@ function MarqueeContent() {
         <span
           key={`${i}-${g.text}`}
           className={
-            g.outline
-              ? "footer-greeting-outline text-4xl md:text-6xl lg:text-7xl font-black uppercase tracking-tighter text-neutral-900 whitespace-nowrap"
-              : "text-4xl md:text-6xl lg:text-7xl font-black uppercase tracking-tighter text-neutral-900 whitespace-nowrap"
+            (g.outline
+              ? "footer-greeting-outline text-4xl md:text-6xl lg:text-7xl font-black uppercase tracking-tighter text-neutral-900 whitespace-nowrap "
+              : "text-4xl md:text-6xl lg:text-7xl font-black uppercase tracking-tighter text-neutral-900 whitespace-nowrap ") +
+            (g.fontClass || "")
           }
         >
           {g.text}
@@ -66,6 +61,33 @@ export default function Footer() {
   const socialsRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
   const copyrightRef = useRef<HTMLParagraphElement>(null);
+
+  const [contactEmail, setContactEmail] = React.useState("hello@mantaka.dev");
+  const [logoText, setLogoText] = React.useState("Mantaka");
+  const [socialLinks, setSocialLinks] = React.useState<any[]>([
+    { name: "LinkedIn", url: "#" },
+    { name: "GitHub", url: "#" }
+  ]);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      const [layoutRes, contactRes] = await Promise.all([
+        supabase.from("layout_settings").select("*").limit(1).single(),
+        supabase.from("contact_settings").select("email").limit(1).single()
+      ]);
+
+      if (layoutRes.data) {
+        setLogoText(layoutRes.data.logo_text || "Mantaka");
+        if (Array.isArray(layoutRes.data.footer_links)) {
+          setSocialLinks(layoutRes.data.footer_links);
+        }
+      }
+      if (contactRes.data?.email) {
+        setContactEmail(contactRes.data.email);
+      }
+    };
+    fetchData();
+  }, []);
 
   useGSAP(
     () => {
@@ -183,10 +205,10 @@ export default function Footer() {
           <div className="flex justify-center md:justify-start">
             <a
               ref={emailRef}
-              href="mailto:mantaka35@gmail.com"
+              href={`mailto:${contactEmail}`}
               className="inline-block px-8 py-4 rounded-2xl border-2 border-neutral-900 text-neutral-900 text-sm md:text-base serif-font italic transition-all duration-300 hover:bg-red-600 hover:border-red-600 hover:text-white hover:scale-105 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-red-600/20"
             >
-              hello@mantaka.design
+              {contactEmail}
             </a>
           </div>
         </div>
@@ -211,7 +233,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="footer-social-link inline-flex text-base md:text-lg font-bold uppercase tracking-[0.2em] text-neutral-700"
                 >
-                  {link.name.split("").map((char, i) => (
+                  {link.name.split("").map((char: string, i: number) => (
                     <span
                       key={`${link.name}-${i}`}
                       className="footer-social-letter"
@@ -227,7 +249,7 @@ export default function Footer() {
               ref={logoRef}
               className="footer-logo-link flex text-2xl md:text-3xl font-black uppercase tracking-tighter text-neutral-900"
             >
-              {"Mantaka".split("").map((char, i) => (
+              {logoText.split("").map((char: string, i: number) => (
                 <span
                   key={`logo-${i}`}
                   className="footer-logo-letter"
@@ -244,7 +266,7 @@ export default function Footer() {
               ref={copyrightRef}
               className="footer-copyright"
             >
-              {"Copyright 2026 © Mantaka".split("").map((char, i) => (
+              {`Copyright ${new Date().getFullYear()} © ${logoText}`.split("").map((char: string, i: number) => (
                 <span
                   key={`copy-${i}`}
                   className="footer-copyright-letter"

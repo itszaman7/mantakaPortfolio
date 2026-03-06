@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { CldUploadWidget } from 'next-cloudinary';
-import { Plus, Trash2, ExternalLink, Image as ImageIcon, Save, LogOut, Loader2, CheckCircle2, Pencil } from 'lucide-react';
+import { Plus, Trash2, ExternalLink, Image as ImageIcon, Save, LogOut, Loader2, CheckCircle2, Pencil, Mail, MessageSquare, Eye } from 'lucide-react';
 import { slugify } from '@/utils/slugify';
 
 interface Project {
@@ -49,6 +49,36 @@ interface Milestone {
     sort_order: number;
 }
 
+interface ContactMessage {
+    id: string;
+    name: string;
+    email: string;
+    subject: string;
+    message: string;
+    read: boolean;
+    created_at: string;
+}
+
+interface ContactSettings {
+    id?: string;
+    email: string;
+    location: string;
+    location_note: string;
+    availability_label: string;
+    response_time: string;
+    social_links: { name: string; url: string }[];
+    skills: string[];
+}
+
+interface LayoutSettings {
+    id?: string;
+    logo_type: 'text' | 'image';
+    logo_text: string;
+    logo_image_url: string | null;
+    header_links: { label: string; url: string }[];
+    footer_links: { name: string; url: string }[];
+}
+
 const COLOR_PRESETS = [
     { name: 'Spotify Green', value: '#1DB954' },
     { name: 'Spotify Light Green', value: '#1ED760' },
@@ -91,7 +121,7 @@ const COLOR_PRESETS = [
     { name: 'Pastel Green', value: '#77DD77' },
 ];
 
-type AdminTab = 'projects' | 'stats' | 'milestones';
+type AdminTab = 'projects' | 'stats' | 'milestones' | 'contact' | 'layout';
 
 export default function AdminPage() {
     const [activeTab, setActiveTab] = useState<AdminTab>('projects');
@@ -143,6 +173,36 @@ export default function AdminPage() {
         sort_order: 0,
     });
     const [milestonesSaving, setMilestonesSaving] = useState(false);
+    const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
+    const [contactMessagesLoading, setContactMessagesLoading] = useState(false);
+    const [contactSettings, setContactSettings] = useState<ContactSettings>({
+        email: 'mantaka35@gmail.com',
+        location: 'Dhaka, Bangladesh',
+        location_note: 'Available Remotely',
+        availability_label: 'Available for Commissions',
+        response_time: 'Average response: 24h',
+        social_links: [
+            { name: 'LinkedIn', url: 'https://linkedin.com/in/mantaka' },
+            { name: 'GitHub', url: 'https://github.com/itszaman7' },
+            { name: 'WhatsApp', url: 'https://wa.me/8801778961590' },
+            { name: 'Instagram', url: '#' },
+        ],
+        skills: ['Clean Code', 'Modern Stack', 'Pixel Perfect', 'End-to-End Delivery', 'React & Next.js', 'UI/UX Design'],
+    });
+    const [contactSettingsSaving, setContactSettingsSaving] = useState(false);
+    const [showContactSettings, setShowContactSettings] = useState(false);
+
+    // Layout Settings
+    const [layoutSettings, setLayoutSettings] = useState<LayoutSettings>({
+        logo_type: 'text',
+        logo_text: 'Mantaka',
+        logo_image_url: '',
+        header_links: [],
+        footer_links: []
+    });
+    const [layoutSettingsLoading, setLayoutSettingsLoading] = useState(false);
+    const [layoutSettingsSaving, setLayoutSettingsSaving] = useState(false);
+
     const router = useRouter();
 
     useEffect(() => {
@@ -152,6 +212,8 @@ export default function AdminPage() {
     useEffect(() => {
         if (activeTab === 'stats') fetchHeroStats();
         if (activeTab === 'milestones') fetchMilestones();
+        if (activeTab === 'contact') { fetchContactMessages(); fetchContactSettings(); }
+        if (activeTab === 'layout') fetchLayoutSettings();
     }, [activeTab]);
 
     const fetchProjects = async () => {
@@ -374,6 +436,111 @@ export default function AdminPage() {
         if (!error) fetchMilestones();
     };
 
+    // ─── Contact Messages ───
+    const fetchContactMessages = async () => {
+        setContactMessagesLoading(true);
+        const { data, error } = await supabase
+            .from('contact_messages')
+            .select('*')
+            .order('created_at', { ascending: false });
+        if (!error && data) setContactMessages(data);
+        setContactMessagesLoading(false);
+    };
+
+    const markMessageRead = async (id: string) => {
+        const { error } = await supabase.from('contact_messages').update({ read: true }).eq('id', id);
+        if (!error) fetchContactMessages();
+    };
+
+    const deleteMessage = async (id: string) => {
+        if (!confirm('Delete this message?')) return;
+        const { error } = await supabase.from('contact_messages').delete().eq('id', id);
+        if (!error) fetchContactMessages();
+    };
+
+    // ─── Contact Settings ───
+    const fetchContactSettings = async () => {
+        const { data, error } = await supabase
+            .from('contact_settings')
+            .select('*')
+            .limit(1)
+            .single();
+        if (!error && data) {
+            setContactSettings({
+                id: data.id,
+                email: data.email || '',
+                location: data.location || '',
+                location_note: data.location_note || '',
+                availability_label: data.availability_label || '',
+                response_time: data.response_time || '',
+                social_links: Array.isArray(data.social_links) ? data.social_links : [],
+                skills: Array.isArray(data.skills) ? data.skills : [],
+            });
+        }
+    };
+
+    // ─── Layout Settings ───
+    const fetchLayoutSettings = async () => {
+        setLayoutSettingsLoading(true);
+        const { data, error } = await supabase.from('layout_settings').select('*').limit(1).single();
+        if (!error && data) {
+            setLayoutSettings({
+                id: data.id,
+                logo_type: data.logo_type || 'text',
+                logo_text: data.logo_text || 'Mantaka',
+                logo_image_url: data.logo_image_url || '',
+                header_links: Array.isArray(data.header_links) ? data.header_links : [],
+                footer_links: Array.isArray(data.footer_links) ? data.footer_links : [],
+            });
+        }
+        setLayoutSettingsLoading(false);
+    };
+
+    const saveLayoutSettings = async () => {
+        setLayoutSettingsSaving(true);
+        const { id, ...rest } = layoutSettings;
+        if (id) {
+            const { error } = await supabase.from('layout_settings').update({ ...rest, updated_at: new Date().toISOString() }).eq('id', id);
+            if (error) alert(error.message);
+        } else {
+            const { error } = await supabase.from('layout_settings').insert([rest]);
+            if (error) alert(error.message);
+            else fetchLayoutSettings();
+        }
+        setLayoutSettingsSaving(false);
+    };
+
+
+    const saveContactSettings = async () => {
+        setContactSettingsSaving(true);
+        const { id, ...rest } = contactSettings;
+        if (id) {
+            const { error } = await supabase.from('contact_settings').update({ ...rest, updated_at: new Date().toISOString() }).eq('id', id);
+            if (error) alert(error.message);
+        } else {
+            const { error } = await supabase.from('contact_settings').insert([rest]);
+            if (error) alert(error.message);
+            else fetchContactSettings();
+        }
+        setContactSettingsSaving(false);
+        setShowContactSettings(false);
+    };
+
+    const addSocialLink = () => {
+        setContactSettings(prev => ({ ...prev, social_links: [...prev.social_links, { name: '', url: '' }] }));
+    };
+
+    const removeSocialLink = (index: number) => {
+        setContactSettings(prev => ({ ...prev, social_links: prev.social_links.filter((_, i) => i !== index) }));
+    };
+
+    const updateSocialLink = (index: number, field: 'name' | 'url', value: string) => {
+        setContactSettings(prev => ({
+            ...prev,
+            social_links: prev.social_links.map((link, i) => i === index ? { ...link, [field]: value } : link),
+        }));
+    };
+
     return (
         <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-red-600/30">
             {/* Header */}
@@ -453,22 +620,40 @@ export default function AdminPage() {
             <main className="max-w-7xl mx-auto px-6 py-12">
                 <div className="flex gap-2 mb-8 border-b border-white/10 pb-2">
                     <button
-                        onClick={() => { setActiveTab('projects'); setShowStatsForm(false); setShowMilestoneForm(false); }}
+                        onClick={() => { setActiveTab('projects'); setShowStatsForm(false); setShowMilestoneForm(false); setShowContactSettings(false); }}
                         className={`px-6 py-2.5 rounded-t-lg font-bold text-sm transition-all ${activeTab === 'projects' ? 'bg-red-600 text-white' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'}`}
                     >
                         Projects
                     </button>
                     <button
-                        onClick={() => { setActiveTab('stats'); setShowForm(false); setShowMilestoneForm(false); }}
+                        onClick={() => { setActiveTab('stats'); setShowForm(false); setShowMilestoneForm(false); setShowContactSettings(false); }}
                         className={`px-6 py-2.5 rounded-t-lg font-bold text-sm transition-all ${activeTab === 'stats' ? 'bg-red-600 text-white' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'}`}
                     >
                         Hero Stats
                     </button>
                     <button
-                        onClick={() => { setActiveTab('milestones'); setShowForm(false); setShowStatsForm(false); }}
+                        onClick={() => { setActiveTab('milestones'); setShowForm(false); setShowStatsForm(false); setShowContactSettings(false); }}
                         className={`px-6 py-2.5 rounded-t-lg font-bold text-sm transition-all ${activeTab === 'milestones' ? 'bg-red-600 text-white' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'}`}
                     >
                         Milestones
+                    </button>
+                    <button
+                        onClick={() => { setActiveTab('contact'); setShowForm(false); setShowStatsForm(false); setShowMilestoneForm(false); }}
+                        className={`px-6 py-2.5 rounded-t-lg font-bold text-sm transition-all flex items-center gap-2 ${activeTab === 'contact' ? 'bg-red-600 text-white' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'}`}
+                    >
+                        <Mail className="w-4 h-4" />
+                        Contact
+                        {contactMessages.filter(m => !m.read).length > 0 && (
+                            <span className="w-5 h-5 bg-red-500 rounded-full text-xs flex items-center justify-center font-bold">
+                                {contactMessages.filter(m => !m.read).length}
+                            </span>
+                        )}
+                    </button>
+                    <button
+                        onClick={() => { setActiveTab('layout'); setShowForm(false); setShowStatsForm(false); setShowMilestoneForm(false); setShowContactSettings(false); }}
+                        className={`px-6 py-2.5 rounded-t-lg font-bold text-sm transition-all ${activeTab === 'layout' ? 'bg-red-600 text-white' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'}`}
+                    >
+                        Layout Setup
                     </button>
                 </div>
 
@@ -1238,6 +1423,355 @@ export default function AdminPage() {
                                         </div>
                                     </div>
                                 ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {activeTab === 'contact' && (
+                    <div className="space-y-8">
+                        {/* Contact Settings Toggle */}
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-4xl font-black tracking-tighter">CONTACT</h2>
+                            <div className="flex items-center gap-4">
+                                <button
+                                    onClick={() => setShowContactSettings(!showContactSettings)}
+                                    className={`px-4 py-2 rounded-lg font-bold text-sm transition-all flex items-center gap-2 ${showContactSettings ? 'bg-red-600 text-white' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'}`}
+                                >
+                                    <Pencil className="w-4 h-4" />
+                                    {showContactSettings ? 'Close Settings' : 'Edit Page Settings'}
+                                </button>
+                                <a href="/contact" target="_blank" className="p-2 hover:bg-white/10 text-gray-500 hover:text-white rounded-lg transition-colors">
+                                    <ExternalLink className="w-5 h-5" />
+                                </a>
+                            </div>
+                        </div>
+
+                        {/* Contact Settings Form */}
+                        {showContactSettings && (
+                            <div className="mb-8 bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden shadow-2xl animate-in fade-in slide-in-from-top-4 duration-500">
+                                <div className="p-8 border-b border-white/5 bg-gradient-to-r from-red-600/10 to-transparent">
+                                    <h2 className="text-2xl font-bold flex items-center gap-3">
+                                        <Pencil className="text-red-600" />
+                                        Contact Page Settings
+                                    </h2>
+                                    <p className="text-gray-500 text-sm mt-1">These values are displayed on the /contact page</p>
+                                </div>
+                                <div className="p-8 space-y-8">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Email</label>
+                                            <input type="email" className="w-full bg-[#111] border border-white/5 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors" value={contactSettings.email} onChange={(e) => setContactSettings({ ...contactSettings, email: e.target.value })} />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Availability Label</label>
+                                            <input type="text" className="w-full bg-[#111] border border-white/5 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors" value={contactSettings.availability_label} onChange={(e) => setContactSettings({ ...contactSettings, availability_label: e.target.value })} />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Location</label>
+                                            <input type="text" className="w-full bg-[#111] border border-white/5 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors" value={contactSettings.location} onChange={(e) => setContactSettings({ ...contactSettings, location: e.target.value })} />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Location Note</label>
+                                            <input type="text" className="w-full bg-[#111] border border-white/5 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors" value={contactSettings.location_note} onChange={(e) => setContactSettings({ ...contactSettings, location_note: e.target.value })} />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Response Time</label>
+                                            <input type="text" className="w-full bg-[#111] border border-white/5 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors" value={contactSettings.response_time} onChange={(e) => setContactSettings({ ...contactSettings, response_time: e.target.value })} />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Skills (comma separated)</label>
+                                            <input type="text" className="w-full bg-[#111] border border-white/5 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors" value={contactSettings.skills.join(', ')} onChange={(e) => setContactSettings({ ...contactSettings, skills: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })} />
+                                        </div>
+                                    </div>
+
+                                    {/* Social Links Editor */}
+                                    <div>
+                                        <div className="flex items-center justify-between mb-4">
+                                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest">Social Links</label>
+                                            <button type="button" onClick={addSocialLink} className="text-xs font-bold text-red-500 hover:text-red-400 flex items-center gap-1">
+                                                <Plus className="w-3 h-3" /> Add Link
+                                            </button>
+                                        </div>
+                                        <div className="space-y-3">
+                                            {contactSettings.social_links.map((link, i) => (
+                                                <div key={i} className="flex gap-3 items-center">
+                                                    <input type="text" placeholder="Name (e.g. LinkedIn)" className="flex-1 bg-[#111] border border-white/5 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors text-sm" value={link.name} onChange={(e) => updateSocialLink(i, 'name', e.target.value)} />
+                                                    <input type="text" placeholder="URL" className="flex-[2] bg-[#111] border border-white/5 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors text-sm" value={link.url} onChange={(e) => updateSocialLink(i, 'url', e.target.value)} />
+                                                    <button type="button" onClick={() => removeSocialLink(i)} className="p-2 hover:bg-red-900/20 text-gray-500 hover:text-red-500 rounded-lg transition-colors">
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <button onClick={saveContactSettings} disabled={contactSettingsSaving} className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl transition-all shadow-xl hover:shadow-red-600/30 flex items-center justify-center gap-3 disabled:opacity-50">
+                                        {contactSettingsSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5" /> Save Settings</>}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Messages Inbox */}
+                        <div>
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-xl font-bold flex items-center gap-3">
+                                    <MessageSquare className="text-red-600 w-5 h-5" />
+                                    Inbox
+                                </h3>
+                                <span className="text-gray-500 font-mono text-sm">{contactMessages.length} MESSAGES</span>
+                            </div>
+
+                            {contactMessagesLoading ? (
+                                <div className="flex flex-col items-center justify-center py-32 gap-4 border border-white/5 rounded-3xl bg-white/[0.02]">
+                                    <Loader2 className="w-12 h-12 text-red-600 animate-spin" />
+                                    <p className="text-gray-500 font-bold tracking-widest uppercase text-[10px]">Loading...</p>
+                                </div>
+                            ) : contactMessages.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-32 gap-6 border-2 border-dashed border-white/5 rounded-3xl bg-white/[0.01]">
+                                    <Mail className="w-16 h-16 text-white/10" />
+                                    <p className="text-xl font-bold text-gray-400">No messages yet</p>
+                                    <p className="text-gray-600 text-sm">Messages from your contact form will appear here.</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {contactMessages.map((msg) => (
+                                        <div key={msg.id} className={`group bg-[#0a0a0a] border rounded-2xl p-6 transition-all ${msg.read ? 'border-white/5' : 'border-red-600/30 bg-red-600/[0.02]'}`}>
+                                            <div className="flex items-start justify-between gap-4">
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        {!msg.read && <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />}
+                                                        <h4 className="font-bold tracking-tight text-lg truncate">{msg.name}</h4>
+                                                        <span className="text-xs text-gray-600 font-mono shrink-0">
+                                                            {new Date(msg.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                                        </span>
+                                                    </div>
+                                                    <a href={`mailto:${msg.email}`} className="text-red-500 hover:text-red-400 text-sm font-mono transition-colors">{msg.email}</a>
+                                                    {msg.subject && <span className="text-gray-500 text-xs ml-3 uppercase tracking-wider font-bold">{msg.subject}</span>}
+                                                    <p className="text-gray-400 text-sm mt-3 leading-relaxed whitespace-pre-wrap">{msg.message}</p>
+                                                </div>
+                                                <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    {!msg.read && (
+                                                        <button onClick={() => markMessageRead(msg.id)} className="p-2 hover:bg-white/10 text-gray-500 hover:text-green-400 rounded-lg transition-colors" title="Mark as read">
+                                                            <Eye className="w-4 h-4" />
+                                                        </button>
+                                                    )}
+                                                    <a href={`mailto:${msg.email}?subject=Re: ${msg.subject || 'Your inquiry'}`} className="p-2 hover:bg-white/10 text-gray-500 hover:text-white rounded-lg transition-colors" title="Reply">
+                                                        <Mail className="w-4 h-4" />
+                                                    </a>
+                                                    <button onClick={() => deleteMessage(msg.id)} className="p-2 hover:bg-red-900/20 text-gray-500 hover:text-red-500 rounded-lg transition-colors" title="Delete">
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* ─── Layout Settings Tab ─── */}
+                {activeTab === 'layout' && (
+                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        {layoutSettingsLoading ? (
+                            <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-red-600 animate-spin" /></div>
+                        ) : (
+                            <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden shadow-2xl p-8">
+                                <form onSubmit={(e) => { e.preventDefault(); saveLayoutSettings(); }} className="space-y-8">
+                                    <h3 className="text-xl font-bold flex items-center gap-2 mb-6"><div className="w-2 h-6 bg-red-600 rounded-full" />Logo & Header Navigation</h3>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">Logo Type</label>
+                                            <select
+                                                required
+                                                value={layoutSettings.logo_type}
+                                                onChange={(e) => setLayoutSettings({ ...layoutSettings, logo_type: e.target.value as 'text' | 'image' })}
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-red-500 focus:bg-white/10 transition-all text-white font-medium"
+                                            >
+                                                <option value="text" className="bg-[#0a0a0a]">Text Logo</option>
+                                                <option value="image" className="bg-[#0a0a0a]">Image/SVG Logo</option>
+                                            </select>
+                                        </div>
+
+                                        {layoutSettings.logo_type === 'text' && (
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">Logo Text</label>
+                                                <input
+                                                    required
+                                                    type="text"
+                                                    value={layoutSettings.logo_text}
+                                                    onChange={(e) => setLayoutSettings({ ...layoutSettings, logo_text: e.target.value })}
+                                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-red-500 focus:bg-white/10 transition-all text-white font-medium"
+                                                />
+                                            </div>
+                                        )}
+                                        {layoutSettings.logo_type === 'image' && (
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-2 block">Logo Image</label>
+                                                {layoutSettings.logo_image_url ? (
+                                                    <div className="mt-2 flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/10">
+                                                        <img src={layoutSettings.logo_image_url} alt="Logo Preview" className="h-10 w-auto bg-black/50 p-1" />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setLayoutSettings({ ...layoutSettings, logo_image_url: '' })}
+                                                            className="p-2 ml-auto hover:bg-red-900/20 text-gray-500 hover:text-red-500 rounded-lg transition-colors"
+                                                            title="Remove image"
+                                                        >
+                                                            <Trash2 className="w-5 h-5" />
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <CldUploadWidget
+                                                        uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
+                                                        onSuccess={(result: any) => setLayoutSettings({ ...layoutSettings, logo_image_url: result.info.secure_url })}
+                                                    >
+                                                        {({ open }) => (
+                                                            <div
+                                                                onClick={() => open()}
+                                                                className="w-full aspect-[5/1] border-2 border-dashed border-white/10 hover:border-white/30 rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer group bg-black/20 hover:bg-black/40 transition-all"
+                                                            >
+                                                                <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center group-hover:scale-110 group-hover:bg-red-600/20 transition-all">
+                                                                    <ImageIcon className="w-5 h-5 text-gray-400 group-hover:text-red-500" />
+                                                                </div>
+                                                                <span className="text-sm font-medium text-gray-400 group-hover:text-white">Upload Logo</span>
+                                                            </div>
+                                                        )}
+                                                    </CldUploadWidget>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Header Links */}
+                                    <div className="space-y-4 pt-6 mt-6 border-t border-white/10">
+                                        <div className="flex items-center justify-between">
+                                            <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">Header Navigation Links</label>
+                                            <button
+                                                type="button"
+                                                onClick={() => setLayoutSettings({ ...layoutSettings, header_links: [...layoutSettings.header_links, { label: '', url: '' }] })}
+                                                className="text-xs bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors font-bold"
+                                            >
+                                                <Plus className="w-3 h-3" /> Add Link
+                                            </button>
+                                        </div>
+                                        <div className="grid gap-3">
+                                            {layoutSettings.header_links?.map((link, idx) => (
+                                                <div key={idx} className="flex gap-4">
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Label (e.g., Home)"
+                                                        value={link.label}
+                                                        onChange={(e) => {
+                                                            const newLinks = [...layoutSettings.header_links];
+                                                            newLinks[idx].label = e.target.value;
+                                                            setLayoutSettings({ ...layoutSettings, header_links: newLinks });
+                                                        }}
+                                                        className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 outline-none focus:border-red-500 focus:bg-white/10 transition-all font-medium text-sm"
+                                                    />
+                                                    <input
+                                                        type="text"
+                                                        placeholder="URL (e.g., /about)"
+                                                        value={link.url}
+                                                        onChange={(e) => {
+                                                            const newLinks = [...layoutSettings.header_links];
+                                                            newLinks[idx].url = e.target.value;
+                                                            setLayoutSettings({ ...layoutSettings, header_links: newLinks });
+                                                        }}
+                                                        className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 outline-none focus:border-red-500 focus:bg-white/10 transition-all font-mono text-sm"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const newLinks = [...layoutSettings.header_links];
+                                                            newLinks.splice(idx, 1);
+                                                            setLayoutSettings({ ...layoutSettings, header_links: newLinks });
+                                                        }}
+                                                        className="p-2 hover:bg-red-900/20 text-gray-500 hover:text-red-500 rounded-lg transition-colors flex-shrink-0"
+                                                    >
+                                                        <Trash2 className="w-5 h-5" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            {(!layoutSettings.header_links || layoutSettings.header_links.length === 0) && (
+                                                <div className="text-gray-500 text-sm py-4 text-center border border-dashed border-white/10 rounded-xl">No header links added.</div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Footer Links */}
+                                    <div className="space-y-4 pt-6 mt-6 border-t border-white/10">
+                                        <div className="flex items-center justify-between">
+                                            <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">Footer Social Links</label>
+                                            <button
+                                                type="button"
+                                                onClick={() => setLayoutSettings({ ...layoutSettings, footer_links: [...layoutSettings.footer_links, { name: '', url: '' }] })}
+                                                className="text-xs bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors font-bold"
+                                            >
+                                                <Plus className="w-3 h-3" /> Add Link
+                                            </button>
+                                        </div>
+                                        <div className="grid gap-3">
+                                            {layoutSettings.footer_links?.map((link, idx) => (
+                                                <div key={idx} className="flex gap-4">
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Name (e.g., LinkedIn)"
+                                                        value={link.name}
+                                                        onChange={(e) => {
+                                                            const newLinks = [...layoutSettings.footer_links];
+                                                            newLinks[idx].name = e.target.value;
+                                                            setLayoutSettings({ ...layoutSettings, footer_links: newLinks });
+                                                        }}
+                                                        className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 outline-none focus:border-red-500 focus:bg-white/10 transition-all font-medium text-sm"
+                                                    />
+                                                    <input
+                                                        type="text"
+                                                        placeholder="URL (https://...)"
+                                                        value={link.url}
+                                                        onChange={(e) => {
+                                                            const newLinks = [...layoutSettings.footer_links];
+                                                            newLinks[idx].url = e.target.value;
+                                                            setLayoutSettings({ ...layoutSettings, footer_links: newLinks });
+                                                        }}
+                                                        className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 outline-none focus:border-red-500 focus:bg-white/10 transition-all font-mono text-sm"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const newLinks = [...layoutSettings.footer_links];
+                                                            newLinks.splice(idx, 1);
+                                                            setLayoutSettings({ ...layoutSettings, footer_links: newLinks });
+                                                        }}
+                                                        className="p-2 hover:bg-red-900/20 text-gray-500 hover:text-red-500 rounded-lg transition-colors flex-shrink-0"
+                                                    >
+                                                        <Trash2 className="w-5 h-5" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            {(!layoutSettings.footer_links || layoutSettings.footer_links.length === 0) && (
+                                                <div className="text-gray-500 text-sm py-4 text-center border border-dashed border-white/10 rounded-xl">No footer links added.</div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="flex border-t border-white/10 pt-6 mt-6">
+                                        <button
+                                            type="submit"
+                                            disabled={layoutSettingsSaving}
+                                            className="px-8 py-4 bg-white hover:bg-red-600 hover:border-red-600 border border-white text-black hover:text-white rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(220,38,38,0.3)] disabled:opacity-50 disabled:cursor-not-allowed group flex items-center justify-center gap-2"
+                                        >
+                                            {layoutSettingsSaving ? (
+                                                <><Loader2 className="w-5 h-5 animate-spin" /> Saving...</>
+                                            ) : (
+                                                <><Save className="w-5 h-5" /> Save Changes</>
+                                            )}
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         )}
                     </div>

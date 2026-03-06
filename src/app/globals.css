@@ -114,7 +114,6 @@ section.bg-white .story-scroll::-webkit-scrollbar-thumb {
 
 /* Footer: outlined greeting (light theme = dark stroke) */
 .footer-greeting-outline {
-  color: transparent;
   -webkit-text-fill-color: transparent;
   -webkit-text-stroke: 2px currentColor;
   paint-order: stroke fill;

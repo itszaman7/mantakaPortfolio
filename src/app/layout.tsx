@@ -3,6 +3,7 @@ import { Inter, Playfair_Display, Noto_Sans_Bengali } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import Navbar from "@/components/Navbar";
+import CustomCursor from "@/components/CustomCursor";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -33,6 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable} ${notoBengali.variable} font-sans`}>
       <body className="antialiased">
+        <CustomCursor />
         <Navbar />
         <SmoothScroll>{children}</SmoothScroll>
       </body>

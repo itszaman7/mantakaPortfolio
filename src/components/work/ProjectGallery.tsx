@@ -128,12 +128,6 @@ const ProjectGallery = () => {
 
     return (
         <section ref={containerRef} className="w-full relative bg-[#FBFBFA]">
-            <div className="px-6 md:px-12 lg:px-24 pt-16 pb-8">
-                <h2 className="serif-font font-bold tracking-tighter text-[#1a1a1a] text-[11.5vw] leading-[0.8]">
-                    Selected <span className="italic text-[#FF2800]">Work</span>
-                </h2>
-            </div>
-
             <div className="relative">
                 {projects.map((project, i) => (
                     <div

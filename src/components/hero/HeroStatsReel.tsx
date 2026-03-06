@@ -34,10 +34,17 @@ const BackgroundGhostReel = ({ activeIndex, slides }: { activeIndex: number; sli
   </div>
 );
 
-const HeroCard = ({ image, highlight, suffix }: { image: string; highlight: string; suffix: string }) => {
+const HeroCard = ({ image, highlight, suffix, mobileOpen }: { image: string; highlight: string; suffix: string; mobileOpen: boolean }) => {
   const [isHovered, setHovered] = useState(false);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
+
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  useEffect(() => {
+    setIsTouchDevice(window.matchMedia("(pointer: coarse)").matches);
+  }, []);
+
+  const openState = isTouchDevice ? mobileOpen : isHovered;
 
   // --- Tilt Physics (Mouse movement) ---
   const tiltSpring = { damping: 20, stiffness: 150, mass: 0.8 };
@@ -103,7 +110,7 @@ const HeroCard = ({ image, highlight, suffix }: { image: string; highlight: stri
       },
     },
     open: {
-      y: "-120%",
+      y: isTouchDevice ? "-60%" : "-120%",
       z: 60,
       rotateX: 5,
       transition: {
@@ -152,7 +159,7 @@ const HeroCard = ({ image, highlight, suffix }: { image: string; highlight: stri
           className="absolute left-3 right-3 bottom-3 top-6 rounded-lg overflow-hidden bg-white shadow-md border-[4px] border-white z-10"
           variants={cardVariants}
           initial="closed"
-          animate={isHovered ? "open" : "closed"}
+          animate={openState ? "open" : "closed"}
           style={{
             transformStyle: "preserve-3d",
           }}
@@ -194,7 +201,7 @@ const HeroCard = ({ image, highlight, suffix }: { image: string; highlight: stri
           className="absolute inset-0 z-30 pointer-events-none"
           variants={flapVariants}
           initial="closed"
-          animate={isHovered ? "open" : "closed"}
+          animate={openState ? "open" : "closed"}
           style={{
             transformOrigin: "top",
             transformStyle: "preserve-3d",
@@ -255,6 +262,7 @@ export default function HeroStatsReel() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [slides, setSlides] = useState<StatsSlide[]>(statsSlidesFallback);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     getHeroStats().then(setSlides);
@@ -282,6 +290,13 @@ export default function HeroStatsReel() {
       if (n === 0) return;
       const prev = prevIndexRef.current;
       const progress = Math.max(0, Math.min(1, latest));
+
+      const exactSegment = progress * n;
+      const localProgress = exactSegment % 1;
+
+      const isCardOpen = localProgress > 0.15 && localProgress < 0.85;
+      setMobileOpen(isCardOpen);
+
       const segment = Math.min(Math.floor(progress * n), n - 1);
 
       let next = prev;
@@ -348,6 +363,7 @@ export default function HeroStatsReel() {
               image={currentSlide.image}
               highlight={currentSlide.highlight}
               suffix={currentSlide.suffix}
+              mobileOpen={mobileOpen}
             />
           </div>
 
