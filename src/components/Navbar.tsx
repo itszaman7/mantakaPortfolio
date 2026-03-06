@@ -87,6 +87,7 @@ export default function Navbar() {
         { label: "Home", url: "/" },
         { label: "Work", url: "/work" },
         { label: "About", url: "/about" },
+        { label: "Blog", url: "/blog" },
         { label: "Contact", url: "/contact" },
     ]);
     const [logoType, setLogoType] = useState<'text' | 'image'>('text');
