@@ -146,22 +146,113 @@ export default function Navbar() {
                 className="fixed top-0 left-0 right-0 z-50 bg-transparent transition-all duration-500"
             >
                 <div className="w-full px-4 md:px-6 lg:px-6 py-4 md:py-6 flex items-start justify-between">
-                    {/* Logo */}
+                    {/* Logo (Z M) */}
                     <motion.a
                         href="/"
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="group flex flex-col items-start relative z-10"
+                        className="group flex flex-col items-start relative z-10 w-[100px] md:w-[140px] h-auto"
+                        aria-label="Home"
                     >
+                        {/* Render based on Backend Settings */}
                         {logoType === 'image' && logoUrl ? (
-                            <img src={logoUrl} alt={logoText} className="h-8 md:h-10 w-auto transition-transform hover:scale-105" />
+                            /* If image is selected in backend */
+                            logoUrl.includes('Logo.svg') ? (
+                                /* Special Case: If it's the exact Logo.svg, use our splitting animation wrapper */
+                                <div className="w-full h-auto">
+                                    <svg
+                                        width="100%"
+                                        height="100%"
+                                        viewBox="0 0 665 242"
+                                        version="1.1"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        className="w-full h-auto"
+                                        style={{ fillRule: "evenodd", clipRule: "evenodd", strokeLinejoin: "round", strokeMiterlimit: 2 }}
+                                    >
+                                        <g className="fill-foreground transition-colors duration-300">
+                                            <motion.path
+                                                initial={{ x: 0 }}
+                                                whileHover={{ x: -15 }}
+                                                transition={{ duration: 0.4, ease: [0.76, 0, 0.24, 1] as any }}
+                                                d="M0,108.285l0,-108.285l87.768,0l-87.768,108.285Zm163.047,-108.285l76.953,0l0,48.982l-155.945,192.4l-84.055,0l0,-40.219l163.047,-201.162Zm76.953,141.859l0,99.522l-80.665,0l80.665,-99.522Z"
+                                            />
+                                            <motion.path
+                                                initial={{ x: 0 }}
+                                                whileHover={{ x: 0 }}
+                                                transition={{ duration: 0.4, ease: [0.76, 0, 0.24, 1] as any }}
+                                                d="M278.265,163.139l0,-163.139l97.754,0l-97.754,163.139Zm155.776,-163.139l80.07,0l-80.43,140.268l0,-139.667l0.36,-0.601Zm106.399,54.271l0,187.111l-106.76,0l0,-0.924l106.76,-186.187Zm-156.489,187.111l-94.547,0l94.547,-157.787l0,157.787Z"
+                                            />
+                                            <motion.rect
+                                                initial={{ x: 0 }}
+                                                whileHover={{ x: 15 }}
+                                                transition={{ duration: 0.4, ease: [0.76, 0, 0.24, 1] as any }}
+                                                x="593.999" y="0" width="70.204" height="241.381"
+                                            />
+                                        </g>
+                                    </svg>
+                                </div>
+                            ) : (
+                                /* Generic Image Logo */
+                                <motion.div
+                                    className="relative flex items-center justify-start overflow-hidden h-8 md:h-12 w-auto"
+                                    whileHover="hover"
+                                    initial="initial"
+                                >
+                                    <motion.img
+                                        src={logoUrl}
+                                        alt={logoText}
+                                        className="h-full w-auto object-contain"
+                                        variants={{
+                                            initial: { y: 0 },
+                                            hover: { y: "-100%" }
+                                        }}
+                                        transition={{ duration: 0.5, ease: [0.76, 0, 0.24, 1] as any }}
+                                    />
+                                    <motion.img
+                                        src={logoUrl}
+                                        alt={logoText}
+                                        className="h-full w-auto object-contain absolute top-full left-0 origin-left"
+                                        variants={{
+                                            initial: { y: "0%" },
+                                            hover: { y: "-100%" }
+                                        }}
+                                        transition={{ duration: 0.5, ease: [0.76, 0, 0.24, 1] as any }}
+                                    />
+                                </motion.div>
+                            )
                         ) : (
-                            <span className="font-sans text-2xl md:text-3xl lg:text-4xl font-black uppercase tracking-tighter text-foreground group-hover:text-red-500 transition-colors duration-300 leading-[0.85] flex flex-col">
-                                {logoText.split(' ').map((word, i) => (
-                                    <span key={i} className="block">{word}</span>
-                                ))}
-                            </span>
+                            /* Text Logo Fallback */
+                            <motion.div
+                                className="relative overflow-hidden font-sans text-2xl md:text-3xl lg:text-4xl font-black uppercase tracking-tighter"
+                                whileHover="hover"
+                                initial="initial"
+                            >
+                                <motion.div
+                                    className="flex flex-col leading-[0.85] text-foreground"
+                                    variants={{
+                                        initial: { y: 0 },
+                                        hover: { y: "-100%" }
+                                    }}
+                                    transition={{ duration: 0.5, ease: [0.76, 0, 0.24, 1] as any }}
+                                >
+                                    {logoText.split(' ').map((word, i) => (
+                                        <span key={i} className="block">{word}</span>
+                                    ))}
+                                </motion.div>
+                                <motion.div
+                                    className="flex flex-col leading-[0.85] text-[#ff002b] absolute top-full left-0"
+                                    variants={{
+                                        initial: { y: "0%" },
+                                        hover: { y: "-100%" }
+                                    }}
+                                    transition={{ duration: 0.5, ease: [0.76, 0, 0.24, 1] as any }}
+                                >
+                                    {logoText.split(' ').map((word, i) => (
+                                        <span key={i} className="block">{word}</span>
+                                    ))}
+                                </motion.div>
+                            </motion.div>
                         )}
                     </motion.a>
 

@@ -29,6 +29,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      create:
+        specifier: ^0.5.5
+        version: 0.5.5
       framer-motion:
         specifier: ^12.33.0
         version: 12.33.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -68,6 +71,9 @@ importers:
       three:
         specifier: ^0.182.0
         version: 0.182.0
+      video:
+        specifier: ^2.0.0
+        version: 2.0.0
     devDependencies:
       '@tailwindcss/postcss':
         specifier: ^4
@@ -1040,6 +1046,10 @@ packages:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
     engines: {node: '>=10'}
 
+  chalk@5.6.2:
+    resolution: {integrity: sha512-7NzBL0rN6fMUW+f7A6Io4h40qQlG+xGmtMxfbnH/K7TAtt8JQWVQK+6g0UXKMeVJoyV5EkkNsErQ8pVD3bLHbA==}
+    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
+
   character-entities-legacy@3.0.0:
     resolution: {integrity: sha512-RpPp0asT/6ufRm//AJVwpViZbGM/MkjQFxJccQRHmISF/22NBtsHqAWmL+/pmkPWoIUJdWyeVleTl1wydHATVQ==}
 
@@ -1075,6 +1085,11 @@ packages:
   cookie@1.1.1:
     resolution: {integrity: sha512-ei8Aos7ja0weRpFzJnEA9UHJ/7XQmqglbRwnf2ATjcB9Wq874VKH9kfjjirM6UhU2/E5fFYadylyhFldcqSidQ==}
     engines: {node: '>=18'}
+
+  create@0.5.5:
+    resolution: {integrity: sha512-lF0regD81sPGeAUwDZbn8Z45RD4J7bBny7WrvYwxUeLMtG5ZUAMm6Ctx3l4osoFl+XBXQ4N755TGYbjR3iHefQ==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   cross-env@7.0.3:
     resolution: {integrity: sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==}
@@ -2394,6 +2409,10 @@ packages:
     resolution: {integrity: sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==}
     hasBin: true
 
+  video@2.0.0:
+    resolution: {integrity: sha512-zcBBB+VWRFQTdovtiuAizIjDFzgP3cx40Ijyz1CEkYoeLwMKUiZtdSITzw3gFz/7c1Qgg4WFh73XMJj43MH6nw==}
+    engines: {node: '>=0.1.93'}
+
   webgl-constants@1.1.1:
     resolution: {integrity: sha512-LkBXKjU5r9vAW7Gcu3T5u+5cvSvh5WwINdr0C+9jpzVB41cjQAP5ePArDtk/WHYdVj0GefCgM73BA7FlIiNtdg==}
 
@@ -3446,6 +3465,8 @@ snapshots:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
 
+  chalk@5.6.2: {}
+
   character-entities-legacy@3.0.0: {}
 
   character-entities@2.0.2: {}
@@ -3469,6 +3490,10 @@ snapshots:
   convert-source-map@2.0.0: {}
 
   cookie@1.1.1: {}
+
+  create@0.5.5:
+    dependencies:
+      chalk: 5.6.2
 
   cross-env@7.0.3:
     dependencies:
@@ -5011,6 +5036,8 @@ snapshots:
   utility-types@3.11.0: {}
 
   uuid@10.0.0: {}
+
+  video@2.0.0: {}
 
   webgl-constants@1.1.1: {}
 

@@ -32,6 +32,9 @@ export interface Project {
     subtitle?: string;
     /** Optional: year for timeline display. Falls back to created_at year if omitted. */
     year?: string;
+    /** SEO Fields */
+    meta_title?: string;
+    meta_description?: string;
 }
 
 const CARD_BG_PALETTE = ["#1DB954", "#851121", "#5038A0", "#FFFFE0"] as const;
@@ -71,6 +74,8 @@ export async function getProjects(): Promise<Project[]> {
         link: p.link || '#',
         backgroundColor: p.background_color,
         year: p.year ?? (p.created_at ? String(new Date(p.created_at).getFullYear()) : undefined),
+        meta_title: p.meta_title,
+        meta_description: p.meta_description,
     }));
 }
 

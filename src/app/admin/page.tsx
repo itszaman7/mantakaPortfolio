@@ -25,6 +25,8 @@ interface Project {
     interesting_things?: string;
     code_link?: string;
     demo_link?: string;
+    meta_title?: string;
+    meta_description?: string;
 }
 
 interface HeroStat {
@@ -77,6 +79,16 @@ interface LayoutSettings {
     logo_image_url: string | null;
     header_links: { label: string; url: string }[];
     footer_links: { name: string; url: string }[];
+    home_meta_title?: string;
+    home_meta_description?: string;
+    about_meta_title?: string;
+    about_meta_description?: string;
+    work_meta_title?: string;
+    work_meta_description?: string;
+    blog_meta_title?: string;
+    blog_meta_description?: string;
+    contact_meta_title?: string;
+    contact_meta_description?: string;
 }
 
 const COLOR_PRESETS = [
@@ -145,6 +157,8 @@ export default function AdminPage() {
         interesting_things: '',
         code_link: '',
         demo_link: '',
+        meta_title: '',
+        meta_description: '',
     });
     const [stats, setStats] = useState<HeroStat[]>([]);
     const [statsLoading, setStatsLoading] = useState(false);
@@ -198,7 +212,17 @@ export default function AdminPage() {
         logo_text: 'Mantaka',
         logo_image_url: '',
         header_links: [],
-        footer_links: []
+        footer_links: [],
+        home_meta_title: '',
+        home_meta_description: '',
+        about_meta_title: '',
+        about_meta_description: '',
+        work_meta_title: '',
+        work_meta_description: '',
+        blog_meta_title: '',
+        blog_meta_description: '',
+        contact_meta_title: '',
+        contact_meta_description: '',
     });
     const [layoutSettingsLoading, setLayoutSettingsLoading] = useState(false);
     const [layoutSettingsSaving, setLayoutSettingsSaving] = useState(false);
@@ -787,7 +811,7 @@ export default function AdminPage() {
 
                             <div className="space-y-6">
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Media Upload (Cloudinary)</label>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Thumbnail Image (Shown on preview cards)</label>
                                     <div className="bg-[#111] border-2 border-dashed border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center gap-4 text-center">
                                         {formData.src ? (
                                             <div className="relative group w-full aspect-video rounded-xl overflow-hidden shadow-2xl">
@@ -825,7 +849,7 @@ export default function AdminPage() {
                                                         <div className="w-16 h-16 bg-red-600/20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                                                             <ImageIcon className="text-red-600 w-8 h-8" />
                                                         </div>
-                                                        <span className="text-sm font-bold text-gray-300">Upload Hero Media</span>
+                                                        <span className="text-sm font-bold text-gray-300">Upload Thumbnail Image</span>
                                                         <p className="text-[10px] text-gray-500 mt-2 uppercase tracking-widest font-medium">Auto-organized into 'portfolio' folder</p>
                                                     </button>
                                                 )}
@@ -890,6 +914,37 @@ export default function AdminPage() {
                                                 </button>
                                             )}
                                         </CldUploadWidget>
+                                    </div>
+                                </div>
+
+                                {/* SEO SECTION */}
+                                <div className="pt-8 border-t border-white/5">
+                                    <h3 className="text-sm font-bold text-red-500 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                                        <Eye className="w-4 h-4" /> Search Engine Optimization (SEO)
+                                    </h3>
+                                    <div className="grid grid-cols-1 gap-6 bg-white/[0.02] p-6 rounded-2xl border border-white/5">
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Meta Title</label>
+                                            <input
+                                                type="text"
+                                                placeholder="Custom title for Google (Optional)"
+                                                className="w-full bg-[#111] border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors text-sm"
+                                                value={formData.meta_title || ''}
+                                                onChange={(e) => setFormData({ ...formData, meta_title: e.target.value })}
+                                            />
+                                            <p className="text-[10px] text-gray-600 mt-2 italic">Recommended: 50-60 characters. Falls back to project title if empty.</p>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Meta Description</label>
+                                            <textarea
+                                                placeholder="Brief summary for search results (Optional)"
+                                                rows={3}
+                                                className="w-full bg-[#111] border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors text-sm resize-none"
+                                                value={formData.meta_description || ''}
+                                                onChange={(e) => setFormData({ ...formData, meta_description: e.target.value })}
+                                            />
+                                            <p className="text-[10px] text-gray-600 mt-2 italic">Recommended: 150-160 characters. Falls back to introduction if empty.</p>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -1761,6 +1816,78 @@ export default function AdminPage() {
                                             {(!layoutSettings.footer_links || layoutSettings.footer_links.length === 0) && (
                                                 <div className="text-gray-500 text-sm py-4 text-center border border-dashed border-white/10 rounded-xl">No footer links added.</div>
                                             )}
+                                        </div>
+                                    </div>
+
+                                    {/* SEO MANAGEMENT */}
+                                    <div className="space-y-6 pt-10 mt-10 border-t border-white/10">
+                                        <h3 className="text-xl font-bold flex items-center gap-2 mb-6"><div className="w-2 h-6 bg-red-600 rounded-full" />Site-Wide SEO (Pages)</h3>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
+                                            {/* Home */}
+                                            <div className="space-y-4 p-6 bg-white/[0.02] border border-white/5 rounded-2xl">
+                                                <div className="font-mono text-[10px] text-red-500 font-bold uppercase tracking-widest border-b border-white/5 pb-2">Home Page / (Index)</div>
+                                                <div>
+                                                    <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Meta Title</label>
+                                                    <input type="text" className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-sm focus:border-red-500 outline-none" value={layoutSettings.home_meta_title || ''} onChange={(e) => setLayoutSettings({ ...layoutSettings, home_meta_title: e.target.value })} />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Meta Description</label>
+                                                    <textarea rows={2} className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-sm focus:border-red-500 outline-none resize-none" value={layoutSettings.home_meta_description || ''} onChange={(e) => setLayoutSettings({ ...layoutSettings, home_meta_description: e.target.value })} />
+                                                </div>
+                                            </div>
+
+                                            {/* Work */}
+                                            <div className="space-y-4 p-6 bg-white/[0.02] border border-white/5 rounded-2xl">
+                                                <div className="font-mono text-[10px] text-red-500 font-bold uppercase tracking-widest border-b border-white/5 pb-2">Work Page /work</div>
+                                                <div>
+                                                    <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Meta Title</label>
+                                                    <input type="text" className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-sm focus:border-red-500 outline-none" value={layoutSettings.work_meta_title || ''} onChange={(e) => setLayoutSettings({ ...layoutSettings, work_meta_title: e.target.value })} />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Meta Description</label>
+                                                    <textarea rows={2} className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-sm focus:border-red-500 outline-none resize-none" value={layoutSettings.work_meta_description || ''} onChange={(e) => setLayoutSettings({ ...layoutSettings, work_meta_description: e.target.value })} />
+                                                </div>
+                                            </div>
+
+                                            {/* Blog */}
+                                            <div className="space-y-4 p-6 bg-white/[0.02] border border-white/5 rounded-2xl">
+                                                <div className="font-mono text-[10px] text-red-500 font-bold uppercase tracking-widest border-b border-white/5 pb-2">Blog Page /blog</div>
+                                                <div>
+                                                    <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Meta Title</label>
+                                                    <input type="text" className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-sm focus:border-red-500 outline-none" value={layoutSettings.blog_meta_title || ''} onChange={(e) => setLayoutSettings({ ...layoutSettings, blog_meta_title: e.target.value })} />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Meta Description</label>
+                                                    <textarea rows={2} className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-sm focus:border-red-500 outline-none resize-none" value={layoutSettings.blog_meta_description || ''} onChange={(e) => setLayoutSettings({ ...layoutSettings, blog_meta_description: e.target.value })} />
+                                                </div>
+                                            </div>
+
+                                            {/* About */}
+                                            <div className="space-y-4 p-6 bg-white/[0.02] border border-white/5 rounded-2xl">
+                                                <div className="font-mono text-[10px] text-red-500 font-bold uppercase tracking-widest border-b border-white/5 pb-2">About Page /about</div>
+                                                <div>
+                                                    <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Meta Title</label>
+                                                    <input type="text" className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-sm focus:border-red-500 outline-none" value={layoutSettings.about_meta_title || ''} onChange={(e) => setLayoutSettings({ ...layoutSettings, about_meta_title: e.target.value })} />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Meta Description</label>
+                                                    <textarea rows={2} className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-sm focus:border-red-500 outline-none resize-none" value={layoutSettings.about_meta_description || ''} onChange={(e) => setLayoutSettings({ ...layoutSettings, about_meta_description: e.target.value })} />
+                                                </div>
+                                            </div>
+
+                                            {/* Contact */}
+                                            <div className="space-y-4 p-6 bg-white/[0.02] border border-white/5 rounded-2xl">
+                                                <div className="font-mono text-[10px] text-red-500 font-bold uppercase tracking-widest border-b border-white/5 pb-2">Contact Page /contact</div>
+                                                <div>
+                                                    <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Meta Title</label>
+                                                    <input type="text" className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-sm focus:border-red-500 outline-none" value={layoutSettings.contact_meta_title || ''} onChange={(e) => setLayoutSettings({ ...layoutSettings, contact_meta_title: e.target.value })} />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Meta Description</label>
+                                                    <textarea rows={2} className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-sm focus:border-red-500 outline-none resize-none" value={layoutSettings.contact_meta_description || ''} onChange={(e) => setLayoutSettings({ ...layoutSettings, contact_meta_description: e.target.value })} />
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 

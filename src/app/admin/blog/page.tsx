@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { Plus, Trash2, Save, LogOut, Loader2, ArrowLeft, Image as ImageIcon, Code, Type, Quote, Heading, Pencil } from 'lucide-react';
+import { Plus, Trash2, Save, LogOut, Loader2, ArrowLeft, Image as ImageIcon, Code, Type, Quote, Heading, Pencil, Eye } from 'lucide-react';
 import { slugify } from '@/utils/slugify';
 
 type BlockType = 'heading' | 'paragraph' | 'image' | 'code' | 'quote';
@@ -23,6 +23,8 @@ interface Blog {
     content: Block[];
     cover_image: string;
     published: boolean;
+    meta_title?: string;
+    meta_description?: string;
     created_at?: string;
 }
 
@@ -38,7 +40,9 @@ export default function AdminBlogPage() {
         excerpt: '',
         content: [],
         cover_image: '',
-        published: false
+        published: false,
+        meta_title: '',
+        meta_description: ''
     });
 
     const router = useRouter();
@@ -314,6 +318,37 @@ export default function AdminBlogPage() {
                                                 <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e)} />
                                             </label>
                                         )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* SEO SECTION */}
+                            <div className="pt-10 border-t border-white/10">
+                                <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
+                                    <Eye className="w-5 h-5 text-red-600" /> Search Engine Optimization (SEO)
+                                </h3>
+                                <div className="grid grid-cols-1 gap-6 bg-[#111] border border-white/5 p-6 rounded-2xl">
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Meta Title</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Custom title for Google (Optional)"
+                                            className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors text-sm"
+                                            value={formData.meta_title || ''}
+                                            onChange={(e) => setFormData({ ...formData, meta_title: e.target.value })}
+                                        />
+                                        <p className="text-[10px] text-gray-600 mt-2 italic">Recommended: 50-60 characters. Falls back to blog title if empty.</p>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Meta Description</label>
+                                        <textarea
+                                            placeholder="Brief summary for search results (Optional)"
+                                            rows={2}
+                                            className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors text-sm resize-none"
+                                            value={formData.meta_description || ''}
+                                            onChange={(e) => setFormData({ ...formData, meta_description: e.target.value })}
+                                        />
+                                        <p className="text-[10px] text-gray-600 mt-2 italic">Recommended: 150-160 characters. Falls back to excerpt if empty.</p>
                                     </div>
                                 </div>
                             </div>

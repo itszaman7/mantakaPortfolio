@@ -4,6 +4,7 @@ import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import Navbar from "@/components/Navbar";
 import CustomCursor from "@/components/CustomCursor";
+import Preloader from "@/components/Preloader";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -24,6 +25,9 @@ const notoBengali = Noto_Sans_Bengali({
 export const metadata: Metadata = {
   title: "Mantaka Portfolio",
   description: "Creative Developer & Designer Portfolio",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
@@ -34,6 +38,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable} ${notoBengali.variable} font-sans`}>
       <body className="antialiased">
+        <Preloader />
         <CustomCursor />
         <Navbar />
         <SmoothScroll>{children}</SmoothScroll>

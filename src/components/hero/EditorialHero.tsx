@@ -61,18 +61,19 @@ export default function EditorialHero() {
                 tl.to('#about-content', { opacity: 0, pointerEvents: 'none', duration: 0.5, ease: 'power2.inOut' }, 2.3);
 
                 tl.to('#hero-mask', {
-                    clipPath: 'circle(12.5vw at 50% 35%)',
+                    clipPath: 'circle(12.5vw at 50% 40vh)',
                     duration: 0.8,
                     ease: 'power3.inOut'
                 }, 2.5);
 
                 tl.to('#image-container', {
                     left: '50%',
-                    top: '35%',
+                    top: '40vh',
                     xPercent: -50,
                     yPercent: -50,
                     width: '25vw',
                     height: '25vw',
+                    borderRadius: '50%',
                     duration: 0.8,
                     ease: 'power3.inOut'
                 }, 2.5);
@@ -130,18 +131,19 @@ export default function EditorialHero() {
                 tl.to('#about-content', { opacity: 0, pointerEvents: 'none', duration: 0.5, ease: 'power2.inOut' }, 2.3);
 
                 tl.to('#hero-mask', {
-                    clipPath: 'circle(22.5vw at 50% 43%)',
+                    clipPath: 'circle(22.5vw at 50% 43vh)',
                     duration: 0.8,
                     ease: 'power3.inOut'
                 }, 2.5);
 
                 tl.to('#image-container', {
                     left: '50%',
-                    top: '43%',
+                    top: '43vh',
                     xPercent: -50,
                     yPercent: -50,
                     width: '45vw',
                     height: '45vw',
+                    borderRadius: '50%',
                     duration: 0.8,
                     ease: 'power3.inOut'
                 }, 2.5);
@@ -217,9 +219,9 @@ export default function EditorialHero() {
                     <div id="pinned-section" className="sticky top-0 w-full h-screen overflow-hidden flex items-center justify-center bg-[#FBFBFA]">
 
                         {/* Selected Work Title (Hidden initially, animates in Phase 3) */}
-                        <div id="selected-work-title" className="absolute bottom-[2vh] left-1/2 -translate-x-1/2 opacity-0 flex flex-col items-center pointer-events-none z-10 w-[95vw] lg:w-auto">
-                            <h2 className="serif-font font-bold tracking-tighter text-[#1a1a1a] text-[15vw] md:text-[12vw] lg:text-[10vw] xl:text-[8.5vw] leading-[0.8] whitespace-nowrap">
-                                Selected <span className="italic text-[#FF2800]">Work</span>
+                        <div id="selected-work-title" className="absolute bottom-[2vh] lg:bottom-[1vh] left-1/2 -translate-x-1/2 opacity-0 flex flex-col items-center pointer-events-none z-10 w-full px-4">
+                            <h2 className="serif-font font-bold tracking-tighter text-[#1a1a1a] text-[18vw] sm:text-[15vw] md:text-[12vw] lg:text-[10vw] xl:text-[8.5vw] leading-[0.8] md:whitespace-nowrap flex flex-col md:flex-row items-center gap-0 md:gap-4 lg:gap-6 justify-center">
+                                <span>Selected</span> <span className="italic text-[#FF2800]">Work</span>
                             </h2>
                         </div>
 
@@ -286,9 +288,9 @@ export default function EditorialHero() {
                                 className="image-wrapper absolute z-10 w-[50vw] h-[40vh] md:w-[26vw] md:h-[55vh] top-[25vh] md:top-[22vh] left-[10vw] md:left-[14vw] overflow-hidden"
                             >
                                 <img
-                                    src="/2D_Assets/Hero Picture.JPG"
+                                    src="/2D_Assets/Hero%20Picture.JPG"
                                     alt="Portrait"
-                                    className="hero-img absolute inset-0 w-full h-full object-cover scale-110 origin-center"
+                                    className="hero-img absolute inset-0 w-full h-full object-cover origin-center"
                                 />
                                 <img
                                     id="hero-img-secondary"

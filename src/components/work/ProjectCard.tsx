@@ -57,9 +57,9 @@ const DEFAULT_IMAGE = "/placeholder.png";
 
 const ProjectCard = ({ project, index, className = "" }: ProjectCardProps) => {
     const imageUrl =
-        project.media?.length && project.media[0].type === "image"
+        project.src || (project.media?.length && project.media[0].type === "image"
             ? project.media[0].url
-            : project.src || DEFAULT_IMAGE;
+            : DEFAULT_IMAGE);
 
     const indexStr = String(index).padStart(2, "0");
 
