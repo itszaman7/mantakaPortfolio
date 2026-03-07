@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { CldUploadWidget } from 'next-cloudinary';
-import { Plus, Trash2, ExternalLink, Image as ImageIcon, Save, LogOut, Loader2, CheckCircle2, Pencil, Mail, MessageSquare, Eye } from 'lucide-react';
+import { Plus, Trash2, ExternalLink, Image as ImageIcon, Save, LogOut, Loader2, CheckCircle2, Pencil, Mail, MessageSquare, Eye, EyeOff } from 'lucide-react';
 import { slugify } from '@/utils/slugify';
 
 interface Project {
@@ -27,6 +27,7 @@ interface Project {
     demo_link?: string;
     meta_title?: string;
     meta_description?: string;
+    is_hidden?: boolean;
 }
 
 interface HeroStat {
@@ -159,6 +160,7 @@ export default function AdminPage() {
         demo_link: '',
         meta_title: '',
         meta_description: '',
+        is_hidden: false,
     });
     const [stats, setStats] = useState<HeroStat[]>([]);
     const [statsLoading, setStatsLoading] = useState(false);
@@ -311,6 +313,7 @@ export default function AdminPage() {
             interesting_things: '',
             code_link: '',
             demo_link: '',
+            is_hidden: false,
         });
     };
 
@@ -1002,6 +1005,20 @@ export default function AdminPage() {
                                     </div>
                                 </div>
 
+                                <div className="border border-white/5 rounded-xl p-4 bg-[#111] flex items-center justify-between">
+                                    <div>
+                                        <h4 className="font-bold text-sm">Hide Project</h4>
+                                        <p className="text-xs text-gray-500 mt-1">If enabled, this project will not appear on the public portfolio.</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, is_hidden: !formData.is_hidden })}
+                                        className={`w-12 h-6 rounded-full transition-colors relative ${formData.is_hidden ? 'bg-red-600' : 'bg-white/10'}`}
+                                    >
+                                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${formData.is_hidden ? 'translate-x-7' : 'translate-x-1'}`} />
+                                    </button>
+                                </div>
+
                                 <button
                                     type="submit"
                                     disabled={saving}
@@ -1338,7 +1355,10 @@ export default function AdminPage() {
                                         <div className="space-y-4">
                                             <div className="flex items-start justify-between">
                                                 <div>
-                                                    <h3 className="text-xl font-bold tracking-tight">{project.title}</h3>
+                                                    <h3 className="text-xl font-bold tracking-tight flex items-center gap-2">
+                                                        {project.title}
+                                                        {project.is_hidden && <span title="Hidden from public"><EyeOff className="w-4 h-4 text-red-500" /></span>}
+                                                    </h3>
                                                     <p className="text-gray-500 text-xs mt-1 line-clamp-1">{project.subtitle}</p>
                                                 </div>
                                                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">

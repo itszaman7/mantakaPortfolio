@@ -35,6 +35,7 @@ export interface Project {
     /** SEO Fields */
     meta_title?: string;
     meta_description?: string;
+    is_hidden?: boolean;
 }
 
 const CARD_BG_PALETTE = ["#1DB954", "#851121", "#5038A0", "#FFFFE0"] as const;
@@ -76,7 +77,8 @@ export async function getProjects(): Promise<Project[]> {
         year: p.year ?? (p.created_at ? String(new Date(p.created_at).getFullYear()) : undefined),
         meta_title: p.meta_title,
         meta_description: p.meta_description,
-    }));
+        is_hidden: p.is_hidden ?? false,
+    })).filter((p: Project) => !p.is_hidden);
 }
 
 export async function getProjectBySlug(slug: string): Promise<Project | undefined> {
