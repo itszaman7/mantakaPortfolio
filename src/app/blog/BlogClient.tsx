@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Footer from '@/components/Footer';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
-import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 if (typeof window !== 'undefined') {
     gsap.registerPlugin(ScrollTrigger);
@@ -113,7 +113,7 @@ export default function BlogClient({ blogs }: { blogs: Blog[] }) {
                     ) : (
                         <div className="flex flex-col gap-32">
                             {featuredBlog && (
-                                <Link href={`/blog/${featuredBlog.slug}`} className="anim-featured group block">
+                                <Link href={`/blog/${featuredBlog.slug}`} className="anim-featured group block cursor-pointer">
                                     <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] transition-all duration-700 border border-gray-100">
                                         <div className="flex flex-col lg:flex-row">
                                             <div className="w-full lg:w-[45%] p-10 lg:p-16 flex flex-col justify-center relative bg-white z-10">
@@ -153,7 +153,7 @@ export default function BlogClient({ blogs }: { blogs: Blog[] }) {
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-x-12 md:gap-y-16">
                                         {otherBlogs.map(blog => (
-                                            <Link href={`/blog/${blog.slug}`} key={blog.id} className="anim-grid-item group flex flex-col h-full">
+                                            <Link href={`/blog/${blog.slug}`} key={blog.id} className="anim-grid-item group flex flex-col h-full cursor-pointer">
                                                 <div className="w-full aspect-[4/3] bg-gray-100 overflow-hidden relative rounded-2xl mb-8">
                                                     {blog.cover_image ? (
                                                         <img src={blog.cover_image} alt={blog.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />

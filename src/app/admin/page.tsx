@@ -515,6 +515,16 @@ export default function AdminPage() {
                 logo_image_url: data.logo_image_url || '',
                 header_links: Array.isArray(data.header_links) ? data.header_links : [],
                 footer_links: Array.isArray(data.footer_links) ? data.footer_links : [],
+                home_meta_title: data.home_meta_title || '',
+                home_meta_description: data.home_meta_description || '',
+                about_meta_title: data.about_meta_title || '',
+                about_meta_description: data.about_meta_description || '',
+                work_meta_title: data.work_meta_title || '',
+                work_meta_description: data.work_meta_description || '',
+                blog_meta_title: data.blog_meta_title || '',
+                blog_meta_description: data.blog_meta_description || '',
+                contact_meta_title: data.contact_meta_title || '',
+                contact_meta_description: data.contact_meta_description || '',
             });
         }
         setLayoutSettingsLoading(false);
@@ -811,7 +821,7 @@ export default function AdminPage() {
 
                             <div className="space-y-6">
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Thumbnail Image (Shown on preview cards)</label>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Project Thumbnail (Main image for cards and gallery)</label>
                                     <div className="bg-[#111] border-2 border-dashed border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center gap-4 text-center">
                                         {formData.src ? (
                                             <div className="relative group w-full aspect-video rounded-xl overflow-hidden shadow-2xl">
@@ -1713,7 +1723,7 @@ export default function AdminPage() {
                                             <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">Header Navigation Links</label>
                                             <button
                                                 type="button"
-                                                onClick={() => setLayoutSettings({ ...layoutSettings, header_links: [...layoutSettings.header_links, { label: '', url: '' }] })}
+                                                onClick={() => setLayoutSettings({ ...layoutSettings, header_links: [...(layoutSettings.header_links || []), { label: '', url: '' }] })}
                                                 className="text-xs bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors font-bold"
                                             >
                                                 <Plus className="w-3 h-3" /> Add Link
@@ -1747,7 +1757,7 @@ export default function AdminPage() {
                                                     <button
                                                         type="button"
                                                         onClick={() => {
-                                                            const newLinks = [...layoutSettings.header_links];
+                                                            const newLinks = [...(layoutSettings.header_links || [])];
                                                             newLinks.splice(idx, 1);
                                                             setLayoutSettings({ ...layoutSettings, header_links: newLinks });
                                                         }}
@@ -1769,7 +1779,7 @@ export default function AdminPage() {
                                             <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">Footer Social Links</label>
                                             <button
                                                 type="button"
-                                                onClick={() => setLayoutSettings({ ...layoutSettings, footer_links: [...layoutSettings.footer_links, { name: '', url: '' }] })}
+                                                onClick={() => setLayoutSettings({ ...layoutSettings, footer_links: [...(layoutSettings.footer_links || []), { name: '', url: '' }] })}
                                                 className="text-xs bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors font-bold"
                                             >
                                                 <Plus className="w-3 h-3" /> Add Link
@@ -1794,7 +1804,7 @@ export default function AdminPage() {
                                                         placeholder="URL (https://...)"
                                                         value={link.url}
                                                         onChange={(e) => {
-                                                            const newLinks = [...layoutSettings.footer_links];
+                                                            const newLinks = [...(layoutSettings.footer_links || [])];
                                                             newLinks[idx].url = e.target.value;
                                                             setLayoutSettings({ ...layoutSettings, footer_links: newLinks });
                                                         }}
@@ -1803,7 +1813,7 @@ export default function AdminPage() {
                                                     <button
                                                         type="button"
                                                         onClick={() => {
-                                                            const newLinks = [...layoutSettings.footer_links];
+                                                            const newLinks = [...(layoutSettings.footer_links || [])];
                                                             newLinks.splice(idx, 1);
                                                             setLayoutSettings({ ...layoutSettings, footer_links: newLinks });
                                                         }}

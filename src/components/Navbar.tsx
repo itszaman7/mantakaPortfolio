@@ -143,7 +143,7 @@ export default function Navbar() {
                 initial={{ y: -100 }}
                 animate={{ y: 0 }}
                 transition={{ duration: 0.6, ease: "easeOut" }}
-                className="fixed top-0 left-0 right-0 z-50 bg-transparent transition-all duration-500"
+                className="fixed top-0 left-0 right-0 z-50 bg-transparent transition-all duration-500 pointer-events-none"
             >
                 <div className="w-full px-4 md:px-6 lg:px-6 py-4 md:py-6 flex items-start justify-between">
                     {/* Logo (Z M) */}
@@ -152,7 +152,7 @@ export default function Navbar() {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="group flex flex-col items-start relative z-10 w-[100px] md:w-[140px] h-auto"
+                        className="group flex flex-col items-start relative z-10 w-[100px] md:w-[140px] h-auto pointer-events-auto"
                         aria-label="Home"
                     >
                         {/* Render based on Backend Settings */}
@@ -263,7 +263,7 @@ export default function Navbar() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.2 }}
                         onClick={() => setIsOpen(!isOpen)}
-                        className="relative w-12 h-12 flex items-center justify-center group rounded-xl border-2 border-foreground/20 overflow-hidden bg-transparent"
+                        className="relative w-12 h-12 flex items-center justify-center group rounded-xl border-2 border-foreground/20 overflow-hidden bg-transparent pointer-events-auto"
                         aria-label="Toggle menu"
                     >
                         {/* Background fill on hover */}

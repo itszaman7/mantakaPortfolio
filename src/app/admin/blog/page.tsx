@@ -176,7 +176,9 @@ export default function AdminBlogPage() {
             excerpt: '',
             content: [],
             cover_image: '',
-            published: false
+            published: false,
+            meta_title: '',
+            meta_description: '',
         });
     };
 

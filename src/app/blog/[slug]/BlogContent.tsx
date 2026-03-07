@@ -19,12 +19,12 @@ interface Blog {
     id: string;
     title: string;
     slug: string;
-    excerpt: string;
-    content: Block[];
+    excerpt?: string;
+    content?: Block[];
     cover_image: string;
-    published: boolean;
+    published?: boolean;
     created_at: string;
-    author: string;
+    author?: string;
 }
 
 export default function BlogContent({ blog, related }: { blog: Blog, related: Blog[] }) {
@@ -64,29 +64,35 @@ export default function BlogContent({ blog, related }: { blog: Blog, related: Bl
 
     return (
         <article ref={containerRef} className="min-h-screen relative text-black overflow-x-hidden selection:bg-red-600/30">
-            <div className="fixed top-0 left-0 w-full h-[100vh] overflow-hidden -z-10 bg-black">
+            {/* Fixed Background Layer (Non-clickable) */}
+            <div className="fixed top-0 left-0 w-full h-screen overflow-hidden -z-10 bg-black pointer-events-none">
                 {blog.cover_image && (
-                    <img src={blog.cover_image} alt={blog.title} className="hero-bg absolute inset-0 w-full h-full object-cover opacity-60" />
+                    <img
+                        src={blog.cover_image}
+                        alt={blog.title}
+                        className="hero-bg absolute inset-0 w-full h-full object-cover opacity-60"
+                    />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
                 <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay pointer-events-none" />
+            </div>
 
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-10">
-                    <div className="animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-300 w-full max-w-4xl">
-                        <nav className="relative z-50 flex justify-center items-center gap-4 text-[11px] md:text-xs font-mono tracking-widest uppercase mb-12 text-white/60">
-                            <Link href="/" className="hover:text-white hover:underline underline-offset-4 transition-all relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[1px] after:bg-red-500 hover:after:w-full after:transition-all after:duration-300">HOME</Link>
-                            <span className="text-red-600/80 font-bold">/</span>
-                            <Link href="/blog" className="hover:text-white hover:underline underline-offset-4 transition-all relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[1px] after:bg-red-500 hover:after:w-full after:transition-all after:duration-300">BLOG</Link>
-                            <span className="text-red-600/80 font-bold">/</span>
-                            <span className="text-white font-serif tracking-normal capitalize text-sm md:text-base italic truncate max-w-[200px] md:max-w-xs">{blog.title}</span>
-                        </nav>
-                        <div className="flex items-center justify-center gap-4 text-xs md:text-sm font-bold tracking-[0.3em] uppercase text-red-500 mb-8">
-                            <span>{new Date(blog.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                            <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
-                            <span>{blog.author || 'Mantaka'}</span>
-                        </div>
-                        <h1 className="text-5xl md:text-8xl lg:text-[7rem] font-serif text-white font-bold leading-[0.9] max-w-6xl mx-auto tracking-tight">{blog.title}</h1>
+            {/* Fixed Hero Content Layer (Clickable) */}
+            <div className="fixed top-0 left-0 w-full h-screen flex flex-col items-center justify-center p-6 text-center z-0 pointer-events-none">
+                <div className="animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-300 w-full max-w-4xl pointer-events-auto">
+                    <nav className="relative z-50 flex justify-center items-center gap-4 text-[11px] md:text-xs font-mono tracking-widest uppercase mb-12 text-white/60">
+                        <Link href="/" className="hover:text-white hover:underline underline-offset-4 transition-all relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[1px] after:bg-red-500 hover:after:w-full after:transition-all after:duration-300">HOME</Link>
+                        <span className="text-red-600/80 font-bold">/</span>
+                        <Link href="/blog" className="hover:text-white hover:underline underline-offset-4 transition-all relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[1px] after:bg-red-500 hover:after:w-full after:transition-all after:duration-300">BLOG</Link>
+                        <span className="text-red-600/80 font-bold">/</span>
+                        <span className="text-white font-serif tracking-normal capitalize text-sm md:text-base italic truncate max-w-[200px] md:max-w-xs">{blog.title}</span>
+                    </nav>
+                    <div className="flex items-center justify-center gap-4 text-xs md:text-sm font-bold tracking-[0.3em] uppercase text-red-500 mb-8">
+                        <span>{new Date(blog.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
+                        <span>{blog.author || 'Mantaka'}</span>
                     </div>
+                    <h1 className="text-5xl md:text-8xl lg:text-[7rem] font-serif text-white font-bold leading-[0.9] max-w-6xl mx-auto tracking-tight">{blog.title}</h1>
                 </div>
 
                 <div className="absolute bottom-12 left-1/2 -translate-x-1/2 text-white flex flex-col items-center gap-4 animate-bounce">
@@ -148,7 +154,7 @@ export default function BlogContent({ blog, related }: { blog: Blog, related: Bl
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             {related.map(post => (
-                                <Link href={`/blog/${post.slug}`} key={post.id} className="group block">
+                                <Link href={`/blog/${post.slug}`} key={post.id} className="group block cursor-pointer">
                                     <div className="w-full aspect-[4/3] bg-[#111] rounded-2xl overflow-hidden mb-6 relative">
                                         {post.cover_image && <img src={post.cover_image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={post.title} />}
                                         <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-500"></div>
