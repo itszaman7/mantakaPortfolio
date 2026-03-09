@@ -10,6 +10,46 @@ export default function Preloader() {
     const [milestones, setMilestones] = useState<string[]>([]);
 
     useEffect(() => {
+        const hasPlayed = typeof window !== 'undefined' ? sessionStorage.getItem('preloaderPlayed') : null;
+        let isWindowLoaded = document.readyState === 'complete';
+        let isAnimationFinished = false;
+        let animationFrameId: number;
+
+        const checkCompletion = () => {
+            if (hasPlayed) {
+                // Already played once: just needs to be loaded. Dismiss instantly.
+                if (isWindowLoaded) {
+                    document.body.style.overflow = "auto";
+                    if (animationFrameId) window.cancelAnimationFrame(animationFrameId);
+                    setLoadingComplete(true);
+                }
+            } else {
+                // First time: wait for BOTH the 2.5s animation AND the actual window load
+                if (isWindowLoaded && isAnimationFinished) {
+                    sessionStorage.setItem('preloaderPlayed', 'true');
+                    setTimeout(() => {
+                        document.body.style.overflow = "auto";
+                        setLoadingComplete(true);
+                    }, 800); // 800ms buffer before exit
+                }
+            }
+        };
+
+        // If it was already played AND it is already fully loaded, bail out instantly
+        if (hasPlayed && isWindowLoaded) {
+            setLoadingComplete(true);
+            return;
+        }
+
+        const handleLoad = () => {
+            isWindowLoaded = true;
+            checkCompletion();
+        };
+
+        if (!isWindowLoaded) {
+            window.addEventListener('load', handleLoad);
+        }
+
         const fetchMilestones = async () => {
             const { data } = await supabase.from('milestones').select('image_url');
             if (data) {
@@ -33,15 +73,20 @@ export default function Preloader() {
             setProgress(Math.floor(progressValue));
 
             if (progressValue < 100) {
-                window.requestAnimationFrame(step);
+                animationFrameId = window.requestAnimationFrame(step);
             } else {
-                setTimeout(() => setLoadingComplete(true), 800); // 800ms buffer before exit
+                isAnimationFinished = true;
+                checkCompletion();
             }
         };
 
-        window.requestAnimationFrame(step);
+        animationFrameId = window.requestAnimationFrame(step);
 
         return () => {
+            window.removeEventListener('load', handleLoad);
+            if (animationFrameId) {
+                window.cancelAnimationFrame(animationFrameId);
+            }
             document.body.style.overflow = "auto";
         };
     }, []);
