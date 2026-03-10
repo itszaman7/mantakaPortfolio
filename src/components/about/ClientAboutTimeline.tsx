@@ -317,13 +317,6 @@ export function ClientAboutTimeline({ milestones }: { milestones: Milestone[] })
                         Ready to accelerate your vision? Let's engineer something world-class together.
                     </p>
 
-                    <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="bg-transparent text-[#111] border border-gray-300 rounded-full px-8 py-3.5 text-xs font-bold font-sans tracking-[0.1em] uppercase hover:border-[#ff2800] hover:text-[#ff2800] transition-colors duration-300"
-                    >
-                        Get in touch
-                    </motion.button>
                 </div>
             </footer>
         </div>
