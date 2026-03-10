@@ -5,6 +5,8 @@ import { supabase } from '@/lib/supabase';
 import { getProjectBySlug, getOtherProjects } from '@/components/work/projectsData';
 import ProjectClient from './ProjectClient';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const project = await getProjectBySlug(slug);

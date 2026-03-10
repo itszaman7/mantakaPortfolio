@@ -168,7 +168,7 @@ export default function BlogContent({ blog, related }: { blog: Blog, related: Bl
                 </div>
             </div>
 
-            {related.length > 0 && (
+            {related && related.length > 0 && (
                 <div className="relative z-10 bg-[#050505] py-32 px-6">
                     <div className="max-w-7xl mx-auto">
                         <div className="flex justify-between items-end mb-16 border-b border-white/10 pb-8">
@@ -179,10 +179,14 @@ export default function BlogContent({ blog, related }: { blog: Blog, related: Bl
                             {related.map(post => (
                                 <Link href={`/blog/${post.slug}`} key={post.id} className="group block cursor-pointer">
                                     <div className="w-full aspect-[4/3] bg-[#111] rounded-2xl overflow-hidden mb-6 relative">
-                                        {post.cover_image && <img src={post.cover_image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={post.title} />}
+                                        {post.cover_image ? (
+                                            <img src={post.cover_image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={post.title || 'Untitled Post'} />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center font-serif text-3xl text-white/20">M.</div>
+                                        )}
                                         <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-500"></div>
                                     </div>
-                                    <h4 className="text-2xl font-serif text-white group-hover:text-red-500 transition-colors mb-2">{post.title}</h4>
+                                    <h4 className="text-2xl font-serif text-white group-hover:text-red-500 transition-colors mb-2">{post.title || 'Untitled Post'}</h4>
                                     <p className="text-sm text-gray-500 tracking-widest uppercase font-bold">{new Date(post.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                                 </Link>
                             ))}

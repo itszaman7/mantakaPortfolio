@@ -3,6 +3,8 @@ import { supabase } from '@/lib/supabase';
 import { getProjects } from '@/components/work/projectsData';
 import WorkClient from './WorkClient';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata(): Promise<Metadata> {
   const { data: settings } = await supabase
     .from('layout_settings')

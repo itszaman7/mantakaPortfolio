@@ -2,6 +2,8 @@ import { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import BlogClient from './BlogClient';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata(): Promise<Metadata> {
     const { data: settings } = await supabase
         .from('layout_settings')
