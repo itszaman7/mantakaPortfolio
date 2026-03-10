@@ -8,12 +8,13 @@ import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import Footer from '@/components/Footer';
 
-type BlockType = 'heading' | 'paragraph' | 'image' | 'code' | 'quote';
+type BlockType = 'heading' | 'paragraph' | 'image' | 'code' | 'quote' | 'link';
 interface Block {
     id: string;
     type: BlockType;
     value: string;
     language?: string;
+    url?: string;
 }
 interface Blog {
     id: string;
@@ -25,6 +26,7 @@ interface Blog {
     published?: boolean;
     created_at: string;
     author?: string;
+    tags?: string[];
 }
 
 export default function BlogContent({ blog, related }: { blog: Blog, related: Blog[] }) {
@@ -112,6 +114,27 @@ export default function BlogContent({ blog, related }: { blog: Blog, related: Bl
                                     <blockquote key={block.id} className="blog-block text-2xl md:text-3xl font-serif italic text-black border-l-4 border-red-600 pl-6 md:pl-10 py-4 my-16 bg-gray-50 rounded-r-2xl shadow-sm">
                                         "{block.value}"
                                     </blockquote>
+                                );
+                                case 'link': return (
+                                    <div key={block.id} className="blog-block my-12">
+                                        {block.url ? (
+                                            <a
+                                                href={block.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="group flex flex-col items-center justify-center py-10 px-6 bg-red-600 hover:bg-red-700 text-white rounded-2xl transition-all duration-300 shadow-[0_10px_30px_rgba(220,38,38,0.2)] hover:shadow-[0_15px_40px_rgba(220,38,38,0.4)] hover:-translate-y-1"
+                                            >
+                                                <span className="text-xl md:text-2xl font-bold tracking-tight mb-2">{block.value}</span>
+                                                <span className="text-[10px] md:text-xs font-mono tracking-widest uppercase opacity-80 group-hover:opacity-100 transition-opacity flex items-center gap-2">
+                                                    Visit Link <span className="transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform">↗</span>
+                                                </span>
+                                            </a>
+                                        ) : (
+                                            <div className="py-10 px-6 bg-gray-100 text-center rounded-2xl text-gray-500 border border-gray-200">
+                                                <span className="text-lg font-bold">{block.value}</span>
+                                            </div>
+                                        )}
+                                    </div>
                                 );
                                 case 'image': return (
                                     <figure key={block.id} className="blog-block my-16">

@@ -3,16 +3,17 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { Plus, Trash2, Save, LogOut, Loader2, ArrowLeft, Image as ImageIcon, Code, Type, Quote, Heading, Pencil, Eye } from 'lucide-react';
+import { Plus, Trash2, Save, LogOut, Loader2, ArrowLeft, Image as ImageIcon, Code, Type, Quote, Heading, Pencil, Eye, Link } from 'lucide-react';
 import { slugify } from '@/utils/slugify';
 
-type BlockType = 'heading' | 'paragraph' | 'image' | 'code' | 'quote';
+type BlockType = 'heading' | 'paragraph' | 'image' | 'code' | 'quote' | 'link';
 
 interface Block {
     id: string;
     type: BlockType;
     value: string;
     language?: string; // for code blocks
+    url?: string;      // for link blocks
 }
 
 interface Blog {
@@ -23,6 +24,7 @@ interface Blog {
     content: Block[];
     cover_image: string;
     published: boolean;
+    tags: string[];
     meta_title?: string;
     meta_description?: string;
     created_at?: string;
@@ -41,6 +43,7 @@ export default function AdminBlogPage() {
         content: [],
         cover_image: '',
         published: false,
+        tags: [],
         meta_title: '',
         meta_description: ''
     });
@@ -83,12 +86,12 @@ export default function AdminBlogPage() {
         }));
     };
 
-    const updateBlock = (id: string, value: string, language?: string) => {
+    const updateBlock = (id: string, value: string, language?: string, url?: string) => {
         setFormData(prev => ({
             ...prev,
             content: prev.content.map(block =>
                 block.id === id
-                    ? { ...block, value, ...(language ? { language } : {}) }
+                    ? { ...block, value, ...(language !== undefined ? { language } : {}), ...(url !== undefined ? { url } : {}) }
                     : block
             )
         }));
@@ -177,6 +180,7 @@ export default function AdminBlogPage() {
             content: [],
             cover_image: '',
             published: false,
+            tags: [],
             meta_title: '',
             meta_description: '',
         });
@@ -188,6 +192,26 @@ export default function AdminBlogPage() {
         if (!error) fetchBlogs();
     };
 
+    const handleKeyDownTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const value = e.currentTarget.value.trim();
+            if (value && !formData.tags?.includes(value)) {
+                setFormData(prev => ({
+                    ...prev,
+                    tags: [...(prev.tags || []), value]
+                }));
+            }
+            e.currentTarget.value = '';
+        }
+    };
+
+    const removeTag = (tagToRemove: string) => {
+        setFormData(prev => ({
+            ...prev,
+            tags: prev.tags.filter(tag => tag !== tagToRemove)
+        }));
+    };
 
     return (
         <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-red-600/30">
@@ -301,6 +325,30 @@ export default function AdminBlogPage() {
                                         value={formData.excerpt}
                                         onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
                                     />
+                                </div>
+
+                                {/* Tags Input */}
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Tags / Topics</label>
+                                    <div className="bg-[#111] border border-white/5 rounded-xl p-3 focus-within:border-red-600 transition-colors">
+                                        <div className="flex flex-wrap gap-2 mb-2">
+                                            {formData.tags?.map((tag) => (
+                                                <span key={tag} className="bg-white/10 text-white text-xs px-3 py-1.5 rounded-full flex items-center gap-2">
+                                                    {tag}
+                                                    <button type="button" onClick={() => removeTag(tag)} className="text-gray-400 hover:text-red-500 focus:outline-none">
+                                                        ×
+                                                    </button>
+                                                </span>
+                                            ))}
+                                        </div>
+                                        <input
+                                            type="text"
+                                            placeholder="Type a tag and press Enter... (e.g. Design, React)"
+                                            className="w-full bg-transparent focus:outline-none text-sm px-2 py-1 placeholder:text-gray-600"
+                                            onKeyDown={handleKeyDownTag}
+                                        />
+                                    </div>
+                                    <p className="text-[10px] text-gray-500 mt-2">Press enter to add multiple tags.</p>
                                 </div>
 
                                 <div>
@@ -419,6 +467,14 @@ export default function AdminBlogPage() {
                                                         >
                                                             <option value="javascript">JavaScript</option>
                                                             <option value="typescript">TypeScript</option>
+                                                            <option value="python">Python</option>
+                                                            <option value="csharp">C#</option>
+                                                            <option value="java">Java</option>
+                                                            <option value="go">Go</option>
+                                                            <option value="rust">Rust</option>
+                                                            <option value="cpp">C++</option>
+                                                            <option value="ruby">Ruby</option>
+                                                            <option value="php">PHP</option>
                                                             <option value="html">HTML</option>
                                                             <option value="css">CSS</option>
                                                             <option value="json">JSON</option>
@@ -449,6 +505,25 @@ export default function AdminBlogPage() {
                                                 </div>
                                             )}
 
+                                            {block.type === 'link' && (
+                                                <div className="space-y-3 border-l-2 border-blue-500 pl-4 py-2">
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Link Text (e.g., Read More)"
+                                                        className="w-full bg-transparent text-white font-bold text-lg focus:outline-none placeholder:text-gray-600"
+                                                        value={block.value}
+                                                        onChange={(e) => updateBlock(block.id, e.target.value)}
+                                                    />
+                                                    <input
+                                                        type="url"
+                                                        placeholder="URL (e.g., https://example.com/)"
+                                                        className="w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-4 py-3 text-sm text-blue-400 focus:outline-none focus:border-red-600 transition-colors"
+                                                        value={block.url || ''}
+                                                        onChange={(e) => updateBlock(block.id, block.value, undefined, e.target.value)}
+                                                    />
+                                                </div>
+                                            )}
+
                                         </div>
                                     ))}
                                 </div>
@@ -466,6 +541,9 @@ export default function AdminBlogPage() {
                                     </button>
                                     <button type="button" onClick={() => addBlock('code')} className="flex items-center gap-2 px-3 py-2 bg-[#111] hover:bg-white/10 rounded-lg text-sm font-medium transition-colors">
                                         <Code className="w-4 h-4 text-gray-400" /> Code Snippet
+                                    </button>
+                                    <button type="button" onClick={() => addBlock('link')} className="flex items-center gap-2 px-3 py-2 bg-[#111] hover:bg-white/10 rounded-lg text-sm font-medium transition-colors">
+                                        <Link className="w-4 h-4 text-gray-400" /> Link
                                     </button>
                                     <button type="button" onClick={() => addBlock('image')} className="flex items-center gap-2 px-3 py-2 bg-[#111] hover:bg-white/10 rounded-lg text-sm font-medium transition-colors">
                                         <ImageIcon className="w-4 h-4 text-gray-400" /> Image
